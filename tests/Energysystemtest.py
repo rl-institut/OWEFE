@@ -28,6 +28,7 @@ logger.define_logging(
 print(number_of_time_steps)
 
 # setup an energy system
+# change test
 logging.info("Initialize the energy system")
 date_time_index = pd.date_range(
     "1/1/2021", periods=number_of_time_steps, freq="H")
