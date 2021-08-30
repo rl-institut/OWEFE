@@ -381,7 +381,7 @@ bio_methane_bus = solph.views.node(results, "bio-methane")
 #     fig.subplots_adjust(top=0.8)
 #     plt.show()
 
-# print the solver results
+#  print the solver results
 print("********* Meta results *********")
 pp.pprint(energysystem.results["meta"])
 print("")
