@@ -318,68 +318,68 @@ bio_methane_bus = solph.views.node(results, "bio-methane")
 
 
 # plot the time series (sequences) of a specific component/bus
-if plt is not None:
-    fig, ax = plt.subplots(figsize=(10, 5))
-    custom_storage["sequences"].plot(
-        ax=ax, kind="line", drawstyle="steps-post"
-    )
-    plt.legend(
-        loc="upper center",
-        prop={"size": 8},
-        bbox_to_anchor=(0.5, 1.25),
-        ncol=2,
-    )
-    fig.subplots_adjust(top=0.8)
-    plt.show()
-
-    fig, ax = plt.subplots(figsize=(10, 5))
-    electricity_bus["sequences"].plot(
-        ax=ax, kind="line", drawstyle="steps-post"
-    )
-    plt.legend(
-        loc="upper center", prop={"size": 8}, bbox_to_anchor=(0.5, 1.3), ncol=2
-    )
-    fig.subplots_adjust(top=0.8)
-    plt.show()
-
-    fig, ax = plt.subplots(figsize=(10, 5))
-    heat_bus["sequences"].plot(
-        ax=ax, kind="line", drawstyle="steps-post"
-    )
-    plt.legend(
-        loc="upper center",
-        prop={"size": 8},
-        bbox_to_anchor=(0.5, 1.25),
-        ncol=2,
-    )
-    fig.subplots_adjust(top=0.8)
-    plt.show()
-
-    fig, ax = plt.subplots(figsize=(10, 5))
-    digested_bus["sequences"].plot(
-        ax=ax, kind="line", drawstyle="steps-post"
-    )
-    plt.legend(
-        loc="upper center",
-        prop={"size": 8},
-        bbox_to_anchor=(0.5, 1.25),
-        ncol=2,
-    )
-    fig.subplots_adjust(top=0.8)
-    plt.show()
-
-    fig, ax = plt.subplots(figsize=(10, 5))
-    effluent2_bus["sequences"].plot(
-        ax=ax, kind="line", drawstyle="steps-post"
-    )
-    plt.legend(
-        loc="upper center",
-        prop={"size": 8},
-        bbox_to_anchor=(0.5, 1.25),
-        ncol=2,
-    )
-    fig.subplots_adjust(top=0.8)
-    plt.show()
+# if plt is not None:
+#     fig, ax = plt.subplots(figsize=(10, 5))
+#     custom_storage["sequences"].plot(
+#         ax=ax, kind="line", drawstyle="steps-post"
+#     )
+#     plt.legend(
+#         loc="upper center",
+#         prop={"size": 8},
+#         bbox_to_anchor=(0.5, 1.25),
+#         ncol=2,
+#     )
+#     fig.subplots_adjust(top=0.8)
+#     plt.show()
+#
+#     fig, ax = plt.subplots(figsize=(10, 5))
+#     electricity_bus["sequences"].plot(
+#         ax=ax, kind="line", drawstyle="steps-post"
+#     )
+#     plt.legend(
+#         loc="upper center", prop={"size": 8}, bbox_to_anchor=(0.5, 1.3), ncol=2
+#     )
+#     fig.subplots_adjust(top=0.8)
+#     plt.show()
+#
+#     fig, ax = plt.subplots(figsize=(10, 5))
+#     heat_bus["sequences"].plot(
+#         ax=ax, kind="line", drawstyle="steps-post"
+#     )
+#     plt.legend(
+#         loc="upper center",
+#         prop={"size": 8},
+#         bbox_to_anchor=(0.5, 1.25),
+#         ncol=2,
+#     )
+#     fig.subplots_adjust(top=0.8)
+#     plt.show()
+#
+#     fig, ax = plt.subplots(figsize=(10, 5))
+#     digested_bus["sequences"].plot(
+#         ax=ax, kind="line", drawstyle="steps-post"
+#     )
+#     plt.legend(
+#         loc="upper center",
+#         prop={"size": 8},
+#         bbox_to_anchor=(0.5, 1.25),
+#         ncol=2,
+#     )
+#     fig.subplots_adjust(top=0.8)
+#     plt.show()
+#
+#     fig, ax = plt.subplots(figsize=(10, 5))
+#     effluent2_bus["sequences"].plot(
+#         ax=ax, kind="line", drawstyle="steps-post"
+#     )
+#     plt.legend(
+#         loc="upper center",
+#         prop={"size": 8},
+#         bbox_to_anchor=(0.5, 1.25),
+#         ncol=2,
+#     )
+#     fig.subplots_adjust(top=0.8)
+#     plt.show()
 
 # print the solver results
 print("********* Meta results *********")
@@ -397,4 +397,29 @@ print(slurry_bus["sequences"].sum(axis=0))
 print(bio_gas_bus["sequences"].sum(axis=0))
 print(effluent1_bus["sequences"].sum(axis=0))
 print(effluent2_bus["sequences"].sum(axis=0))
+print(effluent2_bus["sequences"].mean())
 print(bio_methane_bus["sequences"].sum(axis=0))
+
+print(len(bio_methane_bus["sequences"]))
+print(bio_methane_bus["sequences"])
+
+bio_methane_bus_npy = bio_methane_bus["sequences"].to_numpy()
+print(bio_methane_bus_npy)
+bio_methane = bio_methane_bus_npy[:, 0]
+CHP_el = bio_methane_bus_npy[:, 1]
+CHP_th = bio_methane_bus_npy[:, 2]
+ch4_storage = bio_methane_bus_npy[:, 3]
+bio_methane2 = bio_methane_bus_npy[:, 4]
+
+fig, axs = plt.subplots(1, 5, figsize=(10,5))
+axs[0].plot(bio_methane)
+axs[0].set_title('bio_methane production')
+axs[0].set_ylabel('bio_methane')
+axs[0].set_xlabel('time')
+
+axs[1].plot(CHP_el)
+axs[2].plot(CHP_th)
+axs[3].plot(ch4_storage)
+axs[4].plot(bio_methane2)
+plt.show()
+
