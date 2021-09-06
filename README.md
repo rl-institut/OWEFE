@@ -5,7 +5,7 @@ Climate change and the unfettered consumption of resources threaten the very exi
 
 
 # rli_template
-This repository is based on rli-template, a Ttmplate repository for creating new projects under the RLI's umbrella
+This repository is based on rli-template, a template repository for creating new projects under the RLI's umbrella
 
 ## Get started
 
