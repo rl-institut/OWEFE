@@ -1,4 +1,5 @@
 # Default logger of oemof
+# function: digester and constructed wetlands are inside src>> components
 import csv
 import math
 
@@ -42,7 +43,7 @@ energysystem = solph.EnergySystem(timeindex=date_time_index)
 print(date_time_index)
 
 # Read data file after running pre-design
-data = pd.read_csv(r"test_file.csv")
+data = pd.read_csv(r"ww_biogas_tibnine_proceed.csv")
 design_flow = data["wastewater"].mean()
 print(f'design flow {design_flow}')
 
