@@ -11,7 +11,9 @@ For using OWEFE you need to install oemof.solph in your current environemnt. The
     pip install oemof.solph
 
 
-Further, you need to intall an optimizer in your system, therefore please see the oemof readme.rst: https://github.com/oemof/oemof-solph#readme
+Further, you need to intall a solver in your system. To do so, please see the oemof README:
+
+https://github.com/oemof/oemof-solph#readme
 
 # rli_template
 
