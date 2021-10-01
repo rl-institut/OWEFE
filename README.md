@@ -3,8 +3,17 @@
 ## Scientific Abstract
 Climate change and the unfettered consumption of resources threaten the very existence of humankind and the ecosystems that sustain life. In this context, the holistic approach to managing water, energy, and food presents a profound opportunity to tap synergies, minimize trade-offs across sectors and tackle the challenges. However, despite its potential, integrated Water, Eco-, Energy, Food systems (iWEFEs) are hardly put into practice due to, among others, a lack of generic and open available models of iWEFEs, including their components, processes, flows, and cross-sectoral interconnections. To fill this gap, we present an open modeling framework for integrated Water, Energy, Food, and Eco-Systems (OWEFE). OWEFE is based on the open energy modeling framework (OEMOF) and conceptualized, addressing the current challenges of WEFE frameworks and the multiple characteristics of iWEFEs. OWEFE is calibrated and verified by two variants of iWEFEs -- agrivoltaics and renewable energy production through anaerobic digestion of wastewater -- including respective case study design and operational data. The verified framework enables the development of an open, research-community-driven database to provide technical, economic, and environmental models for preliminary assessment, synergistic planning, and software-based configuration of iWEFEs.
 
+___
+## Installation
+
+For using OWEFE you need to install oemof.solph in your current environemnt. Therefore use 
+: :
+pip install oemof.solph
+
+Further, you need to intall an optimizer in your system, therefore please see the oemof readme.rst: https://github.com/oemof/oemof-solph#readme
 
 # rli_template
+
 This repository is based on rli-template, a template repository for creating new projects under the RLI's umbrella
 
 ## Get started
