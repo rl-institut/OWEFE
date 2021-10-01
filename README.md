@@ -6,7 +6,7 @@ Climate change and the unfettered consumption of resources threaten the very exi
 ___
 ## Installation
 
-For using OWEFE you need to install oemof.solph in your current environemnt. Therefore use 
+Currently supported Python Version are 3.7, 3.8 & 3.9. For using OWEFE you need to install oemof.solph in your current environemnt. Therefore use 
 
     pip install oemof.solph
 
