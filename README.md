@@ -11,9 +11,9 @@ Currently supported Python Version are 3.7, 3.8 & 3.9. For using OWEFE you need 
     pip install oemof.solph
 
 
-Further, you need to intall a solver in your system. To do so, please see the oemof README:
+Further, you need to intall a solver in your system. To do so, please see the oemof README: 
+[oemof README](https://github.com/oemof/oemof-solph#readme)
 
-https://github.com/oemof/oemof-solph#readme
 
 # rli_template
 
