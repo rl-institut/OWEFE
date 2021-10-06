@@ -107,7 +107,7 @@ energysystem.add(
     )
 )
 
-# create sink object representing the electrical demand
+# create sink object representing the electrical production
 energysystem.add(
     solph.Sink(
         label="demand_el",
@@ -136,7 +136,7 @@ energysystem.add(
     )
 )
 
-# create sink object representing the water demand
+# create sink object representing the water production
 energysystem.add(
     solph.Sink(
         label="demand_water",
@@ -144,7 +144,7 @@ energysystem.add(
     )
 )
 
-# create sink object representing the fertilizer demand
+# create sink object representing the fertilizer production (-> excess)
 energysystem.add(
     solph.Sink(
         label="demand_f",
@@ -163,7 +163,7 @@ design_diameter, volume, bg_prod_result, surface_area_total_overground = bg_prod
 print(f'Total design diameter : {round(design_diameter, 2)} meter')
 print(f'Total volume of digester : {round(volume, 2)} m3')
 print('biogas conversion factor: ', round(bg_prod_result, 2))
-
+# exceptions to ensure viable digester efficiency
 if bg_prod_result < 0.3:
     print(f'bg_prod_result {bg_prod_result} is too low to proceed')
     raise Exception
@@ -271,7 +271,7 @@ energysystem.add(
 
 # mean= solph.views.node(outputs, "effluent2")
 
-# create storage object representing a battery
+# create storage object representing a biogas storage
 storage = solph.components.GenericStorage(
     nominal_storage_capacity=10077997,
     label="ch4_storage",
