@@ -6,28 +6,25 @@ import urllib.request
 from oemof.tools import logger
 from oemof import solph
 
-url = "https://raw.githubusercontent.com/rl-institut/OWEFE/master/src/components/digester.py"
-url_2 = "https://raw.githubusercontent.com/rl-institut/OWEFE/master/src/components/constructedwetlands.py"
-url_3 = "https://raw.githubusercontent.com/rl-institut/OWEFE/master/src/pre_design_wastewater_biogas.py"
-url_4 = "https://raw.githubusercontent.com/rl-institut/OWEFE/master/src/digester_demand.py"
+# url = "https://raw.githubusercontent.com/rl-institut/OWEFE/master/src/components/digester.py"
+# url_2 = "https://raw.githubusercontent.com/rl-institut/OWEFE/master/src/components/constructedwetlands.py"
+# url_3 = "https://raw.githubusercontent.com/rl-institut/OWEFE/master/src/pre_design_wastewater_biogas.py"
+# url_4 = "https://raw.githubusercontent.com/rl-institut/OWEFE/master/src/digester_demand.py"
+#
+# urllib.request.urlretrieve(url, 'digester.py')
+# urllib.request.urlretrieve(url_2, 'constructedwetlands.py')
+# urllib.request.urlretrieve(url_3, 'pre_design_wastewater_biogas.py')
+# urllib.request.urlretrieve(url_4, 'digester_demand.py')
 
-urllib.request.urlretrieve(url, 'digester.py')
-urllib.request.urlretrieve(url_2, 'constructedwetlands.py')
-urllib.request.urlretrieve(url_3, 'pre_design_wastewater_biogas.py')
-urllib.request.urlretrieve(url_4, 'digester_demand.py')
-import pre_design_wastewater_biogas
-
-
-from digester import Digester
-from constructedwetlands import Constructed_wetlands
-# from nose.tools import eq_
-# from oemof.network.network import Node
+from components.digester import Digester
+from components.constructedwetlands import Constructed_wetlands
 
 import logging
 import os
 import pandas as pd
 import pprint as pp
 import numpy as np
+import pre_design_wastewater_biogas
 
 try:
     import matplotlib.pyplot as plt
@@ -36,7 +33,7 @@ except ImportError:
 
 solver = "cbc"
 debug = False  # Set number_of_timesteps to 3 to get a readable lp-file.
-number_of_time_steps = 24 * 7 * 52
+number_of_time_steps = 24 * 7 * 8
 solver_verbose = False  # show/hide solver output
 
 # initiate the logger (see the API docs for more information)
@@ -57,7 +54,7 @@ print(date_time_index)
 
 # Read data file after running pre-design
 data = pd.read_csv(r"ww_biogas_tibnine_proceed.csv")
-design_flow = data["wastewater"].mean()
+design_flow = data["wastewater"].max()
 print(f'design flow {design_flow}')
 
 # Create oemof objects bus, sink , source, transformer...
@@ -99,6 +96,12 @@ energysystem.add(bsld, bel, bslu, beff1, beff2, bvol, bdig, bbgas, bch4, bheat)
 # create excess component for the bio-gas bus to allow overproduction
 energysystem.add(solph.Sink(label="excess_bio-gas", inputs={bch4: solph.Flow()}))
 
+# create excess component for the electricity bus to allow overproduction
+energysystem.add(solph.Sink(label="excess_electricity", inputs={bel: solph.Flow()}))
+
+# create excess component for the heat bus to allow overproduction
+energysystem.add(solph.Sink(label="excess_heat", inputs={bheat: solph.Flow()}))
+
 # create fixed source object representing domestic sewage
 energysystem.add(
     solph.Source(
@@ -107,13 +110,13 @@ energysystem.add(
     )
 )
 
-# create sink object representing the electrical production
-energysystem.add(
-    solph.Sink(
-        label="demand_el",
-        inputs={bel: solph.Flow(fix=data["demand_el"], nominal_value=1)},
-    )
-)
+# # create sink object representing the electrical production
+# energysystem.add(
+#     solph.Sink(
+#         label="demand_el",
+#         inputs={bel: solph.Flow(fix=data["demand_el"], nominal_value=1)},
+#     )
+# )
 
 energysystem.add(
     solph.Sink(
@@ -121,13 +124,13 @@ energysystem.add(
         inputs={bel: solph.Flow(fix=data["electricity_demand_digester"], nominal_value=1)},
     )
 )
-# create sink object representing the thermal demand
-energysystem.add(
-    solph.Sink(
-        label="demand_th",
-        inputs={bheat: solph.Flow(fix=data["demand_th"], nominal_value=1)},
-    )
-)
+# # create sink object representing the thermal demand
+# energysystem.add(
+#     solph.Sink(
+#         label="demand_th",
+#         inputs={bheat: solph.Flow(fix=data["demand_th"], nominal_value=1)},
+#     )
+# )
 
 energysystem.add(
     solph.Sink(
@@ -152,11 +155,7 @@ energysystem.add(
     )
 )
 
-# total height of the digester m, initial concentration of volatile solid in slurry kg/m3,
-# yield factor depends upon retention time (in days)
-# col_list = ["timestep", "demand_el", "demand_th", "demand_water", "demand_f", "wastewater"]
-# data = pd.read_csv(r"test_file.csv", usecols=["timestep", "demand_el", "demand_th", "demand_water", "demand_f", "wastewater"])
-# design_flow = data["wastewater"].mean()
+# bio-gas production form the digester
 retention_time = 22
 bg_prod = Digester(retention_time, design_flow)
 design_diameter, volume, bg_prod_result, surface_area_total_overground = bg_prod.compute()
@@ -197,23 +196,23 @@ energysystem.add(
     )
 )
 
-# energysystem.add(
-#     solph.Transformer(
-#         label="CHP_el",
-#         inputs={bch4: solph.Flow()},
-#         outputs={bel: solph.Flow(nominal_value=10e5, variable_costs=60)},
-#         conversion_factors={bel: 0.5},
-#     )
-# )
-
 energysystem.add(
     solph.Transformer(
-        label="CHP_el_digester",
+        label="CHP_el",
         inputs={bch4: solph.Flow()},
         outputs={bel: solph.Flow(nominal_value=10e5, variable_costs=60)},
-        conversion_factors={bel: 3.2},
+        conversion_factors={bel: 0.5},
     )
 )
+
+# energysystem.add(
+#     solph.Transformer(
+#         label="CHP_el_digester",
+#         inputs={bch4: solph.Flow()},
+#         outputs={bel: solph.Flow(nominal_value=10e5, variable_costs=60)},
+#         conversion_factors={bel: 3.2},
+#     )
+# )
 
 energysystem.add(
     solph.Transformer(
