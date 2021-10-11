@@ -6,10 +6,9 @@ Climate change and the unfettered consumption of resources threaten the very exi
 ___
 ## Installation
 
-Currently supported Python Version are 3.7, 3.8 & 3.9. For using OWEFE you need to install oemof.solph in your current environemnt. Therefore use 
+The currently supported Python Version is 3.8.10. For using OWEFE clone the repository to your local machine. Then create a new virtual environment with Python Version 3.8.10. Activate the new virtual environment and move to the repository folder.
 
-    pip install oemof.solph
-
+    `pip install -r requirements`
 
 Further, you need to intall a solver in your system. To do so, please see the oemof README: 
 [oemof README](https://github.com/oemof/oemof-solph#readme)
