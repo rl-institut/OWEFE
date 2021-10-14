@@ -106,7 +106,7 @@ energysystem.add(solph.Sink(label="excess_heat", inputs={bheat: solph.Flow()}))
 energysystem.add(
     solph.Source(
         label="wastewater",
-        outputs={bsld: solph.Flow(fix=data["wastewater"], nominal_value=1000000)},
+        outputs={bsld: solph.Flow(fix=data["wastewater"], nominal_value=1000)},
     )
 )
 
