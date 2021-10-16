@@ -1,9 +1,35 @@
-## Hi Kapil
+# OWEFE - Example 1 : Tebnine Wastewater Treatment and Biogas model
 
-here goes the documentation direclty linked to using the wastewater biogas model. 
+## What's here
 
-You can also add pictures by uploading them in OWEFE/docs/assets and linking them correspondingly:
+* We use the data produced by students from [Beirut Arab University](https://www.bau.edu.lb) for the town Tebnine, Lebanon. 
+* If you want to see the code with better readability, refer to [this branch](https://github.com/rl-institut/OWEFE/tree/Kapil)
 
-![Biogas:wastewater_CFD](https://rl-institut.github.io/OWEFE/docs/assets/biogas_wastewater_CFD.png)
+**Summary**
+> The domestic sewage carried into the Anaerobic digester [Floating drum digester](https://energypedia.info/wiki/Floating_Drum_Biogas_Plants) by the truck. The digester consist of the propeller for mixing with a sludge retention time of 22 days. Methane gas which is in the range of 55 - 65% of bio-gas [Source](https://www.researchgate.net/publication/264416846_Development_of_Biogas_Combustion_in_Combined_Heat_and_Power_Generation) is also considered during modelling of the energy system. Methane gas is burned in combined heat & power plant(CHP), that enhance is the source of heat and electricity. Part of the heat and electricity is supplied to the digester itself to maintain the heat loss and to power the propeller respectively. [Slurry](https://en.wikipedia.org/wiki/Slurry#:~:text=A%20slurry%20is%20a%20mixture,up%20to%20hundreds%20of%20millimeters.) is taken into consideration through [dewatering unit](https://www.hcr-llc.com/blog/what-is-sludge-dewatering) where water is allowed to pass through [constructed wetlands](https://sswm.info/taxonomy/term/3933/horizontal-subsurface-flow-constructed-wetland) and remained [digestate](https://en.wikipedia.org/wiki/Digestate) can be further used as fertilizer. The energy model analyze the operational parameters like; [Biochemical oxygen demand (BOD)]( https://en.wikipedia.org/wiki/Biochemical_oxygen_demand), [Chemical oxygen demand (COD)](https://en.wikipedia.org/wiki/Chemical_oxygen_demand), Nitrate, [pathogens](https://en.wikipedia.org/wiki/Escherichia_coli). 
+
+### 📚 Removal of hydrogen Sulphide (H2S)
+
+* Desulphurization (letting the biogas to pass through the iron tube to react with) [source](https://www.researchgate.net/publication/278024272_Removal_of_Hydrogen_Sulfide_H2S_from_Biogas_Using_Zero-Valent_Iron).
+* Absorption into a liquid either water or caustic solution (might cause the wastewater problem if not treated well) [source](https://www.researchgate.net/publication/222814070_Biogas_Scrubbing_Compression_and_Storage_Perspective_and_Prospectus_in_Indian_Context).
+* Biological conversion by which sulfur compounds are converted into elemental sulfur by sulfide oxidizing microorganisms with addition of air/oxygen (might lead to explosive in the range of 6 – 12% CH4 in the presence of O2 [source](https://www.semanticscholar.org/paper/Removal-of-Hydrogen-Sulfide-from-Biogas-Using-Zicari-Graf/f233ab85e32a7c22bdf0887d2b5be0a76b796f1c).
+* Activated carbon.
+
+### 📚 Removal of Carbon dioxide (CO2)
+
+* water scrubbing (example; by using iron wool)
+* Membrane systems
+* Pressure swing adsorption (PSA) 
+* Chemical CO2 absorption
+* Amine gas treatment
+* CO2 by cooling and recovering dry ice.
+
+## Flow Chart of Energy Model
+
+![Biogas:wastewater_CFD](https://github.com/rl-institut/OWEFE/blob/master/docs/assets/flowchart.png)
+
+<p align="center">
+  <img docs="./assets/flowchart.png" align="center" width="1000" title="flowchart">
+</p>
 
 
