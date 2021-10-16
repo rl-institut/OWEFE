@@ -7,10 +7,10 @@ from oemof import solph
 
 
 import logging
-#import os
+import os
 import pandas as pd
 import pprint as pp
-#import numpy as np
+import numpy as np
 
 try:
     import matplotlib.pyplot as plt
@@ -65,12 +65,16 @@ energysystem.add(bsed, bedc, beac)
 # Resources
 
 # solar radiation
-energysystem.add(rsol = solph.Source(label="solar", outputs={bsed: solph.flow(fix=data["BHI"])})
+energysystem.add(
+    solph.Source(
+        label="solar",
+        outputs={bsed: solph.Flow(fix=data["BHI"])})),
 
 # dew
 # irrigation
 # precipitation
 # fertilizer
+
 
 energysystem.add(
     solph.Transformer(
@@ -80,6 +84,7 @@ energysystem.add(
         conversion_factors={bedc: 0.17},
     )
 )
+
 
 energysystem.add(
     solph.Transformer(
@@ -92,8 +97,6 @@ energysystem.add(
 
 # electricity production
 energysystem.add(solph.Sink(label="electricity demand", inputs={beac: solph.Flow()}))
-
-
 
 
 ##########################################################################
@@ -160,12 +163,12 @@ print("********* Main results *********")
 
 # plot data
 if plt is not None:
-    # plot PQ diagram from component results
-    data = results[(bpt, None)]["sequences"]
-    ax = data.plot(kind="scatter", x="Q", y="P", grid=True)
-    ax.set_xlabel("Q (MW)")
-    ax.set_ylabel("P (MW)")
-    plt.show()
+    # # plot PQ diagram from component results
+    # data = results[(bpt, None)]["sequences"]
+    # ax = data.plot(kind="scatter", x="Q", y="P", grid=True)
+    # ax.set_xlabel("Q (MW)")
+    # ax.set_ylabel("P (MW)")
+    # plt.show()
 
     # plot thermal bus
     data = solph.views.node(results, "bth")["sequences"]
