@@ -160,4 +160,5 @@ A line graph for electricity demand, heat demand, water demand, fertilizer deman
 # Contact
 
 Feel free to create a issue or contact me if there is any question [Julian Fleischmann](julian.fleischmann@rl-institute.de) or [Kapil Tiwari](Kapil.Tiwari@rl-institut.de).
+
 If there are any issues involving running/using the library, make sure to open an issue, it would be greatly appreciated, and will help improve the library.
