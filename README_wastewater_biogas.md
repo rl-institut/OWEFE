@@ -8,6 +8,11 @@
 **Summary**
 > The domestic sewage carried into the Anaerobic digester [Floating drum digester](https://energypedia.info/wiki/Floating_Drum_Biogas_Plants) by the truck. The digester consist of the propeller for mixing with a sludge retention time of 22 days. Methane gas which is in the range of 55 - 65% of bio-gas [Source](https://www.researchgate.net/publication/264416846_Development_of_Biogas_Combustion_in_Combined_Heat_and_Power_Generation) is also considered during modelling of the energy system. Methane gas is burned in combined heat & power plant(CHP), that enhance is the source of heat and electricity. Part of the heat and electricity is supplied to the digester itself to maintain the heat loss and to power the propeller respectively. [Slurry](https://en.wikipedia.org/wiki/Slurry#:~:text=A%20slurry%20is%20a%20mixture,up%20to%20hundreds%20of%20millimeters.) is taken into consideration through [dewatering unit](https://www.hcr-llc.com/blog/what-is-sludge-dewatering) where water is allowed to pass through [constructed wetlands](https://sswm.info/taxonomy/term/3933/horizontal-subsurface-flow-constructed-wetland) and remained [digestate](https://en.wikipedia.org/wiki/Digestate) can be further used as fertilizer. The energy model analyze the operational parameters like; [Biochemical oxygen demand (BOD)]( https://en.wikipedia.org/wiki/Biochemical_oxygen_demand), [Chemical oxygen demand (COD)](https://en.wikipedia.org/wiki/Chemical_oxygen_demand), Nitrate, [pathogens](https://en.wikipedia.org/wiki/Escherichia_coli). 
 
+
+## Flow Chart of Energy Model
+
+![Biogas:wastewater_CFD](https://github.com/rl-institut/OWEFE/blob/master/docs/assets/flowchart.png)
+
 ### 📚 Removal of hydrogen Sulphide (H2S)
 
 * Desulphurization (letting the biogas to pass through the iron tube to react with) [source](https://www.researchgate.net/publication/278024272_Removal_of_Hydrogen_Sulfide_H2S_from_Biogas_Using_Zero-Valent_Iron).
@@ -23,10 +28,6 @@
 * Chemical CO2 absorption
 * Amine gas treatment
 * CO2 by cooling and recovering dry ice.
-
-## Flow Chart of Energy Model
-
-![Biogas:wastewater_CFD](https://github.com/rl-institut/OWEFE/blob/master/docs/assets/flowchart.png)
 
 ## Components to the energy system
 
