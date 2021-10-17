@@ -92,28 +92,28 @@ We assume you already have the following data named [ww_biogas_tibnine_raw.csv](
 
         import pre_design_wastewater_biogas
  
-#### >> [pre_design_wastewater_biogas.py](https://github.com/rl-institut/OWEFE/blob/master/examples/pre_design_wastewater_biogas.py) calls [digester_demand.py](https://github.com/rl-institut/OWEFE/blob/master/examples/digester_demand.py) for heat and electricity demand for digester. 
+* [pre_design_wastewater_biogas.py](https://github.com/rl-institut/OWEFE/blob/master/examples/pre_design_wastewater_biogas.py) calls [digester_demand.py](https://github.com/rl-institut/OWEFE/blob/master/examples/digester_demand.py) for heat and electricity demand for digester. 
  
-    from digester_demand import heat_calculation
-    from digester_demand import electricity_calculation
+        from digester_demand import heat_calculation
+        from digester_demand import electricity_calculation
  
-#### >> [pre_design_wastewater_biogas.py](https://github.com/rl-institut/OWEFE/blob/master/examples/pre_design_wastewater_biogas.py) again calls [digester.py](https://github.com/rl-institut/OWEFE/blob/master/examples/components/digester.py) to calculate bio-gas production per feed and dimension of digester. 
+*   [pre_design_wastewater_biogas.py](https://github.com/rl-institut/OWEFE/blob/master/examples/pre_design_wastewater_biogas.py) again calls [digester.py](https://github.com/rl-institut/OWEFE/blob/master/examples/components/digester.py) to calculate bio-gas production per feed and dimension of digester. 
 
-    from components.digester import Digester
+        from components.digester import Digester
  
-#### >> [pre_design_wastewater_biogas.py](https://github.com/rl-institut/OWEFE/blob/master/examples/pre_design_wastewater_biogas.py) produce a new csv file named under [proceed.csv] and it will automatically saved in your local repository.
+*   [pre_design_wastewater_biogas.py](https://github.com/rl-institut/OWEFE/blob/master/examples/pre_design_wastewater_biogas.py) produce a new csv file named under [proceed.csv] and it will automatically saved in your local repository.
  
-    for i, r in inpdf.iterrows():
-        heat_demand = heat_calculation(temp_ambient=r['temperature'], heat_transfer_coefficient=0.6,
-                                   temp_digester=35, surface_area_total_overground= area)
-        inpdf.loc[i, "heat_demand_digester"] = heat_demand.compute()
+        for i, r in inpdf.iterrows():
+            heat_demand = heat_calculation(temp_ambient=r['temperature'], heat_transfer_coefficient=0.6,
+                                    temp_digester=35, surface_area_total_overground= area)
+            inpdf.loc[i, "heat_demand_digester"] = heat_demand.compute()
 
-    inpdf.to_csv("ww_biogas_tibnine_proceed.csv", index=False)
+        inpdf.to_csv("ww_biogas_tibnine_proceed.csv", index=False)
 
-    for i, r in inpdf.iterrows():
-        electricity_demand = electricity_calculation(wastewater=r['wastewater'])
-        inpdf.loc[i, "electricity_demand_digester"] = electricity_demand.compute()
+        for i, r in inpdf.iterrows():
+            electricity_demand = electricity_calculation(wastewater=r['wastewater'])
+            inpdf.loc[i, "electricity_demand_digester"] = electricity_demand.compute()
 
-    inpdf.to_csv("ww_biogas_tibnine_proceed.csv", index=False)
+        inpdf.to_csv("ww_biogas_tibnine_proceed.csv", index=False)
  
  
