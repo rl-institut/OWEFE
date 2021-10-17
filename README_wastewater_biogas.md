@@ -63,7 +63,7 @@ In contrast to the demand sink, ‘excess sink’ has normally less restrictions
 
 The model can be represented by only one source, ‘Domestic Sewage’, where it might be restricted by maximum value (nominal_value), annual limit (Summed_max), cost for importing the sewage (Variable_cost). The nominal_value sets the installed capacity. 
 
-### [Linear Transformer](https://oemof-solph.readthedocs.io/en/latest/usage.html#transformer-basic]
+### [Linear Transformer](https://oemof-solph.readthedocs.io/en/latest/usage.html#transformer-basic)
 
 LinearTransformer in the model represents the transforming process of given input to output. Following names were used to define Lineartransformer.
 * Anaerobic digester
