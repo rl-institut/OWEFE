@@ -51,7 +51,7 @@ All flows into and out of a bus are balanced. Following names were used to defin
 
 The flow class has to be used to connect. An instance of the Flow class is normally used in combination with the definition of a component. 
 
-### [Sink]((https://oemof-solph.readthedocs.io/en/latest/usage.html#sink-basic))
+### [Sink](https://oemof-solph.readthedocs.io/en/latest/usage.html#sink-basic)
 
 Sink is normally used to define the demand within an energy model, but it can also be used to detect excesses. Following names were used to define SINK.
 * Demand 1 (water)
