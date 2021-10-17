@@ -88,7 +88,7 @@ We assume you already have the following data named [ww_biogas_tibnine_raw.csv](
 
 ### Steps keep into consideration before run the main file 
 
-#### I.)  [main_wastewater_biogas_tibnine.py](https://github.com/rl-institut/OWEFE/blob/master/examples/main_wastewater_biogas_tibnine.py) calls [pre_design_wastewater_biogas.py](https://github.com/rl-institut/OWEFE/blob/master/examples/pre_design_wastewater_biogas.py)
+* [main_wastewater_biogas_tibnine.py](https://github.com/rl-institut/OWEFE/blob/master/examples/main_wastewater_biogas_tibnine.py) calls [pre_design_wastewater_biogas.py](https://github.com/rl-institut/OWEFE/blob/master/examples/pre_design_wastewater_biogas.py)
 
     import pre_design_wastewater_biogas
  
