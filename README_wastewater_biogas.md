@@ -145,4 +145,14 @@ We assume you already have the following data named [ww_biogas_tibnine_raw.csv](
 
 ### Graph Plotting
 
-        
+A line graph for electricity demand, heat demand, water demand, fertilizer demand and bio-methane gas production is plotted against time period. For example; 
+
+    fig, ax = plt.subplots(figsize=(10, 5))
+    electricity_bus["sequences"].plot(
+        ax=ax, kind="line", drawstyle="steps-post"
+    )
+    plt.legend(
+        loc="upper center", prop={"size": 8}, bbox_to_anchor=(0.5, 1.3), ncol=2
+    )
+    fig.subplots_adjust(top=0.8)
+    plt.show()
