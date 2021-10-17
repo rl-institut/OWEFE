@@ -139,6 +139,10 @@ Sum of the flows following various buses can be calculate from the energy model.
        effluent2_bus["sequences"].sum(axis=0)
        bio_methane_bus["sequences"].sum(axis=0)
 
-Checking different parameters with WHo guidelines
+Checking different parameters with WHO guidelines
 
         Constructed_wetlands(inflow, outflow)
+
+Graph Plotting
+
+        
