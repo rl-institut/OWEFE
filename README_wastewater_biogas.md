@@ -120,17 +120,25 @@ We assume you already have the following data named [ww_biogas_tibnine_raw.csv](
  
         pd.read_csv(r"ww_biogas_tibnine_proceed.csv")
  
+ * [main_wastewater_biogas_tibnine.py](https://github.com/rl-institut/OWEFE/blob/master/examples/main_wastewater_biogas_tibnine.py) calls [constructedwetlands.py](constructedwetlands.py). This will produce average discharge from constructed wetlands, area required for wetlands, BOD effluent, COD effluent and Nitrate effluent.
+ 
+        from components.constructedwetlands import Constructed_wetlands
+ 
  ## Result
  
 Sum of the flows following various buses can be calculate from the energy model. 
 
-        electricity_bus["sequences"].sum(axis=0)
-        heat_bus["sequences"].sum(axis=0)
-        digested_bus["sequences"].sum(axis=0)
-        custom_storage["sequences"].sum(axis=0)
-        sludge_bus["sequences"].sum(axis=0)
-        slurry_bus["sequences"].sum(axis=0)
-        bio_gas_bus["sequences"].sum(axis=0)
-        effluent1_bus["sequences"].sum(axis=0)
-        effluent2_bus["sequences"].sum(axis=0)
-        bio_methane_bus["sequences"].sum(axis=0)
+       electricity_bus["sequences"].sum(axis=0)
+       heat_bus["sequences"].sum(axis=0)
+       digested_bus["sequences"].sum(axis=0)
+       custom_storage["sequences"].sum(axis=0)
+       sludge_bus["sequences"].sum(axis=0)
+       slurry_bus["sequences"].sum(axis=0)
+       bio_gas_bus["sequences"].sum(axis=0)
+       effluent1_bus["sequences"].sum(axis=0)
+       effluent2_bus["sequences"].sum(axis=0)
+       bio_methane_bus["sequences"].sum(axis=0)
+
+Checking different parameters with WHo guidelines
+
+        Constructed_wetlands(inflow, outflow)
