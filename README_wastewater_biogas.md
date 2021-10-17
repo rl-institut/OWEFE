@@ -128,20 +128,20 @@ We assume you already have the following data named [ww_biogas_tibnine_raw.csv](
  
 ### Sum of the flows following various buses can be calculate from the energy model. 
 
-       electricity_bus["sequences"].sum(axis=0)
-       heat_bus["sequences"].sum(axis=0)
-       digested_bus["sequences"].sum(axis=0)
-       custom_storage["sequences"].sum(axis=0)
-       sludge_bus["sequences"].sum(axis=0)
-       slurry_bus["sequences"].sum(axis=0)
-       bio_gas_bus["sequences"].sum(axis=0)
-       effluent1_bus["sequences"].sum(axis=0)
-       effluent2_bus["sequences"].sum(axis=0)
-       bio_methane_bus["sequences"].sum(axis=0)
+     electricity_bus["sequences"].sum(axis=0)
+     heat_bus["sequences"].sum(axis=0)
+     digested_bus["sequences"].sum(axis=0)
+     custom_storage["sequences"].sum(axis=0)
+     sludge_bus["sequences"].sum(axis=0)
+     slurry_bus["sequences"].sum(axis=0)
+     bio_gas_bus["sequences"].sum(axis=0)
+     effluent1_bus["sequences"].sum(axis=0)
+     effluent2_bus["sequences"].sum(axis=0)
+     bio_methane_bus["sequences"].sum(axis=0)
 
 ### Checking different parameters with WHO guidelines
 
-        Constructed_wetlands(inflow, outflow)
+     Constructed_wetlands(inflow, outflow)
 
 ### Graph Plotting
 
