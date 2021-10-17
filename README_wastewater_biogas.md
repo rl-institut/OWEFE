@@ -98,6 +98,8 @@ We assume you already have the following data named [ww_biogas_tibnine_raw.csv](
     from digester_demand import electricity_calculation
  
 #### >> [pre_design_wastewater_biogas.py](https://github.com/rl-institut/OWEFE/blob/master/examples/pre_design_wastewater_biogas.py) again calls [digester.py](https://github.com/rl-institut/OWEFE/blob/master/examples/components/digester.py) to calculate bio-gas production per feed and dimension of digester. 
+
+    from components.digester import Digester
  
 #### >> [pre_design_wastewater_biogas.py](https://github.com/rl-institut/OWEFE/blob/master/examples/pre_design_wastewater_biogas.py) produce a new csv file named under [proceed.csv] and it will automatically saved in your local repository.
  
