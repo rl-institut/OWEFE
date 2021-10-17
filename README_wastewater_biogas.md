@@ -116,4 +116,21 @@ We assume you already have the following data named [ww_biogas_tibnine_raw.csv](
 
         inpdf.to_csv("ww_biogas_tibnine_proceed.csv", index=False)
  
+ * Read the new Proceed csv file
  
+    pd.read_csv(r"ww_biogas_tibnine_proceed.csv")
+ 
+ ## Result
+ 
+Sum of the flows following various buses can be calculate from the energy model. 
+
+    print(electricity_bus["sequences"].sum(axis=0))
+    print(heat_bus["sequences"].sum(axis=0))
+    print(digested_bus["sequences"].sum(axis=0))
+    print(custom_storage["sequences"].sum(axis=0))
+    print(sludge_bus["sequences"].sum(axis=0))
+    print(slurry_bus["sequences"].sum(axis=0))
+    print(bio_gas_bus["sequences"].sum(axis=0))
+    print(effluent1_bus["sequences"].sum(axis=0))
+    print(effluent2_bus["sequences"].sum(axis=0))
+    print(bio_methane_bus["sequences"].sum(axis=0))
