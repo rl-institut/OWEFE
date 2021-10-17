@@ -157,8 +157,32 @@ A line graph for electricity demand, heat demand, water demand, fertilizer deman
     fig.subplots_adjust(top=0.8)
     plt.show()
 
-# Contact
+## Contact
 
 Feel free to create a issue or contact me if there is any question [Julian Fleischmann](julian.fleischmann@rl-institute.de) or [Kapil Tiwari](Kapil.Tiwari@rl-institut.de).
 
 If there are any issues involving running/using the library, make sure to open an issue, it would be greatly appreciated, and will help improve the library.
+
+## Additional Notes
+
+Functions have been designed with flexibility in mind, so that full customization of built-in-functions and filters can be utilised; for every buses differing graph with depand and supply can be created; just by changing parameters slightly, demand sink can be convert into excess sink.
+
+For developers who would like to work with renewable energy and environmenta sanitation can do so, such as usability of methane gas, filtered water under WHO guideliness, digestate as fertilizer. This library provides a complete suite of functions to do so, as well as in-built filters and presets.
+
+## Contributing
+
+Energy model is always ready for new filters and functions, so if you'd like to contribute, we're always ready to accept new Pull Requests or investigate new issues.
+
+## To Do
+
+*  .................
+*  ............
+
+## Contributors
+
+* [Julian Fleischmann](julian.fleischmann@rl-institute.de) 
+* [Kapil Tiwari](Kapil.Tiwari@rl-institut.de)
+
+## License
+
+This project is licensed under the GNU Affero General Public License v3.0 - see the [LICENSE.md](https://github.com/rl-institut/OWEFE/blob/master/LICENSE) file for details.
