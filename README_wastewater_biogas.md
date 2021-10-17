@@ -15,9 +15,9 @@
 
 ### 📚 Removal of hydrogen Sulphide (H2S)
 
-* Desulphurization (letting the biogas to pass through the iron tube to react with) [reference](https://www.researchgate.net/publication/278024272_Removal_of_Hydrogen_Sulfide_H2S_from_Biogas_Using_Zero-Valent_Iron).
-* Absorption into a liquid either water or caustic solution (might cause the wastewater problem if not treated well) [reference](https://www.researchgate.net/publication/222814070_Biogas_Scrubbing_Compression_and_Storage_Perspective_and_Prospectus_in_Indian_Context).
-* Biological conversion by which sulfur compounds are converted into elemental sulfur by sulfide oxidizing microorganisms with addition of air/oxygen (might lead to explosive in the range of 6 – 12% CH4 in the presence of O2 [reference](https://www.semanticscholar.org/paper/Removal-of-Hydrogen-Sulfide-from-Biogas-Using-Zicari-Graf/f233ab85e32a7c22bdf0887d2b5be0a76b796f1c).
+* Desulphurization (letting the biogas to pass through the iron tube to react with) [[reference]](https://www.researchgate.net/publication/278024272_Removal_of_Hydrogen_Sulfide_H2S_from_Biogas_Using_Zero-Valent_Iron).
+* Absorption into a liquid either water or caustic solution (might cause the wastewater problem if not treated well) [[reference]](https://www.researchgate.net/publication/222814070_Biogas_Scrubbing_Compression_and_Storage_Perspective_and_Prospectus_in_Indian_Context).
+* Biological conversion by which sulfur compounds are converted into elemental sulfur by sulfide oxidizing microorganisms with addition of air/oxygen (might lead to explosive in the range of 6 – 12% CH4 in the presence of O2 [[reference]](https://www.semanticscholar.org/paper/Removal-of-Hydrogen-Sulfide-from-Biogas-Using-Zicari-Graf/f233ab85e32a7c22bdf0887d2b5be0a76b796f1c).
 * Activated carbon.
 
 ### 📚 Removal of Carbon dioxide (CO2)
