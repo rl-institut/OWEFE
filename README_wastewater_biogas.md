@@ -88,18 +88,18 @@ We assume you already have the following data named [ww_biogas_tibnine_raw.csv](
 
 ### Steps keep into consideration before run the main file 
 
-#### 1. [main_wastewater_biogas_tibnine.py](https://github.com/rl-institut/OWEFE/blob/master/examples/main_wastewater_biogas_tibnine.py) calls [pre_design_wastewater_biogas.py](https://github.com/rl-institut/OWEFE/blob/master/examples/pre_design_wastewater_biogas.py)
+#### * [main_wastewater_biogas_tibnine.py](https://github.com/rl-institut/OWEFE/blob/master/examples/main_wastewater_biogas_tibnine.py) calls [pre_design_wastewater_biogas.py](https://github.com/rl-institut/OWEFE/blob/master/examples/pre_design_wastewater_biogas.py)
 
     import pre_design_wastewater_biogas
  
- > [pre_design_wastewater_biogas.py](https://github.com/rl-institut/OWEFE/blob/master/examples/pre_design_wastewater_biogas.py) calls [digester_demand.py](https://github.com/rl-institut/OWEFE/blob/master/examples/digester_demand.py) for heat and electricity demand for digester. 
+#### * [pre_design_wastewater_biogas.py](https://github.com/rl-institut/OWEFE/blob/master/examples/pre_design_wastewater_biogas.py) calls [digester_demand.py](https://github.com/rl-institut/OWEFE/blob/master/examples/digester_demand.py) for heat and electricity demand for digester. 
  
     from digester_demand import heat_calculation
     from digester_demand import electricity_calculation
  
- > [pre_design_wastewater_biogas.py](https://github.com/rl-institut/OWEFE/blob/master/examples/pre_design_wastewater_biogas.py) again calls [digester.py](https://github.com/rl-institut/OWEFE/blob/master/examples/components/digester.py) to calculate bio-gas production per feed and dimension of digester. 
+#### * [pre_design_wastewater_biogas.py](https://github.com/rl-institut/OWEFE/blob/master/examples/pre_design_wastewater_biogas.py) again calls [digester.py](https://github.com/rl-institut/OWEFE/blob/master/examples/components/digester.py) to calculate bio-gas production per feed and dimension of digester. 
  
- > [pre_design_wastewater_biogas.py](https://github.com/rl-institut/OWEFE/blob/master/examples/pre_design_wastewater_biogas.py) produce a new csv file named under [proceed.csv] and it will automatically saved in your local repository.
+#### * [pre_design_wastewater_biogas.py](https://github.com/rl-institut/OWEFE/blob/master/examples/pre_design_wastewater_biogas.py) produce a new csv file named under [proceed.csv] and it will automatically saved in your local repository.
  
     for i, r in inpdf.iterrows():
         heat_demand = heat_calculation(temp_ambient=r['temperature'], heat_transfer_coefficient=0.6,
