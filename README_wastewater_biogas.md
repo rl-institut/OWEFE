@@ -58,6 +58,7 @@ Sink is normally used to define the demand within an energy model, but it can al
 * Demand 2 (fertilizer)
 * Demand 3 (electricity)
 * Demand 4 (Heat)
+
 In contrast to the demand sink, ‘excess sink’ has normally less restrictions but is opened to take the whole excess.
 
 ### [Source](https://oemof-solph.readthedocs.io/en/latest/usage.html#source-basic)
@@ -72,3 +73,12 @@ LinearTransformer in the model represents the transforming process of given inpu
 * Constructed wetland (CW)
 * Combined heat & power plant (CHP)
 
+## Get Statrted
+
+### Install
+The currently supported Python Version is 3.8.10. For using OWEFE clone the repository to your local machine. Then create a new virtual environment with Python Version 3.8.10. Activate the new virtual environment and move to the repository folder.
+
+    `pip install -r requirements`
+
+Further, you need to intall a solver in your system. To do so, please see the oemof README: 
+[oemof README](https://github.com/oemof/oemof-solph#readme)
