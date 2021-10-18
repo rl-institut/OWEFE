@@ -6,7 +6,7 @@
 * If you want to see the code with better readability, refer to [this branch](https://github.com/rl-institut/OWEFE/tree/Kapil)
 
 **Summary**
-> The domestic sewage carried into the Anaerobic digester [Floating drum digester](https://energypedia.info/wiki/Floating_Drum_Biogas_Plants) by the truck. The digester consist of the propeller for mixing with a sludge retention time of 22 days. Methane gas which is in the range of 55 - 65% of bio-gas [[reference]](https://www.researchgate.net/publication/264416846_Development_of_Biogas_Combustion_in_Combined_Heat_and_Power_Generation) is also considered during modelling of the energy system. Methane gas is burned in combined heat & power plant(CHP), that enhance is the source of heat and electricity. Part of the heat and electricity is supplied to the digester itself to maintain the heat loss and to power the propeller respectively. [Slurry](https://en.wikipedia.org/wiki/Slurry#:~:text=A%20slurry%20is%20a%20mixture,up%20to%20hundreds%20of%20millimeters.) is taken into consideration through [dewatering unit](https://www.hcr-llc.com/blog/what-is-sludge-dewatering) where water is allowed to pass through [constructed wetlands](https://sswm.info/taxonomy/term/3933/horizontal-subsurface-flow-constructed-wetland) and remained [digestate](https://en.wikipedia.org/wiki/Digestate) can be further used as fertilizer. The energy model analyze the operational parameters like; [Biochemical oxygen demand (BOD)]( https://en.wikipedia.org/wiki/Biochemical_oxygen_demand), [Chemical oxygen demand (COD)](https://en.wikipedia.org/wiki/Chemical_oxygen_demand), Nitrate, [pathogens](https://en.wikipedia.org/wiki/Escherichia_coli). 
+> The domestic sewage carried into the Anaerobic digester [Floating drum digester](https://energypedia.info/wiki/Floating_Drum_Biogas_Plants) by the truck. The digester consist of the propeller for mixing with a sludge retention time of 22 days. Methane gas which is in the range of 55 - 65% of bio-gas [[reference]](https://www.researchgate.net/publication/264416846_Development_of_Biogas_Combustion_in_Combined_Heat_and_Power_Generation) is also considered during modelling of the energy system. Methane gas is burned in a combined heat & power plant(CHP). Part of the heat and electricity is supplied to the digester itself to maintain the heat loss and to power the propeller respectively. The major part of electricity produced is used to power the wastewater treatment plant. [Slurry](https://en.wikipedia.org/wiki/Slurry#:~:text=A%20slurry%20is%20a%20mixture,up%20to%20hundreds%20of%20millimeters.) is taken into consideration through [dewatering unit](https://www.hcr-llc.com/blog/what-is-sludge-dewatering) where water is allowed to pass through [constructed wetlands](https://sswm.info/taxonomy/term/3933/horizontal-subsurface-flow-constructed-wetland) and remained [digestate](https://en.wikipedia.org/wiki/Digestate) can be further used as fertilizer. The model analyze the operational parameters like; [Biochemical oxygen demand (BOD)]( https://en.wikipedia.org/wiki/Biochemical_oxygen_demand), [Chemical oxygen demand (COD)](https://en.wikipedia.org/wiki/Chemical_oxygen_demand), Nitrate, [pathogens](https://en.wikipedia.org/wiki/Escherichia_coli). 
 
 
 ## Flow Chart of Energy Model
@@ -29,7 +29,7 @@
 * Amine gas treatment
 * CO2 by cooling and recovering dry ice.
 
-## Components to the energy system
+## Components
 
 * Sink (one input, no output)
 * Source (one output, no input)
@@ -53,7 +53,7 @@ The flow class has to be used to connect. An instance of the Flow class is norma
 
 ### [Sink](https://oemof-solph.readthedocs.io/en/latest/usage.html#sink-basic)
 
-Sink is normally used to define the demand within an energy model, but it can also be used to detect excesses. Following names were used to define SINK.
+Sink is normally used to define the demand within the model, but it can also be used to detect excesses. Following names were used to define SINK.
 * Demand 1 (water)
 * Demand 2 (fertilizer)
 * Demand 3 (electricity)
@@ -67,7 +67,7 @@ The model can be represented by only one source, ‘Domestic Sewage’, where it
 
 ### [Linear Transformer](https://oemof-solph.readthedocs.io/en/latest/usage.html#transformer-basic)
 
-LinearTransformer in the model represents the transforming process of given input to output. Following names were used to define Lineartransformer.
+LinearTransformer in the model represents the transforming process of given input to output. Following system elements were modelled as linear transformers:
 * Anaerobic digester
 * Dewatering Unit
 * Constructed wetland (CW)
@@ -126,7 +126,7 @@ We assume you already have the following data named [ww_biogas_tibnine_raw.csv](
  
  ## Result
  
-### Sum of the flows following various buses can be calculate from the energy model. 
+### Sum of the flows following various buses can be calculated from the wastewater biogas model: 
 
      electricity_bus["sequences"].sum(axis=0)
      heat_bus["sequences"].sum(axis=0)
@@ -159,15 +159,15 @@ A line graph for electricity demand, heat demand, water demand, fertilizer deman
 
 ## Contact
 
-Feel free to create a issue or contact me if there is any question [Julian Fleischmann](julian.fleischmann@rl-institute.de) or [Kapil Tiwari](Kapil.Tiwari@rl-institut.de).
+Feel free to create a issue or contact us if there are any questions [Julian Fleischmann](julian.fleischmann@rl-institute.de) or [Kapil Tiwari](Kapil.Tiwari@rl-institut.de).
 
 If there are any issues involving running/using the library, make sure to open an issue, it would be greatly appreciated, and will help improve the library.
 
 ## Additional Notes
 
-Functions have been designed with flexibility in mind, so that full customization of built-in-functions and filters can be utilised; for every buses differing graph with depand and supply can be created; just by changing parameters slightly, demand sink can be convert into excess sink.
+Functions have been designed with flexibility in mind, so that full customization of built-in-functions and filters can be utilised; for every buses differing graph with demand and supply can be created; just by changing parameters slightly, demand sink can be convert into excess sink.
 
-For developers who would like to work with renewable energy and environmenta sanitation can do so, such as usability of methane gas, filtered water under WHO guideliness, digestate as fertilizer. This library provides a complete suite of functions to do so, as well as in-built filters and presets.
+Planners & developers who would like to work with renewable energy and environmental can use the present tool to model biogas wastewater systems including usability of methane gas for combined heat and power generation, water filtration under WHO guideliness, and usage of digestate as fertilizer. This library provides a complete suite of functions to do so, as well as in-built filters and presets.
 
 ## Contributing
 
@@ -180,8 +180,8 @@ Energy model is always ready for new filters and functions, so if you'd like to 
 
 ## Contributors
 
-* [Julian Fleischmann](julian.fleischmann@rl-institute.de) 
 * [Kapil Tiwari](Kapil.Tiwari@rl-institut.de)
+* [Julian Fleischmann](julian.fleischmann@rl-institute.de) 
 
 ## License
 
