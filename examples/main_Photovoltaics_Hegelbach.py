@@ -1,4 +1,4 @@
-# Basic Photovoltaic Model
+# Basic Photovoltaic Model; 1 m² Photovoltaic panel
 #import csv
 #import math
 
@@ -10,7 +10,7 @@ import logging
 import os
 import pandas as pd
 import pprint as pp
-import numpy as np
+#import numpy as np
 
 try:
     import matplotlib.pyplot as plt
@@ -161,6 +161,7 @@ print("")
 
 print("********* Main results *********")
 
+
 # plot data
 if plt is not None:
     # # plot PQ diagram from component results
@@ -170,10 +171,10 @@ if plt is not None:
     # ax.set_ylabel("P (MW)")
     # plt.show()
 
-    # plot thermal bus
-    data = solph.views.node(results, "bth")["sequences"]
-    ax = data.plot(kind="line", drawstyle="steps-post", grid=True)
+    # plot AC bus
+    data = solph.views.node(results, "beac")
+    ax = data.plt(grid=True)
     ax.set_xlabel("Time (h)")
-    ax.set_ylabel("Q (MW)")
+    ax.set_ylabel("P (kW)")
     plt.show()
 plt.show()
