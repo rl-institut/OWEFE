@@ -1,6 +1,7 @@
 # Basic Photovoltaic Model; 1 m² Photovoltaic panel
 #import csv
 #import math
+import energy_system_graph
 
 from oemof.tools import logger
 from oemof import solph
@@ -160,10 +161,10 @@ pp.pprint(energysystem.results["meta"])
 print("")
 
 print("********* Main results *********")
-
+pp.pprint(energysystem.results["main"])
 
 # plot data
-if plt is not None:
+#if plt is not None:
     # # plot PQ diagram from component results
     # data = results[(bpt, None)]["sequences"]
     # ax = data.plot(kind="scatter", x="Q", y="P", grid=True)
@@ -172,9 +173,15 @@ if plt is not None:
     # plt.show()
 
     # plot AC bus
-    data = solph.views.node(results, "beac")
-    ax = data.plt(grid=True)
-    ax.set_xlabel("Time (h)")
-    ax.set_ylabel("P (kW)")
-    plt.show()
-plt.show()
+    #data = solph.views.node(results, "beac")
+    #ax = data.plt(grid=True)
+    #ax.set_xlabel("Time (h)")
+    #ax.set_ylabel("P (kW)")
+    #plt.show()
+    #plt.show()
+
+energy_system_graph.ESGraphRenderer(energysystem, "C:/Users/Julian/PycharmProjects/oemof-visio-master/oemof_visio/PV-hegelbach.png")
+
+#print(energy_system_graph.render(energysystem))
+
+#print(self.dot.render(**kwargs))
