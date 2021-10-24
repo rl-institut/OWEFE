@@ -1,10 +1,12 @@
 # digester file located in src >>> components
 import pandas as pd
+import os
 
+os.chdir("../src/")
 from digester_demand import heat_calculation
 from digester_demand import electricity_calculation
 from components.digester import Digester
-
+os.chdir("../examples/")
 
 inpdf = pd.read_csv(r'ww_biogas_tibnine_raw.csv')
 flow = inpdf["wastewater"].max()

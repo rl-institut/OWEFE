@@ -1,16 +1,19 @@
 # digester file located in src >>> components
-import pandas as pd
+# Proceeded csv file will be auto generated in the same location or directory
 
+import pandas as pd
+# import os
+# os.chdir("../src/")
+from components.digester import Digester
 from digester_demand import heat_calculation
 from digester_demand import electricity_calculation
-from digester import Digester
 
-
-inpdf = pd.read_csv(r'ww_biogas_tibnine_raw.csv')
+inpdf = pd.read_csv(r'Your csv file')
 flow = inpdf["wastewater"].mean()
 print(flow)
 
-surface_area = Digester(22, flow)
+retention_time = 22
+surface_area = Digester(retention_time, flow)
 diameter, volume, bg_prod, area = surface_area.compute()
 print('surface_area_total_overground: ', round(area, 2))
 
@@ -25,4 +28,4 @@ for i, r in inpdf.iterrows():
     electricity_demand = electricity_calculation(wastewater=r['wastewater'])
     inpdf.loc[i, "electricity_demand_digester"] = electricity_demand.compute()
 
-inpdf.to_csv("ww_biogas_tibnine_proceed.csv", index=False)
+inpdf.to_csv("proceeded csv file ", index=False)

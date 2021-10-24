@@ -2,29 +2,20 @@
 # function: digester and constructed wetlands are inside src>> components
 import csv
 import math
-import urllib.request
 from oemof.tools import logger
 from oemof import solph
-
-# url = "https://raw.githubusercontent.com/rl-institut/OWEFE/master/src/components/digester.py"
-# url_2 = "https://raw.githubusercontent.com/rl-institut/OWEFE/master/src/components/constructedwetlands.py"
-# url_3 = "https://raw.githubusercontent.com/rl-institut/OWEFE/master/src/pre_design_wastewater_biogas.py"
-# url_4 = "https://raw.githubusercontent.com/rl-institut/OWEFE/master/src/digester_demand.py"
-#
-# urllib.request.urlretrieve(url, 'digester.py')
-# urllib.request.urlretrieve(url_2, 'constructedwetlands.py')
-# urllib.request.urlretrieve(url_3, 'pre_design_wastewater_biogas.py')
-# urllib.request.urlretrieve(url_4, 'digester_demand.py')
-
-from components.digester import Digester
-from components.constructedwetlands import Constructed_wetlands
 
 import logging
 import os
 import pandas as pd
 import pprint as pp
 import numpy as np
-import pre_design_wastewater_biogas
+
+os.chdir("../src/")
+from src.components.digester import Digester
+from src.components.constructedwetlands import Constructed_wetlands
+os.chdir("../examples/")
+from examples import pre_design_wastewater_biogas
 
 try:
     import matplotlib.pyplot as plt
@@ -106,7 +97,7 @@ energysystem.add(solph.Sink(label="excess_heat", inputs={bheat: solph.Flow()}))
 energysystem.add(
     solph.Source(
         label="wastewater",
-        outputs={bsld: solph.Flow(fix=data["wastewater"], nominal_value=1000)},
+        outputs={bsld: solph.Flow(fix=data["wastewater"], nominal_value=1000000)},
     )
 )
 
@@ -200,8 +191,9 @@ energysystem.add(
     solph.Transformer(
         label="CHP_el",
         inputs={bch4: solph.Flow()},
-        outputs={bel: solph.Flow(nominal_value=10e5, variable_costs=60)},
-        conversion_factors={bel: 0.5},
+        outputs={bel: solph.Flow(nominal_value=10e5, variable_costs=60),
+                bheat: solph.Flow(nominal_value=10e5, variable_costs=60)},
+        conversion_factors={bel: 0.5, bheat: 0.4},
     )
 )
 
