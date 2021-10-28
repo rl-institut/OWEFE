@@ -11,7 +11,7 @@ import logging
 import os
 import pandas as pd
 import pprint as pp
-#import numpy as np
+import numpy as np
 
 try:
     import matplotlib.pyplot as plt
@@ -180,7 +180,7 @@ pp.pprint(energysystem.results["main"])
     #plt.show()
     #plt.show()
 
-energy_system_graph.ESGraphRenderer(energysystem, "C:/Users/Julian/PycharmProjects/oemof-visio-master/oemof_visio/PV-hegelbach.png")
+#energy_system_graph.ESGraphRenderer(energysystem, "C:/Users/Julian/PycharmProjects/oemof-visio-master/oemof_visio/PV-hegelbach.png")
 
 #print(energy_system_graph.render(energysystem))
 

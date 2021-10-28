@@ -111,7 +111,7 @@ energysystem.add(
 
 energysystem.add(
     solph.Sink(
-        label="electricity_demand_digester",
+        label="electricity_demand_digester (KW/h)",
         inputs={bel: solph.Flow(fix=data["electricity_demand_digester"], nominal_value=1)},
     )
 )
@@ -153,6 +153,29 @@ design_diameter, volume, bg_prod_result, surface_area_total_overground = bg_prod
 print(f'Total design diameter : {round(design_diameter, 2)} meter')
 print(f'Total volume of digester : {round(volume, 2)} m3')
 print('biogas conversion factor: ', round(bg_prod_result, 2))
+print(f'Total surface area overground: , {round(surface_area_total_overground, 2)} m2')
+a_file = open("Digester_Dimension.csv", "w")
+a_dict = {"Total design diameter" : f'{round(design_diameter, 2)} meter'}
+b_dict = {"Total volume of digester" : f'{round(volume, 2)} m3'}
+c_dict = {"Biogas conversion factor" : f'{round(bg_prod_result, 2)} '}
+d_dict = {"Total surface area overground": f'{round(surface_area_total_overground, 2)} m2'}
+e_dict = {"Design flow": f'{design_flow} m3/hr'}
+writer = csv.writer(a_file)
+for key, value in a_dict.items():
+    writer.writerow([key, value])
+
+for key, value in b_dict.items():
+    writer.writerow([key, value])
+
+for key, value in c_dict.items():
+    writer.writerow([key, value])
+
+for key, value in d_dict.items():
+    writer.writerow([key, value])
+
+for key, value in e_dict.items():
+    writer.writerow([key, value])
+a_file.close()
 # exceptions to ensure viable digester efficiency
 if bg_prod_result < 0.3:
     print(f'bg_prod_result {bg_prod_result} is too low to proceed')
@@ -189,31 +212,22 @@ energysystem.add(
 
 energysystem.add(
     solph.Transformer(
-        label="CHP_el",
+        label="CHP",
         inputs={bch4: solph.Flow()},
         outputs={bel: solph.Flow(nominal_value=10e5, variable_costs=60),
                 bheat: solph.Flow(nominal_value=10e5, variable_costs=60)},
-        conversion_factors={bel: 0.5, bheat: 0.4},
+        conversion_factors={bel: 1.5, bheat: 0.85},
     )
 )
 
 # energysystem.add(
 #     solph.Transformer(
-#         label="CHP_el_digester",
+#         label="CHP_th",
 #         inputs={bch4: solph.Flow()},
-#         outputs={bel: solph.Flow(nominal_value=10e5, variable_costs=60)},
-#         conversion_factors={bel: 3.2},
+#         outputs={bheat: solph.Flow(nominal_value=10e5, variable_costs=60)},
+#         conversion_factors={bheat: 0.65},
 #     )
 # )
-
-energysystem.add(
-    solph.Transformer(
-        label="CHP_th",
-        inputs={bch4: solph.Flow()},
-        outputs={bheat: solph.Flow(nominal_value=10e5, variable_costs=60)},
-        conversion_factors={bheat: 0.65},
-    )
-)
 
 # energysystem.add(
 #     solph.Transformer(
@@ -362,24 +376,25 @@ if plt is not None:
     custom_storage["sequences"].plot(
         ax=ax, kind="line", drawstyle="steps-post"
     )
-    plt.legend(
-        loc="upper center",
-        prop={"size": 8},
-        bbox_to_anchor=(0.5, 1.25),
-        ncol=2,
-    )
-    fig.subplots_adjust(top=0.8)
-    plt.show()
+    # plt.legend(
+    #     loc="upper center",
+    #     prop={"size": 8},
+    #     bbox_to_anchor=(0.5, 1.25),
+    #     ncol=2,
+    # )
 
-    fig, ax = plt.subplots(figsize=(10, 5))
+    # fig.subplots_adjust(top=0.8)
+    # plt.show()
+
+    # fig, ax = plt.subplots(figsize=(10, 5))
     electricity_bus["sequences"].plot(
         ax=ax, kind="line", drawstyle="steps-post"
     )
-    plt.legend(
-        loc="upper center", prop={"size": 8}, bbox_to_anchor=(0.5, 1.3), ncol=2
-    )
-    fig.subplots_adjust(top=0.8)
-    plt.show()
+    # plt.legend(
+    #     loc="upper center", prop={"size": 8}, bbox_to_anchor=(0.5, 1.3), ncol=2
+    # )
+    # fig.subplots_adjust(top=0.8)
+    # plt.show()
     #
     #     fig, ax = plt.subplots(figsize=(10, 5))
     #     electricity2_bus["sequences"].plot(
@@ -391,8 +406,22 @@ if plt is not None:
     #     fig.subplots_adjust(top=0.8)
     #     plt.show()
     #
-    fig, ax = plt.subplots(figsize=(10, 5))
+    # fig, ax = plt.subplots(figsize=(10, 5))
     heat_bus["sequences"].plot(
+        ax=ax, kind="line", drawstyle="steps-post"
+    )
+    plt.legend(
+        loc="upper center",
+        prop={"size": 8},
+        bbox_to_anchor=(0.5, 1.3),
+        ncol=2,
+    )
+    fig.subplots_adjust(top=0.8)
+    plt.title("Graph")
+    plt.show()
+#
+    fig, ax = plt.subplots(figsize=(10, 5))
+    digested_bus["sequences"].plot(
         ax=ax, kind="line", drawstyle="steps-post"
     )
     plt.legend(
@@ -403,44 +432,19 @@ if plt is not None:
     )
     fig.subplots_adjust(top=0.8)
     plt.show()
-#
-#     heat2_bus["sequences"].plot(
-#         ax=ax, kind="line", drawstyle="steps-post"
-#     )
-#     plt.legend(
-#         loc="upper center",
-#         prop={"size": 8},
-#         bbox_to_anchor=(0.5, 1.25),
-#         ncol=2,
-#     )
-#     fig.subplots_adjust(top=0.8)
-#     plt.show()
-#
-#     fig, ax = plt.subplots(figsize=(10, 5))
-#     digested_bus["sequences"].plot(
-#         ax=ax, kind="line", drawstyle="steps-post"
-#     )
-#     plt.legend(
-#         loc="upper center",
-#         prop={"size": 8},
-#         bbox_to_anchor=(0.5, 1.25),
-#         ncol=2,
-#     )
-#     fig.subplots_adjust(top=0.8)
-#     plt.show()
-#
-#     fig, ax = plt.subplots(figsize=(10, 5))
-#     effluent2_bus["sequences"].plot(
-#         ax=ax, kind="line", drawstyle="steps-post"
-#     )
-#     plt.legend(
-#         loc="upper center",
-#         prop={"size": 8},
-#         bbox_to_anchor=(0.5, 1.25),
-#         ncol=2,
-#     )
-#     fig.subplots_adjust(top=0.8)
-#     plt.show()
+
+    fig, ax = plt.subplots(figsize=(10, 3))
+    effluent2_bus["sequences"].plot(
+        ax=ax, kind="line", drawstyle="steps-post"
+    )
+    plt.legend(
+        loc="lower center",
+        prop={"size": 8},
+        bbox_to_anchor=(0.5, 1.25),
+        ncol=1,
+    )
+    fig.subplots_adjust(top=0.7)
+    plt.show()
 
 #  print the solver results
 print("********* Meta results *********")
@@ -450,8 +454,30 @@ print("")
 # print the sums of the flows around the electricity bus
 print("********* Main results *********")
 print(electricity_bus["sequences"].sum(axis=0))
-# print(electricity2_bus["sequences"].sum(axis=0))
+print(type(electricity_bus["sequences"].sum(axis=0).to_numpy()))
+print(electricity_bus["sequences"].sum(axis=0).to_numpy())
+elec_series = electricity_bus["sequences"].sum(axis=0)
+print("----------")
+
+# print(heat_bus)
 print(heat_bus["sequences"].sum(axis=0))
+print(heat_bus["sequences"].sum(axis=0).to_numpy())
+heat_series = heat_bus["sequences"].sum(axis=0)
+print("----------")
+
+# print(custom_storage)
+print(custom_storage["sequences"].sum(axis=0))
+print(custom_storage["sequences"].sum(axis=0).to_numpy())
+storage_series = custom_storage["sequences"].sum(axis=0)
+print("----------")
+
+comb_series = pd.concat([elec_series, heat_series, storage_series], axis=0)
+dfcomb = pd.DataFrame(comb_series, columns=["Value"])
+dfcomb.to_csv("main_results.csv", index=True)
+print(comb_series)
+print("----------")
+
+
 # print(heat2_bus["sequences"].sum(axis=0))
 print(digested_bus["sequences"].sum(axis=0))
 print(custom_storage["sequences"].sum(axis=0))
