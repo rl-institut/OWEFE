@@ -10,11 +10,11 @@ os.chdir("../examples/")
 
 inpdf = pd.read_csv(r'ww_biogas_tibnine_raw.csv')
 flow = inpdf["wastewater"].max()
-print(flow)
+# print(flow)
 
 surface_area = Digester(22, flow)
 diameter, volume, bg_prod, area = surface_area.compute()
-print('surface_area_total_overground: ', round(area, 2))
+# print('surface_area_total_overground: ', round(area, 2))
 
 for i, r in inpdf.iterrows():
     heat_demand = heat_calculation(temp_ambient=r['temperature'], heat_transfer_coefficient=0.6,

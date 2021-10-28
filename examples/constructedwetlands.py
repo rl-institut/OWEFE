@@ -19,8 +19,8 @@ import math
 
 class Constructed_wetlands:
     def __init__(self, influent, effluent):
-        self.influent = influent
-        self.effluent = effluent
+        self.influent = influent / 24
+        self.effluent = effluent / 24
 
     def compute(self):
         depth = 0.6
@@ -29,19 +29,19 @@ class Constructed_wetlands:
         COD_influent = 1800
         BOD_influent = COD_influent * 0.5
         NO3_influent = 450
-        retention_time = 4
+        retention_time = 6
         avg_discharge = (self.influent + self.effluent) / 2
         cw_area = avg_discharge * retention_time / (porosity * depth)
         net_evaporation = (self.influent - self.effluent)/(0.001 * cw_area)
-        K1 = 68.6 * porosity ** 4.172 * 1.06 ** (temperature-20)
+        K1 = - 68.6 * porosity ** 4.172 * 1.06 ** (temperature-20)
         a_1 = 2 * porosity * cw_area * depth
         a_2 = (2 * self.influent) - (0.001 * net_evaporation * cw_area)
         a_3 = (a_1/a_2)
-        BOD_effluent = BOD_influent * math.exp(-K1*a_3)
+        BOD_effluent = BOD_influent * math.exp( K1 * a_3)
         COD_effluent = BOD_effluent * 2
         efficiency = (BOD_effluent - BOD_influent) / BOD_effluent
-        BOD_new: float = efficiency * BOD_effluent
-        COD_new = float(BOD_new * 2)
+        BOD_new = efficiency * BOD_effluent
+        COD_new = BOD_new * 2
         if COD_effluent > 250:
             print(f'COD {COD_effluent} mg/L is higher than the WHO allowable limit {250} mg/L')
             print(f'You need one more Horizontal subsurface constructed wetland')
@@ -52,5 +52,5 @@ class Constructed_wetlands:
             print(f'The limit is in the range')
         var4 = -0.126 * 1.008 ** (temperature - 20) * retention_time
         NO3_effluent = NO3_influent * math.exp(var4)
-        return avg_discharge, cw_area, net_evaporation, BOD_effluent, COD_effluent, NO3_effluent
+        return avg_discharge, cw_area, net_evaporation, BOD_effluent, COD_effluent, NO3_effluent, K1, cw_area, a_1, a_2, a_3, net_evaporation
 

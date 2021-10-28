@@ -1,0 +1,10 @@
+,Value
+"(('CHP', 'electricity'), 'flow')",1906992.6966
+"(('electricity', 'electricity_demand_digester (KW/h)'), 'flow')",56737.80000000002
+"(('electricity', 'excess_electricity'), 'flow')",1850254.8966
+"(('CHP', 'heat'), 'flow')",1080629.197
+"(('heat', 'excess_heat'), 'flow')",0.0
+"(('heat', 'heat_demand_digester'), 'flow')",1080629.1952763319
+"(('bio-methane', 'ch4_storage'), 'flow')",0.0
+"(('ch4_storage', 'None'), 'storage_content')",0.0
+"(('ch4_storage', 'bio-methane'), 'flow')",0.0
