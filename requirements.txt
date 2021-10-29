@@ -13,3 +13,4 @@ oemof.solph==0.4.4
 oemof.tools==0.4.1
 pandas==1.2.4
 Pillow==8.2.0
+python==3.8.10
