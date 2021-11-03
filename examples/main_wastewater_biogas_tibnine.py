@@ -2,12 +2,12 @@
 '''
    General description
    ----------------------
-   This is an exapmle to show how a energy system model with oemof.solph
+   This is an example for a wastewater biogas system represented in OWEFE
    Note: 
             # Bio-gas production : m3/day
-            # Methane CH4 : m3/day : 1m3 CH4 = 34 MJ : 3.6 MJ = 1 khw (source: IRENA statistics 2016)
+            # Methane CH4  1m3 CH4 = 34 MJ : 3.6 MJ ~ 1 khw (source: IRENA statistics 2016)
    
-   Following energy system is modelled: 
+   Following integrated water energy system is modelled: 
    
                                     input/output    bsld  bbgas  bch4  bel  bheat  bslu  bdig  beff1  beff2      
                                         |           |      |      |    |     |      |     |     |      |
@@ -55,7 +55,7 @@
                                  
    Installation requirements                                      
    ---------------------------                              
-   Follow documentation: README_Wastewater_biogas.md  `pip install -r requirements`
+   Follow documentation located in repository of OWEFE: README_Wastewater_biogas.md
                        
 '''
 
@@ -133,7 +133,7 @@ logging.info("Create oemof objects")
 # The bus objects were assigned to variables which makes it easier to connect
 # components to these buses (see below).
 
-# create influent bus
+# create sludge influent bus
 bsld = solph.Bus(label="sludge")
 
 # create electricity bus
@@ -149,8 +149,8 @@ beff2 = solph.Bus(label="effluent2")
 # create digestate bus
 bdig = solph.Bus(label="digestate")
 
-# create bio-gas bus
-bbgas = solph.Bus(label="bio-gas")
+# create biogas bus
+bbgas = solph.Bus(label="biogas")
 bch4 = solph.Bus(label="bio-methane")
 
 # create heat bus
@@ -159,8 +159,8 @@ bheat = solph.Bus(label="heat")
 # adding the buses to the energy system
 energysystem.add(bsld, bel, bslu, beff1, beff2, bdig, bbgas, bch4, bheat)
 
-# create excess component for the bio-gas bus to allow overproduction
-energysystem.add(solph.Sink(label="excess_bio-gas", inputs={bch4: solph.Flow()}))
+# create excess component for the biogas bus to allow overproduction
+energysystem.add(solph.Sink(label="excess_biogas", inputs={bch4: solph.Flow()}))
 
 # create excess component for the electricity bus to allow overproduction
 energysystem.add(solph.Sink(label="excess_electricity", inputs={bel: solph.Flow()}))
@@ -172,7 +172,7 @@ energysystem.add(solph.Sink(label="excess_heat", inputs={bheat: solph.Flow()}))
 energysystem.add(
     solph.Source(
         label="wastewater",
-        outputs={bsld: solph.Flow(fix=data["wastewater"], nominal_value=1000000)},
+        outputs={bsld: solph.Flow(fix=data["wastewater"], nominal_value=60000)},
     )
 )
 
@@ -186,7 +186,7 @@ energysystem.add(
 
 energysystem.add(
     solph.Sink(
-        label="electricity_demand_digester (KW/h)",
+        label="electricity_demand_digester (kWh)",
         inputs={bel: solph.Flow(fix=data["electricity_demand_digester"], nominal_value=1)},
     )
 )
@@ -226,15 +226,15 @@ energysystem.add(
 # *********************************************************************************************
 retention_time = 22
 bg_prod = Digester(retention_time, design_flow)
-design_diameter, volume, bg_prod_result, surface_area_total = bg_prod.compute()
+design_diameter, volume, bg_conv_factor, surface_area_total = bg_prod.compute()
 print(f'Total design diameter : {round(design_diameter, 2)} meter')
 print(f'Total volume of digester : {round(volume, 2)} m3')
-print('biogas conversion factor: ', round(bg_prod_result, 2))
+print('biogas conversion factor: ', round(bg_conv_factor, 2))
 print(f'Total surface area overground: , {round(surface_area_total, 2)} m2')
 a_file = open("Digester_Dimension.csv", "w")
 a_dict = {"Total design diameter": f'{round(design_diameter, 2)} meter'}
 b_dict = {"Total volume of digester": f'{round(volume, 2)} m3'}
-c_dict = {"Biogas conversion factor": f'{round(bg_prod_result, 2)} '}
+c_dict = {"Biogas conversion factor": f'{round(bg_conv_factor, 2)} '}
 d_dict = {"Total surface area overground": f'{round(surface_area_total, 2)} m2'}
 e_dict = {"Design flow": f'{design_flow} m3/hr'}
 writer = csv.writer(a_file)
@@ -257,30 +257,38 @@ a_file.close()
 # *********************************************************************************************
 # exceptions to ensure viable digester efficiency
 # *********************************************************************************************
-if bg_prod_result < 0.3:
-    print(f'bg_prod_result {bg_prod_result} is too low to proceed')
+if bg_conv_factor < 0.3:
+    print(f'bg_prod_result {bg_conv_factor} is too low to proceed')
     raise Exception
-elif bg_prod_result > 1:
-    print(f'bg_prod_result {bg_prod_result} is too large to proceed')
+elif bg_conv_factor > 1:
+    print(f'bg_prod_result {bg_conv_factor} is too large to proceed')
     raise Exception
 
-# create simple transformer object representing a gas power plant
+# create simple transformer object representing the biogas digester
 
 energysystem.add(
     solph.Transformer(
         label="digester_gas",
         inputs={bsld: solph.Flow()},
-        outputs={bbgas: solph.Flow(nominal_value=10e5, variable_costs=60)},
-        conversion_factors={bbgas: bg_prod_result},
+        outputs={bbgas: solph.Flow(nominal_value=10e5)},
+        conversion_factors={bbgas: bg_conv_factor},
     )
 )
 
 energysystem.add(
     solph.Transformer(
+        label="digester_slurry",
+        inputs={bsld: solph.Flow()},
+        outputs={bslu: solph.Flow(nominal_value=10e5)},
+        conversion_factors={bslu: 0.50},
+    )
+)
+energysystem.add(
+    solph.Transformer(
         label="bio_methane",
         inputs={bbgas: solph.Flow()},
-        outputs={bch4: solph.Flow(nominal_value=10e5, variable_costs=60)},
-        conversion_factors={bch4: 0.65 * 9.4},
+        outputs={bch4: solph.Flow(nominal_value=10e5)},
+        conversion_factors={bch4: 0.65 * 9.4},# energy content of methane -> 9.4 kWh/m³ (Source: Irena 2015)
     )
 )
 
@@ -288,18 +296,9 @@ energysystem.add(
     solph.Transformer(
         label="CHP",
         inputs={bch4: solph.Flow()},
-        outputs={bel: solph.Flow(nominal_value=10e5, variable_costs=60),
-                 bheat: solph.Flow(nominal_value=10e5, variable_costs=60)},
-        conversion_factors={bel: 1.5, bheat: 0.85},
-    )
-)
-
-energysystem.add(
-    solph.Transformer(
-        label="digester_slu",
-        inputs={bsld: solph.Flow()},
-        outputs={bslu: solph.Flow(nominal_value=10e5, variable_costs=60)},
-        conversion_factors={bslu: 0.50},
+        outputs={bel: solph.Flow(nominal_value=10e5),
+                 bheat: solph.Flow(nominal_value=10e5)},
+        conversion_factors={bel: 0.58, bheat: 0.35},
     )
 )
 
@@ -307,7 +306,7 @@ energysystem.add(
     solph.Transformer(
         label="dewatering_dig",
         inputs={bslu: solph.Flow()},
-        outputs={bdig: solph.Flow(nominal_value=10e2, variable_costs=60)},
+        outputs={bdig: solph.Flow(nominal_value=10e2)},
         conversion_factors={bdig: 0.42},
     )
 )
@@ -316,7 +315,7 @@ energysystem.add(
     solph.Transformer(
         label="dewatering_eff",
         inputs={bslu: solph.Flow()},
-        outputs={beff1: solph.Flow(nominal_value=10e2, variable_costs=60)},
+        outputs={beff1: solph.Flow(nominal_value=10e2)},
         conversion_factors={beff1: 0.9},
     )
 )
@@ -325,17 +324,17 @@ energysystem.add(
     solph.Transformer(
         label="constructed_wetland",
         inputs={beff1: solph.Flow()},
-        outputs={beff2: solph.Flow(nominal_value=10e2, variable_costs=60)},
+        outputs={beff2: solph.Flow(nominal_value=10e2)},
         conversion_factors={beff2: 0.9},
     )
 )
 
 # create storage object representing a biogas storage
 storage = solph.components.GenericStorage(
-    nominal_storage_capacity=10077997,
+    nominal_storage_capacity=10000,
     label="ch4_storage",
     inputs={bch4: solph.Flow()},
-    outputs={bch4: solph.Flow(nominal_value=10077997 / 6)},
+    outputs={bch4: solph.Flow(nominal_value=10000 / 6)},
     loss_rate=0.00,
     initial_storage_level=None,
     inflow_conversion_factor=1,
@@ -419,7 +418,7 @@ heat_bus = solph.views.node(results, "heat")
 digestate_bus = solph.views.node(results, "digestate")
 sludge_bus = solph.views.node(results, "sludge")
 slurry_bus = solph.views.node(results, "slurry")
-bio_gas_bus = solph.views.node(results, "bio-gas")
+biogas_bus = solph.views.node(results, "biogas")
 effluent1_bus = solph.views.node(results, "effluent1")
 effluent2_bus = solph.views.node(results, "effluent2")
 bio_methane_bus = solph.views.node(results, "bio-methane")
@@ -428,10 +427,10 @@ bio_methane_bus = solph.views.node(results, "bio-methane")
 # plot the time series (sequences) of a specific component/bus
 # ******************************************************************************
 if plt is not None:
-    fig, ax = plt.subplots(figsize=(10, 5))
-    custom_storage["sequences"].plot(
-        ax=ax, kind="line", drawstyle="steps-post"
-    )
+    # fig, ax = plt.subplots(figsize=(10, 5))
+    # custom_storage["sequences"].plot(
+    #   ax=ax, kind="line", drawstyle="steps-post"
+    # )
     # plt.legend(
     #     loc="upper center",
     #     prop={"size": 8},
@@ -442,17 +441,20 @@ if plt is not None:
     # fig.subplots_adjust(top=0.8)
     # plt.show()
 
-    # fig, ax = plt.subplots(figsize=(10, 5))
+    fig, ax = plt.subplots(figsize=(10, 5))
     electricity_bus["sequences"].plot(
         ax=ax, kind="line", drawstyle="steps-post"
     )
-    # plt.legend(
-    #     loc="upper center", prop={"size": 8}, bbox_to_anchor=(0.5, 1.3), ncol=2
-    # )
-    # fig.subplots_adjust(top=0.8)
-    # plt.show()
+    plt.legend(
+        loc="upper center", prop={"size": 8}, bbox_to_anchor=(0.5, 1.3), ncol=2
+    )
+    fig.subplots_adjust(top=0.8)
+    plt.title("Electricity Bus")
+    plt.xlabel("Time Period [h]")
+    plt.ylabel("Electrical Energy [kWh]")
+    plt.show()
 
-    # fig, ax = plt.subplots(figsize=(10, 5))
+    fig, ax = plt.subplots(figsize=(10, 5))
     heat_bus["sequences"].plot(
         ax=ax, kind="line", drawstyle="steps-post"
     )
@@ -463,9 +465,9 @@ if plt is not None:
         ncol=3,
     )
     fig.subplots_adjust(top=0.8)
-    plt.title("Electricity-bus, Heat-bus, Methane-storage")
-    plt.xlabel("Time Period (hour)")
-    plt.ylabel("KWh")
+    plt.title("Heat Bus")
+    plt.xlabel("Time Period [h]")
+    plt.ylabel("Heat [kWh]")
     plt.show()
     #
     fig, ax = plt.subplots(figsize=(10, 5))
@@ -479,9 +481,9 @@ if plt is not None:
         ncol=2,
     )
     fig.subplots_adjust(top=0.8)
-    plt.title("Digestate-bus")
-    plt.xlabel("Time Period (hour)")
-    plt.ylabel("KWh")
+    plt.title("Digestate Bus")
+    plt.xlabel("Time Period [h]")
+    plt.ylabel("Flow [m³]")
     plt.grid()
     plt.show()
 
@@ -496,9 +498,9 @@ if plt is not None:
         ncol=1,
     )
     fig.subplots_adjust(top=0.7)
-    plt.title("Effluent2-bus")
-    plt.xlabel("Time Period (hour)")
-    plt.ylabel("KWh")
+    plt.title("Effluent2 Bus")
+    plt.xlabel("Time Period [hour]")
+    plt.ylabel("Flow [m³]")
     plt.show()
 
 # ***************************************************************************
@@ -539,7 +541,7 @@ print(digestate_bus["sequences"].sum(axis=0))
 print(custom_storage["sequences"].sum(axis=0))
 print(sludge_bus["sequences"].sum(axis=0))
 print(slurry_bus["sequences"].sum(axis=0))
-print(bio_gas_bus["sequences"].sum(axis=0))
+print(biogas_bus["sequences"].sum(axis=0))
 print(effluent1_bus["sequences"].sum(axis=0))
 print(effluent2_bus["sequences"].sum(axis=0))
 print(bio_methane_bus["sequences"].sum(axis=0))
