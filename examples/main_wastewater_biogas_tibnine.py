@@ -1,10 +1,13 @@
-'************* Tibnine Wastewater Treatment Project ************'
+'************* Tibnine Wastewater Biogas Project ************'
 '''
    General description
    ----------------------
    This is an example for a wastewater biogas system represented in OWEFE
    Note: 
-            # Bio-gas production : m3/day
+   
+   Timestep: hour
+            Input: dewatered sludge [kg/h]
+            # Bio-gas production [m3/h]
             # Methane CH4  1m3 CH4 = 34 MJ : 3.6 MJ ~ 1 khw (source: IRENA statistics 2016)
    
    Following integrated water energy system is modelled: 
@@ -172,7 +175,7 @@ energysystem.add(solph.Sink(label="excess_heat", inputs={bheat: solph.Flow()}))
 energysystem.add(
     solph.Source(
         label="wastewater",
-        outputs={bsld: solph.Flow(fix=data["wastewater"], nominal_value=60000)},
+        outputs={bsld: solph.Flow(fix=data["wastewater"], nominal_value=1)},
     )
 )
 
@@ -222,21 +225,21 @@ energysystem.add(
 )
 
 # *********************************************************************************************
-# bio-gas production form the digester and saving results in csv
+# biogas production form the digester and saving results in csv
 # *********************************************************************************************
 retention_time = 22
-bg_prod = Digester(retention_time, design_flow)
-design_diameter, volume, bg_conv_factor, surface_area_total = bg_prod.compute()
-print(f'Total design diameter : {round(design_diameter, 2)} meter')
-print(f'Total volume of digester : {round(volume, 2)} m3')
+digester_design = Digester(retention_time, design_flow)
+design_diameter, volume, bg_conv_factor, surface_area_total = digester_design.compute()
+print(f'Total design diameter : {round(design_diameter, 2)} m')
+print(f'Total volume of digester : {round(volume, 2)} m³')
 print('biogas conversion factor: ', round(bg_conv_factor, 2))
-print(f'Total surface area overground: , {round(surface_area_total, 2)} m2')
+print(f'surface_area_total: , {round(surface_area_total, 2)} m²')
 a_file = open("Digester_Dimension.csv", "w")
-a_dict = {"Total design diameter": f'{round(design_diameter, 2)} meter'}
-b_dict = {"Total volume of digester": f'{round(volume, 2)} m3'}
+a_dict = {"Total design diameter": f'{round(design_diameter, 2)} m'}
+b_dict = {"Total volume of digester": f'{round(volume, 2)} m³'}
 c_dict = {"Biogas conversion factor": f'{round(bg_conv_factor, 2)} '}
-d_dict = {"Total surface area overground": f'{round(surface_area_total, 2)} m2'}
-e_dict = {"Design flow": f'{design_flow} m3/hr'}
+d_dict = {"surface_area_total": f'{round(surface_area_total, 2)} m²'}
+e_dict = {"Design flow": f'{design_flow} m³/h'}
 writer = csv.writer(a_file)
 for key, value in a_dict.items():
     writer.writerow([key, value])
@@ -288,7 +291,7 @@ energysystem.add(
         label="bio_methane",
         inputs={bbgas: solph.Flow()},
         outputs={bch4: solph.Flow(nominal_value=10e5)},
-        conversion_factors={bch4: 0.65 * 9.4},# energy content of methane -> 9.4 kWh/m³ (Source: Irena 2015)
+        conversion_factors={bch4: 0.65 * 9.4},  # energy content of methane -> 9.4 kWh/m³ (Source: Irena 2015)
     )
 )
 

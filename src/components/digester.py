@@ -12,10 +12,13 @@ class Digester:
     def __init__(self, retention_time, design_flow):
         self.retention_time = retention_time
         self.design_flow = design_flow
+        self.volumetric_design_flow = self.design_flow/(1.02*997)
+        # calculating volumetric design flow from mass design flow assuming a sludge density of 997 kg/m³
 
     def compute(self, yield_factor=8.26):  # temperature is remain in a range of 31 - 33 degree Celsius
 
-        filled_up_volume = self.design_flow * self.retention_time * 24  # retention time is in days so changing in hours
+        filled_up_volume = self.volumetric_design_flow * self.retention_time * 24
+        # adating retention time to hours
 
         height3 = np.cbrt(filled_up_volume / (math.pi * (4.08 / 2) ** 2))
         height2 = height3 / 0.7
@@ -29,7 +32,8 @@ class Digester:
         floor_area = math.pi * radius ** 2
         surface_area_total = surface_area_cylinder_overground + surface_area_cone + floor_area
         vol_solid_load = 1.6  # KgVSS/day/m3; for retention time 30 - 40 days is low rate digestion range: 0.6 - 1.6
-        initial_conc_volatile = ((vol_solid_load / 24) / self.design_flow)  # Divide by 24 to change day into hour as design flow in m3/hour
+        initial_conc_volatile = ((vol_solid_load / 24) / self.volumetric_design_flow)
+        # Divide by 24 to covert into hour as design flow in m3/hour
         if self.retention_time > 36:  # retention_time in days
             yield_factor = 7.44
         conv_factor = (volume_total * yield_factor * initial_conc_volatile) / 1000
