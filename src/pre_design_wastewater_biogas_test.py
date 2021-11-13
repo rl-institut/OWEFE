@@ -2,13 +2,14 @@
 # Proceeded csv file will be auto generated in the same directory
 
 import pandas as pd
-# import os
-# os.chdir("../src/")
+import os
+
 from components.digester import Digester
 from digester_demand import HeatCalculation
 from digester_demand import ElectricityCalculation
 
-inpdf = pd.read_csv(r'Your csv file')
+os.chdir("../examples/")
+inpdf = pd.read_csv(r'ww_biogas_tibnine_raw.csv')
 # incoming organic matter flow
 design_flow = inpdf["wastewater"].mean()
 # heat capacity of organic matter flow in this case: dewatered sludge assumed to be same as water Cp = 4200 J/kg °C;
@@ -27,7 +28,7 @@ for i, r in inpdf.iterrows():
                                   heat_capacity=heat_capacity_sludge, om_flow=design_flow)
     inpdf.loc[i, "heat_demand_digester"] = heat_demand.compute()
 
-inpdf.to_csv("ww_biogas_tibnine_proceed.csv", index=False)
+inpdf.to_csv("ww_biogas_tibnine_proceed_test.csv", index=False)
 
 for i, r in inpdf.iterrows():
     electricity_demand = ElectricityCalculation(wastewater=r['wastewater'])

@@ -1,10 +1,10 @@
 ,Value
-"(('CHP', 'electricity'), 'flow')",4548372.976000001
-"(('electricity', 'electricity_demand_digester (kWh)'), 'flow')",56737.80000000002
-"(('electricity', 'excess_electricity'), 'flow')",4491635.175999999
-"(('CHP', 'heat'), 'flow')",2744707.8305
-"(('heat', 'excess_heat'), 'flow')",1664078.6349
-"(('heat', 'heat_demand_digester'), 'flow')",1080629.1952763319
+"(('CHP', 'electricity'), 'flow')",862773.7984320003
+"(('electricity', 'electricity_demand_digester (kWh)'), 'flow')",27516.39859420331
+"(('electricity', 'excess_electricity'), 'flow')",835257.3989759998
+"(('CHP', 'heat'), 'flow')",1479040.7923199995
+"(('heat', 'excess_heat'), 'flow')",1451441.56577
+"(('heat', 'heat_demand_digester'), 'flow')",27599.22556175725
 "(('bio-methane', 'ch4_storage'), 'flow')",0.0
 "(('ch4_storage', 'None'), 'storage_content')",0.0
 "(('ch4_storage', 'bio-methane'), 'flow')",0.0

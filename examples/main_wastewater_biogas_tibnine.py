@@ -7,7 +7,7 @@
    
    Timestep: hour
             Input: dewatered sludge [kg/h]
-            # Bio-gas production [m3/h]
+            # Biogas production [m3/h]
             # Methane CH4  1m3 CH4 = 34 MJ : 3.6 MJ ~ 1 khw (source: IRENA statistics 2016)
    
    Following integrated water energy system is modelled: 
@@ -100,8 +100,8 @@ except ImportError:
     plt = None
 
 solver = "cbc"
-debug = False  # Set number_of_timesteps to 3 to get a readable lp-file.
-number_of_time_steps = 24 * 7 * 3  # 24 hour * 7 days * 8 weeks
+debug = True  # Set number_of_timesteps to 3 to get a readable lp-file.
+number_of_time_steps = 24 * 7 * 52  # 24 hour * 7 days * 52 weeks
 solver_verbose = False  # show/hide solver output
 
 # initiate the logger (see the API docs for more information)
@@ -162,14 +162,20 @@ bheat = solph.Bus(label="heat")
 # adding the buses to the energy system
 energysystem.add(bsld, bel, bslu, beff1, beff2, bdig, bbgas, bch4, bheat)
 
-# create excess component for the biogas bus to allow overproduction
+# create excess sink for the biogas bus to allow overproduction
 energysystem.add(solph.Sink(label="excess_biogas", inputs={bch4: solph.Flow()}))
 
-# create excess component for the electricity bus to allow overproduction
+# create excess sink to represent electricity production
 energysystem.add(solph.Sink(label="excess_electricity", inputs={bel: solph.Flow()}))
 
-# create excess component for the heat bus to allow overproduction
+# create excess sink to represent heat production
 energysystem.add(solph.Sink(label="excess_heat", inputs={bheat: solph.Flow()}))
+
+# create excess sink to represent the water production
+energysystem.add(solph.Sink(label="excess_water", inputs={beff2: solph.Flow()}))
+
+# create sink object representing the fertilizer production
+energysystem.add(solph.Sink(label="excess_fertilizer", inputs={bdig: solph.Flow()}))
 
 # create fixed source object representing domestic sewage
 energysystem.add(
@@ -179,27 +185,14 @@ energysystem.add(
     )
 )
 
-# # create sink object representing the electrical production
-# energysystem.add(
-#     solph.Sink(
-#         label="demand_el",
-#         inputs={bel: solph.Flow(fix=data["demand_el"], nominal_value=1)},
-#     )
-# )
-
 energysystem.add(
     solph.Sink(
         label="electricity_demand_digester (kWh)",
         inputs={bel: solph.Flow(fix=data["electricity_demand_digester"], nominal_value=1)},
     )
 )
-# # create sink object representing the thermal demand
-# energysystem.add(
-#     solph.Sink(
-#         label="demand_th",
-#         inputs={bheat: solph.Flow(fix=data["demand_th"], nominal_value=1)},
-#     )
-# )
+# # create sink object representing the heat demand
+
 
 energysystem.add(
     solph.Sink(
@@ -208,28 +201,14 @@ energysystem.add(
     )
 )
 
-# create sink object representing the water production
-energysystem.add(
-    solph.Sink(
-        label="demand_water",
-        inputs={beff2: solph.Flow(fix=data["demand_water"], nominal_value=1)},
-    )
-)
 
-# create sink object representing the fertilizer production (-> excess)
-energysystem.add(
-    solph.Sink(
-        label="demand_f",
-        inputs={bdig: solph.Flow(fix=data["demand_f"], nominal_value=1)},
-    )
-)
 
 # *********************************************************************************************
 # biogas production form the digester and saving results in csv
 # *********************************************************************************************
 retention_time = 22
 digester_design = Digester(retention_time, design_flow)
-design_diameter, volume, bg_conv_factor, surface_area_total = digester_design.compute()
+design_diameter, volume, bg_conv_factor, surface_area_total, filled_up_volume = digester_design.compute()
 print(f'Total design diameter : {round(design_diameter, 2)} m')
 print(f'Total volume of digester : {round(volume, 2)} m³')
 print('biogas conversion factor: ', round(bg_conv_factor, 2))
@@ -301,7 +280,7 @@ energysystem.add(
         inputs={bch4: solph.Flow()},
         outputs={bel: solph.Flow(nominal_value=10e5),
                  bheat: solph.Flow(nominal_value=10e5)},
-        conversion_factors={bel: 0.58, bheat: 0.35},
+        conversion_factors={bel: 0.35, bheat: 0.6},
     )
 )
 
@@ -454,7 +433,7 @@ if plt is not None:
     fig.subplots_adjust(top=0.8)
     plt.title("Electricity Bus")
     plt.xlabel("Time Period [h]")
-    plt.ylabel("Electrical Energy [kWh]")
+    plt.ylabel("Electrical Energy [kW]")
     plt.show()
 
     fig, ax = plt.subplots(figsize=(10, 5))
@@ -470,7 +449,7 @@ if plt is not None:
     fig.subplots_adjust(top=0.8)
     plt.title("Heat Bus")
     plt.xlabel("Time Period [h]")
-    plt.ylabel("Heat [kWh]")
+    plt.ylabel("Heat [kW]")
     plt.show()
     #
     fig, ax = plt.subplots(figsize=(10, 5))
