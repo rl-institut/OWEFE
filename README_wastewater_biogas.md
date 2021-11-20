@@ -175,8 +175,8 @@ Energy model is always ready for new filters and functions, so if you'd like to 
 
 ## To Do
 
-*  .................
-*  ............
+*  Constructed wetlands
+*  Digestate and effluent 2 graph
 
 ## Contributors
 
