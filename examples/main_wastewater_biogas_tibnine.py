@@ -101,7 +101,7 @@ except ImportError:
 
 solver = "cbc"
 debug = True  # Set number_of_timesteps to 3 to get a readable lp-file.
-number_of_time_steps = 24 * 7 * 52  # 24 hour * 7 days * 52 weeks
+number_of_time_steps = 24 * 7 * 8  # 24 hour * 7 days * 52 weeks
 solver_verbose = False  # show/hide solver output
 
 # initiate the logger (see the API docs for more information)
@@ -125,8 +125,8 @@ print(date_time_index)
 
 # Read data file after running pre-design
 data = pd.read_csv(r"ww_biogas_tibnine_proceed.csv")
-design_flow = data["wastewater"].max()
-print(f'design flow {design_flow}')
+design_mass_flowrate = data["wastewater"].max()
+print(f'Mass flow rate {design_mass_flowrate}')
 
 # *********************************************************************************************
 # Create oemof objects (bus, sink , source, transformer....)
@@ -201,24 +201,24 @@ energysystem.add(
     )
 )
 
-
-
 # *********************************************************************************************
 # biogas production form the digester and saving results in csv
 # *********************************************************************************************
 retention_time = 22
-digester_design = Digester(retention_time, design_flow)
-design_diameter, volume, bg_conv_factor, surface_area_total, filled_up_volume = digester_design.compute()
+digester_design = Digester(retention_time, design_mass_flowrate)
+design_diameter, volume, bg_conv_factor, surface_area_total, filled_up_volume, organic_loading_rate, volumetric_flowrate = digester_design.compute()
 print(f'Total design diameter : {round(design_diameter, 2)} m')
 print(f'Total volume of digester : {round(volume, 2)} m³')
 print('biogas conversion factor: ', round(bg_conv_factor, 2))
 print(f'surface_area_total: , {round(surface_area_total, 2)} m²')
+print(f'Organic loading rate (OLR) : {round(organic_loading_rate, 2)} Kg VS/m3.days')
+print(f'volumetric flowrate : {round(volumetric_flowrate, 2)} m3/hour')
 a_file = open("Digester_Dimension.csv", "w")
 a_dict = {"Total design diameter": f'{round(design_diameter, 2)} m'}
 b_dict = {"Total volume of digester": f'{round(volume, 2)} m³'}
 c_dict = {"Biogas conversion factor": f'{round(bg_conv_factor, 2)} '}
 d_dict = {"surface_area_total": f'{round(surface_area_total, 2)} m²'}
-e_dict = {"Design flow": f'{design_flow} m³/h'}
+e_dict = {"Volumetric flow rate": f'{volumetric_flowrate} m3/days'}
 writer = csv.writer(a_file)
 for key, value in a_dict.items():
     writer.writerow([key, value])
@@ -239,12 +239,12 @@ a_file.close()
 # *********************************************************************************************
 # exceptions to ensure viable digester efficiency
 # *********************************************************************************************
-if bg_conv_factor < 0.3:
-    print(f'bg_prod_result {bg_conv_factor} is too low to proceed')
-    raise Exception
-elif bg_conv_factor > 1:
-    print(f'bg_prod_result {bg_conv_factor} is too large to proceed')
-    raise Exception
+# if bg_conv_factor < 0.3:
+#     print(f'bg_prod_result {bg_conv_factor} is too low to proceed')
+#     raise Exception
+# elif bg_conv_factor > 1:
+#     print(f'bg_prod_result {bg_conv_factor} is too large to proceed')
+#     raise Exception
 
 # create simple transformer object representing the biogas digester
 
