@@ -15,6 +15,14 @@ Further, you need to intall a solver in your system. To do so, please see the oe
 [oemof README](https://github.com/oemof/oemof-solph#readme)
 
 
+## Contribution
+
+OWEFE is always ready for new functions and representations of environmental technologies, so if you'd like to contribute, we're always ready to accept new Pull Requests or investigate new issues.
+
+## License
+
+This project is licensed under the GNU Affero General Public License v3.0 - see the [LICENSE.md](https://github.com/rl-institut/OWEFE/blob/master/LICENSE) file for details.
+
 # rli_template
 
 This repository is based on rli-template, a template repository for creating new projects under the RLI's umbrella
