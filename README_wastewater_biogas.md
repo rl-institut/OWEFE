@@ -175,8 +175,10 @@ Energy model is always ready for new filters and functions, so if you'd like to 
 
 ## To Do
 
-*  Constructed wetlands
-*  Digestate and effluent 2 graph
+*  Fix Constructed wetlands 
+*  Fix Digestate and effluent 2 graph
+*  change methane bus unit from kWh (chemical energy content) to m³
+*  Plot electrical energy demand together with electrical energy production
 
 ## Contributors
 
