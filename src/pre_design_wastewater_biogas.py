@@ -10,7 +10,7 @@ from digester_demand import ElectricityCalculation
 
 inpdf = pd.read_csv(r'Your csv file')
 # incoming organic matter flow
-design_flow = inpdf["wastewater"].mean()
+design_flow = inpdf["wastewater"].max()
 # heat capacity of organic matter flow in this case: dewatered sludge assumed to be same as water Cp = 4200 J/kg °C;
 # Source: El Joauhari et al. 2021
 heat_capacity_sludge = 4200
@@ -30,7 +30,8 @@ for i, r in inpdf.iterrows():
 inpdf.to_csv("ww_biogas_tibnine_proceed.csv", index=False)
 
 for i, r in inpdf.iterrows():
-    electricity_demand = ElectricityCalculation(wastewater=r['wastewater'])
+    electricity_demand = ElectricityCalculation(om_flow=r['wastewater'], filled_up_volume=volume)
+    # where did filled_up_volume go? adapt electricity demand calculation to BAU project
     inpdf.loc[i, "electricity_demand_digester"] = electricity_demand.compute()
 
 inpdf.to_csv("proceeded csv file", index=False)

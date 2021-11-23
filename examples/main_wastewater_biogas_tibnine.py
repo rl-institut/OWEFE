@@ -66,7 +66,7 @@ __copyright__ = "oemof developer group"
 __license__ = "GPLv3"
 
 # *********************************************************************************************
-# ******************* PART 1 - Define and optimise the energy system **************************
+# ******************* PART 1 - Define and optimise the iWEFEs *********************************
 # *********************************************************************************************
 
 # *********************************************************************************************
@@ -93,6 +93,32 @@ from src.components.constructedwetlands import Constructed_wetlands
 
 os.chdir("../examples/")
 from examples import pre_design_wastewater_biogas
+# *********************************************************************************************
+# inputs
+# *********************************************************************************************
+# Read input data file after running pre-design
+data = pd.read_csv(r"ww_biogas_tibnine_proceed.csv")
+# Units of raw data file: wastewater/dewatered_sludge [kg/h], heat demand [kWh/h],
+# electricity demand [kWh/h], water demand [m³]
+design_mass_flowrate = data["wastewater"].max()
+print(f'Mass flow rate {design_mass_flowrate}')
+# *********************************************************************************************
+# case study specific iWEFEs characteristics
+# *********************************************************************************************
+
+# Digester operation parameters
+# temperature inside of the digester = 35 degree Celsius (source: final year project, 2021, Beirut Arab University)
+retention_time = 22 # retention time set to 22 days (source: final year project, 2021, Beirut Arab University)
+# Characteristic of input sludge
+# incoming organic matter flow
+design_mass_flowrate = data["wastewater"].max()  # [kg/h]
+sludge_density = 997  # kg/m3 (source: final year project, 2021, Beirut Arab University)
+sludge_specific_gravity = 1.02  # unitless, (source: final year project, 2021, Beirut Arab University)
+heat_capacity_sludge = 4200  # J/kg°C heat capacity dewatered sludge assumed to be same as water
+# (source: final year project, 2021, Beirut Arab University)
+yield_factor = 9.3  # (source: final year project, 2021, Beirut Arab University)
+# dry solid concentration = 20% of wet feedstock sludge (source: final year project, 2021, Beirut Arab University)
+# volatile solid concentration = 80% of dry solid (source: final year project, 2021, Beirut Arab University)
 
 try:
     import matplotlib.pyplot as plt
@@ -101,7 +127,7 @@ except ImportError:
 
 solver = "cbc"
 debug = True  # Set number_of_timesteps to 3 to get a readable lp-file.
-number_of_time_steps = 24 * 7 * 8  # 24 hour * 7 days * 52 weeks
+number_of_time_steps = 24 * 7 * 52  # 24 hour * 7 days * 52 weeks
 solver_verbose = False  # show/hide solver output
 
 # initiate the logger (see the API docs for more information)
@@ -122,12 +148,6 @@ date_time_index = pd.date_range(
 
 energysystem = solph.EnergySystem(timeindex=date_time_index)
 print(date_time_index)
-
-# Read data file after running pre-design
-data = pd.read_csv(r"ww_biogas_tibnine_proceed.csv")
-design_mass_flowrate = data["wastewater"].max()
-print(f'Mass flow rate {design_mass_flowrate}')
-
 # *********************************************************************************************
 # Create oemof objects (bus, sink , source, transformer....)
 # *********************************************************************************************
@@ -204,8 +224,8 @@ energysystem.add(
 # *********************************************************************************************
 # biogas production form the digester and saving results in csv
 # *********************************************************************************************
-retention_time = 22
-digester_design = Digester(retention_time, design_mass_flowrate)
+
+digester_design = Digester(retention_time, design_mass_flowrate, sludge_density, sludge_specific_gravity, yield_factor)
 design_diameter, volume, bg_conv_factor, surface_area_total, filled_up_volume, organic_loading_rate, volumetric_flowrate = digester_design.compute()
 print(f'Total design diameter : {round(design_diameter, 2)} m')
 print(f'Total volume of digester : {round(volume, 2)} m³')
@@ -270,9 +290,10 @@ energysystem.add(
         label="bio_methane",
         inputs={bbgas: solph.Flow()},
         outputs={bch4: solph.Flow(nominal_value=10e5)},
-        conversion_factors={bch4: 0.65 * 9.4},  # energy content of methane -> 9.4 kWh/m³ (Source: Irena 2015)
+        conversion_factors={bch4: 0.65*9.4},
     )
 )
+
 
 energysystem.add(
     solph.Transformer(
@@ -280,7 +301,8 @@ energysystem.add(
         inputs={bch4: solph.Flow()},
         outputs={bel: solph.Flow(nominal_value=10e5),
                  bheat: solph.Flow(nominal_value=10e5)},
-        conversion_factors={bel: 0.35, bheat: 0.6},
+        conversion_factors={bel: 0.35, bheat: 0.6},  # electrical conversion factor: 0.35;
+        # thermal conversion factor: 0.6
     )
 )
 
@@ -492,27 +514,16 @@ print("********* Meta results *********")
 pp.pprint(energysystem.results["meta"])
 print("")
 
-# print the sums of the flows around the system bus and saving in csv file
+# create annual sums of the flows around the buses and saving the aggregated data in a csv file
 print("********* Main results *********")
-print(electricity_bus["sequences"].sum(axis=0))
-print(type(electricity_bus["sequences"].sum(axis=0).to_numpy()))
-print(electricity_bus["sequences"].sum(axis=0).to_numpy())
+methane_series = bio_methane_bus["sequences"].sum(axis=0)
 elec_series = electricity_bus["sequences"].sum(axis=0)
-print("----------")
-
-# print(heat_bus)
-print(heat_bus["sequences"].sum(axis=0))
-print(heat_bus["sequences"].sum(axis=0).to_numpy())
 heat_series = heat_bus["sequences"].sum(axis=0)
-print("----------")
-
-# print(custom_storage)
-print(custom_storage["sequences"].sum(axis=0))
-print(custom_storage["sequences"].sum(axis=0).to_numpy())
 storage_series = custom_storage["sequences"].sum(axis=0)
 print("----------")
 
-comb_series = pd.concat([elec_series, heat_series, storage_series], axis=0)
+
+comb_series = pd.concat([methane_series, elec_series, heat_series, storage_series], axis=0)
 dfcomb = pd.DataFrame(comb_series, columns=["Value"])
 dfcomb.to_csv("main_results.csv", index=True)
 print(comb_series)

@@ -1,0 +1,10 @@
+,OWEFE_raw,OWEFE,AUB,Comment
+Total Annual Biogas Production [m³],,67956,50067,"Why is OWEFE Biogas Production higher? Retention time difference? OWEFE: 22 days, We do not have the same digester; digester design acording to the maximum annual incoming mass flow "
+Total Annual Electrictal Energy Production [MWh/a],223576.1149,223.5761149,148.02,
+Annual Electricity Demand Digester [MWh/a],27516.39859,27.51639859,24.02,"Why is OWEFE electricity demand of digester higher? We assumed higher energy demand for mixing; continously mixing the filled up volume of the digester tank 7.9 W/m³ filled up volume, how did they calculate it?"
+Net Annual Electricity Production [MWh/a],196059.7155,196.0597155,124,
+Total Annual Heat Production [MWh/a],383273.3312,383.2733312,,Suggest Usage of Produced Heat
+Net Annual Heat Production [MWh/a],356645.6914,356.6456914,,
+Annual Heat Demand Digester [MWh/a],26627.64135,26.62764135,,
+Assumed Electrical Energy Demand [MWh/a],,412,412,
+Electrical Energy Recovery Potential [%],,0.475873096,0.300970874,

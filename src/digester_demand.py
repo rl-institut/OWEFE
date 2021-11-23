@@ -1,5 +1,5 @@
-# we assume : electrical energy needed to mix the sludge is 5.27- 7.9 W/kg
-#            : electrical energy needed to pump the sludge is 150 W/kg
+# we assume : electrical energy needed to mix the sludge is 5.27- 7.9 W/m³ filled up volume
+#            : electrical energy needed to pump is 28.3 Wh/kg dewatered sludge
 # (source: A.E. Joauhari et al., 2021,Final Project, Beirut Arab University)
 # SED is the specific energy demand
 
@@ -16,8 +16,8 @@ class HeatCalculation:
 
     def compute(self):
         # conversion factors
-        cf_jtokwh = 1/3600000
-        cf_whtokwh = 1/1000
+        cf_jtokwh = 1/3600000  # Joule to kWh
+        cf_whtokwh = 1/1000  # Wh to kWh
         heating = self.om_flow * self.heat_capacity * (self.temp_digester - self.temp_ambient) * cf_jtokwh
         heat_loss = self.heat_transfer_coefficient * self.surface_area * (
                     self.temp_digester - self.temp_ambient) * cf_whtokwh
@@ -34,8 +34,9 @@ class ElectricityCalculation:
     def compute(self):
 
         sed_mixing = 0.0079 * self.filled_up_volume    # electricity demand for mixing
-        # of the organic matter in the digester [kWh],assuming 7.9 W/m³ (Jouahuri et al. 2021)
+        # of the organic matter in the digester [kWh],assuming 7.9 W/m³
+        # (Final Year Project, Beirut Arab University 2021)
         sed_pumping = 0.0283 * self.om_flow            # electricity demand for pumping the organic matter flow,
-        # assuming 28.3 Wh/kg (Jouahuri et al. 2021)
+        # assuming 28.3 Wh/kg (Final Year Project, Beirut Arab University 2021)
         electricity_demand = sed_mixing + sed_pumping  # [kWh/h]
         return electricity_demand

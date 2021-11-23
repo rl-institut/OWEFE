@@ -1,10 +1,11 @@
 # Assumptions
-# 1) optimum dimension rate: diameter : total_height = 1.5 : 1; (Source: michigan.gov/documents/deq/wrd-ot-anaerobic-digestion-process, 2013))
-# 4) density of sludge = 997 kg/m3 (source: final year project, 2021, Berut Arab University)
-# 5) specific gravity of sludge = 1.02 (source: final year project, 2021, Berut Arab University)
-# 6) temperature = 35 degree Celsius (source: final year project, 2021, Berut Arab University)
-# 7) solid concentration = 20% of wet feedstock sludge (source: final year project, 2021, Berut Arab University)
-# 8) volatile solid concentration = 80% of dry solid (source: final year project, 2021, Berut Arab University)
+# 1) optimum dimension rate: diameter : total_height = 1.5 : 1;
+# (Source: michigan.gov/documents/deq/wrd-ot-anaerobic-digestion-process, 2013))
+# 2) density of sludge = 997 kg/m3 (source: final year project, 2021, Beirut Arab University)
+# 3) specific gravity of sludge = 1.02 (source: final year project, 2021, Beirut Arab University)
+# 4) temperature inside of the digester = 35 degree Celsius (source: final year project, 2021, Beirut Arab University)
+# 5) solid concentration = 20% of wet feedstock sludge (source: final year project, 2021, Beirut Arab University)
+# 6) volatile solid concentration = 80% of dry solid (source: final year project, 2021, Beirut Arab University)
 """
     ********** Dimension of Digester ************
     digester type: floating drum plant (photo source: IRENA_statistics_Measuring_scale_biogas, 2016)
@@ -50,14 +51,20 @@ import numpy as np
 
 
 class Digester:
-    def __init__(self, retention_time, design_mass_flowrate):
+    def __init__(self, retention_time, design_mass_flowrate, sludge_density, sludge_specific_gravity, yield_factor):
         self.retention_time = retention_time
         self.design_mass_flowrate = design_mass_flowrate
+        self.sludge_density = sludge_density
+        self.sludge_specific_gravity = sludge_specific_gravity
+        self.yield_factor = yield_factor
+        self.volumetric_flowrate = self.design_mass_flowrate * 24 / (self.sludge_density * self.sludge_specific_gravity)
+        # Unit: [m³/days] Multiply by 24 to convert hour to days
+    def compute(self):
+        volumetric_flowrate = self.design_mass_flowrate * 24 / (self.sludge_density * self.sludge_specific_gravity)
 
-    def compute(self, sludge_density=997, sludge_specific_gravity= 1.02, yield_factor= 9.33):
-        volumetric_flowrate = self.design_mass_flowrate * 24 / (sludge_density * sludge_specific_gravity) # Multiply 24 to convert hour to days
-        filled_up_volume = volumetric_flowrate * self.retention_time   # assuming that there is continuous input of dewatered sludge (retention time to hours)
-        height3 = np.cbrt(filled_up_volume / (math.pi * (3.06 / 2) ** 2)) # value 3.06 is calculated above
+        filled_up_volume = volumetric_flowrate * self.retention_time   # filled up colume is constant
+        # assuming that there is continuous & constant input of dewatered sludge (retention time to hours)
+        height3 = np.cbrt(filled_up_volume / (math.pi * (3.06 / 2) ** 2))  # value 3.06 is calculated above
         height2 = height3 / 0.7
         height1 = 3 / 7 * height2
         total_height_digester = height1 + height2
@@ -73,5 +80,5 @@ class Digester:
         organic_loading_rate = design_volatile_load / filled_up_volume * 24 # Units hour to days
         if self.retention_time > 30:  # retention_time in days
             yield_factor = 10.59
-        conv_factor = (volume_total * yield_factor * 0.2 * 0.8) / 1000  # unit conversion is described above
+        conv_factor = (volume_total * self.yield_factor * 0.2 * 0.8) / 1000  # unit conversion is described above
         return diameter, volume_total, conv_factor, surface_area_total, filled_up_volume, organic_loading_rate, volumetric_flowrate

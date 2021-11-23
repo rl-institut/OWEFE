@@ -10,16 +10,23 @@ inpdf = pd.read_csv(r'ww_biogas_tibnine_raw.csv')
 # Units of raw data file: wastewater/dewatered_sludge [kg/h], heat demand [kWh/h],
 # electricity demand [kWh/h], water demand [m³]
 
+# Digester operation parameters
+# temperature inside of the digester = 35 degree Celsius (source: final year project, 2021, Beirut Arab University)
+retention_time = 22
+# Characteristic of input sludge
 # incoming organic matter flow
-design_mass_flowrate = inpdf["wastewater"].max()  # [kg/h]
+design_mass_flowrate = inpdf["wastewater"].max()  # [kg/
+sludge_density = 997  # kg/m3 (source: final year project, 2021, Beirut Arab University)
+sludge_specific_gravity = 1.02  # unitless, (source: final year project, 2021, Beirut Arab University)
+heat_capacity_sludge = 4200  # J/kg°C heat capacity dewatered sludge assumed to be same as water
+# (source: final year project, 2021, Beirut Arab University)
+yield_factor = 9.3  # (source: final year project, 2021, Beirut Arab University)
+# dry solid concentration = 20% of wet feedstock sludge (source: final year project, 2021, Beirut Arab University)
+# volatile solid concentration = 80% of dry solid (source: final year project, 2021, Beirut Arab University)
 
-# heat capacity of organic matter flow in this case: dewatered sludge assumed to be same as water Cp = 4200 J/kg °C;
-# Source: El Joauhari et al. 2021
-heat_capacity_sludge = 4200
 print(design_mass_flowrate)
 
-retention_time = 22
-digester_design = Digester(retention_time, design_mass_flowrate)
+digester_design = Digester(retention_time, design_mass_flowrate, sludge_density, sludge_specific_gravity, yield_factor)
 diameter, volume, bg_prod, surface_area_total, filled_up_volume, organic_loading_rate, volumetric_flowrate = digester_design.compute()
 print('surface_area_total: ', round(surface_area_total, 2))
 

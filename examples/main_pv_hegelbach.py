@@ -1,7 +1,6 @@
 # Basic Photovoltaic Model; 1 m² Photovoltaic panel
-#import csv
-#import math
-import energy_system_graph
+# import csv
+# import mat
 
 from oemof.tools import logger
 from oemof import solph
@@ -20,7 +19,7 @@ except ImportError:
 
 solver = "cbc"
 debug = False  # Set number_of_timesteps to 3 to get a readable lp-file.
-number_of_time_steps = 24 * 7 * 8
+number_of_time_steps = 24
 solver_verbose = False  # show/hide solver output
 
 # initiate the logger (see the API docs for more information)
@@ -42,7 +41,6 @@ print(date_time_index)
 # Read input data file
 
 data = pd.read_csv(r"apv_hegelbach_raw.csv")
-print(data["BHI"])
 
 # Create oemof objects bus, sink , source, transformer...
 
@@ -97,7 +95,7 @@ energysystem.add(
 )
 
 # electricity production
-energysystem.add(solph.Sink(label="electricity demand", inputs={beac: solph.Flow()}))
+energysystem.add(solph.Sink(label="electricity production", inputs={beac: solph.Flow()}))
 
 
 ##########################################################################
@@ -163,25 +161,18 @@ print("")
 print("********* Main results *********")
 pp.pprint(energysystem.results["main"])
 
+print(beac["sequences"].sum(axis=0))
+print(type(beac["sequences"].sum(axis=0).to_numpy()))
+print(beac["sequences"].sum(axis=0).to_numpy())
+elec_series = beac["sequences"].sum(axis=0)
+print("----------")
+
 # plot data
-#if plt is not None:
-    # # plot PQ diagram from component results
-    # data = results[(bpt, None)]["sequences"]
-    # ax = data.plot(kind="scatter", x="Q", y="P", grid=True)
-    # ax.set_xlabel("Q (MW)")
-    # ax.set_ylabel("P (MW)")
-    # plt.show()
+if plt is not None:
 
     # plot AC bus
-    #data = solph.views.node(results, "beac")
-    #ax = data.plt(grid=True)
-    #ax.set_xlabel("Time (h)")
-    #ax.set_ylabel("P (kW)")
-    #plt.show()
-    #plt.show()
-
-#energy_system_graph.ESGraphRenderer(energysystem, "C:/Users/Julian/PycharmProjects/oemof-visio-master/oemof_visio/PV-hegelbach.png")
-
-#print(energy_system_graph.render(energysystem))
-
-#print(self.dot.render(**kwargs))
+    data = solph.views.node(results, "beac")
+    ax = data.plt(grid=True)
+    ax.set_xlabel("Time (h)")
+    ax.set_ylabel("P (kW)")
+    plt.show()
