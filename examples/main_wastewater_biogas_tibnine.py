@@ -89,7 +89,7 @@ except ImportError:
 # changing cwd to use the function from the main file
 os.chdir("../src/")
 from src.components.digester_BAU import Digester
-from src.components.constructedwetlands import Constructed_wetlands
+#  from src.components.constructedwetlands import Constructed_wetlands
 from digester_demand import HeatCalculation
 from digester_demand import ElectricityCalculation
 
@@ -114,7 +114,7 @@ print(f'Number of time steps measured : {number_of_time_steps} hours')
 
 logging.info("Initialize the energy system")
 date_time_index = pd.date_range(
-    "1/1/2021", periods=number_of_time_steps, freq="H")
+    "1/1/2020", periods=number_of_time_steps, freq="H")
 
 energysystem = solph.EnergySystem(timeindex=date_time_index)
 print(date_time_index)
@@ -163,14 +163,16 @@ for i, r in data.iterrows():
 data.to_csv("ww_biogas_tibnine_proceed.csv", index=False)
 
 for i, r in data.iterrows():
-    electricity_demand = ElectricityCalculation(om_flow=r['dewatered_sludge'], filled_up_volume=filled_up_volume)
-    data.loc[i, "electricity_demand_digester"] = electricity_demand.compute()
+    electricity_demand_digester = ElectricityCalculation(om_flow=r['dewatered_sludge'], filled_up_volume=filled_up_volume)
+    data.loc[i, "electricity_demand_digester"] = electricity_demand_digester.compute()
 
 data.to_csv("ww_biogas_tibnine_proceed.csv", index=False)
 
 # Create electricity demand panda.Series in same time index as the oemof flows
-electricity_demand = pd.Series(data["demand_electricity"],
-                              index=date_time_index, name="electricity_demand")
+demand_electricity = data["demand_electricity"].to_list()
+print(demand_electricity)
+electricity_demand = pd.Series(demand_electricity,
+                              index=date_time_index, name="electricity demand WWTP")
 #electricity_demand = pd.Series([1, 1, 1, 1, 1, 3, 5, 7, 12, 6, 4, 4, 9, 14, 8, 3, 4, 4, 9, 10, 6, 5, 3, 2],
  #                              index=date_time_index, name="electricity demand")
 print(electricity_demand)
@@ -213,28 +215,28 @@ energysystem.add(bsld, bel, bslu, beff1, beff2, bdig, bbgas, bch4, bheat)
 energysystem.add(solph.Sink(label="excess_biogas", inputs={bch4: solph.Flow()}))
 
 # create excess sink to represent electricity production
-energysystem.add(solph.Sink(label="excess_electricity", inputs={bel: solph.Flow()}))
+energysystem.add(solph.Sink(label="electricity production", inputs={bel: solph.Flow()}))
 
 # create excess sink to represent heat production
-energysystem.add(solph.Sink(label="excess_heat", inputs={bheat: solph.Flow()}))
+energysystem.add(solph.Sink(label="excess heat production", inputs={bheat: solph.Flow()}))
 
 # create excess sink to represent the water production
-energysystem.add(solph.Sink(label="excess_water", inputs={beff2: solph.Flow()}))
+energysystem.add(solph.Sink(label="water production", inputs={beff2: solph.Flow()}))
 
 # create sink object representing the fertilizer production
-energysystem.add(solph.Sink(label="excess_fertilizer", inputs={bdig: solph.Flow()}))
+energysystem.add(solph.Sink(label="fertilizer production", inputs={bdig: solph.Flow()}))
 
 # create fixed source object representing domestic sewage
 energysystem.add(
     solph.Source(
-        label="wastewater",
+        label="dewatered_sludge",
         outputs={bsld: solph.Flow(fix=data["dewatered_sludge"], nominal_value=1)},
     )
 )
 
 energysystem.add(
     solph.Sink(
-        label="electricity_demand_digester (kWh)",
+        label="electricity demand digester",
         inputs={bel: solph.Flow(fix=data["electricity_demand_digester"], nominal_value=1)},
     )
 )
@@ -243,7 +245,7 @@ energysystem.add(
 
 energysystem.add(
     solph.Sink(
-        label="heat_demand_digester",
+        label="heat demand digester",
         inputs={bheat: solph.Flow(fix=data["heat_demand_digester"], nominal_value=1)},
     )
 )
@@ -308,7 +310,7 @@ energysystem.add(
 
 energysystem.add(
     solph.Transformer(
-        label="digester_slurry",
+        label="slurry output of digester",
         inputs={bsld: solph.Flow()},
         outputs={bslu: solph.Flow(nominal_value=10e5)},
         conversion_factors={bslu: 0.50},
@@ -316,7 +318,7 @@ energysystem.add(
 )
 energysystem.add(
     solph.Transformer(
-        label="bio_methane",
+        label="bio-methane bus",
         inputs={bbgas: solph.Flow()},
         outputs={bch4: solph.Flow(nominal_value=10e5)},
         conversion_factors={bch4: 0.65*9.4},
@@ -337,7 +339,7 @@ energysystem.add(
 
 energysystem.add(
     solph.Transformer(
-        label="dewatering_dig",
+        label="dewatering unit",
         inputs={bslu: solph.Flow()},
         outputs={bdig: solph.Flow(nominal_value=10e2)},
         conversion_factors={bdig: 0.42},
@@ -346,7 +348,7 @@ energysystem.add(
 
 energysystem.add(
     solph.Transformer(
-        label="dewatering_eff",
+        label="dewatering eff",
         inputs={bslu: solph.Flow()},
         outputs={beff1: solph.Flow(nominal_value=10e2)},
         conversion_factors={beff1: 0.9},
@@ -355,7 +357,7 @@ energysystem.add(
 
 energysystem.add(
     solph.Transformer(
-        label="constructed_wetland",
+        label="constructed wetland",
         inputs={beff1: solph.Flow()},
         outputs={beff2: solph.Flow(nominal_value=10e2)},
         conversion_factors={beff2: 0.9},
@@ -365,7 +367,7 @@ energysystem.add(
 # create storage object representing a biogas storage
 storage = solph.components.GenericStorage(
     nominal_storage_capacity=10000,
-    label="ch4_storage",
+    label="CH4 storage",
     inputs={bch4: solph.Flow()},
     outputs={bch4: solph.Flow(nominal_value=10000 / 6)},
     loss_rate=0.00,
@@ -380,7 +382,7 @@ energysystem.add(storage)
 # Simulate the iWEFEs and plot the results
 ##########################################################################
 
-logging.info("Optimise the iWEFEs")
+logging.info("Simulate the iWEFEs")
 
 # initialise the operational model
 model = solph.Model(energysystem)
@@ -429,7 +431,7 @@ energysystem.restore(dpath=None, filename=None)
 
 # define an alias for shorter calls below (optional)
 results = energysystem.results["main"]
-storage = energysystem.groups["ch4_storage"]
+storage = energysystem.groups["CH4 storage"]
 
 # print a time slice of the state of charge
 print("")
@@ -445,7 +447,8 @@ print("")
 # get results of a specific component/bus
 # *****************************************************************************
 
-custom_storage = solph.views.node(results, "ch4_storage")
+
+custom_storage = solph.views.node(results, "CH4 storage")
 electricity_bus = solph.views.node(results, "electricity")
 heat_bus = solph.views.node(results, "heat")
 digestate_bus = solph.views.node(results, "digestate")
@@ -460,6 +463,19 @@ bio_methane_bus = solph.views.node(results, "bio-methane")
 # plot the time series (sequences) of specific components
 # ******************************************************************************
 if plt is not None:
+
+    fig, ax = plt.subplots(figsize=(10,5))
+    sludge_bus["sequences"].plot(
+        ax=ax, kind="line", drawstyle="steps-post"
+    )
+    plt.legend(
+        loc="upper center", prop={"size": 8}, bbox_to_anchor=(0.5, 1.3), ncol=2
+    )
+    fig.subplots_adjust(top=0.8)
+    plt.title("Dewatered Sludge")
+    plt.xlabel("Time Period [h]")
+    plt.ylabel("Mass Flow Rate [kg]")
+    plt.show()
 
     fig, ax = plt.subplots(figsize=(10, 5))
     electricity_bus["sequences"].plot(
@@ -503,28 +519,28 @@ if plt is not None:
         bbox_to_anchor=(0.5, 1.25),
         ncol=2,
     )
-    fig.subplots_adjust(top=0.8)
-    plt.title("Digestate Bus")
-    plt.xlabel("Time Period [h]")
-    plt.ylabel("Flow [m³]")
-    plt.grid()
-    plt.show()
+    #fig.subplots_adjust(top=0.8)
+    #plt.title("Digestate Bus")
+    #plt.xlabel("Time Period [h]")
+    #plt.ylabel("Flow [m³]")
+    #plt.grid()
+    #plt.show()
 
-    fig, ax = plt.subplots(figsize=(10, 3))
-    effluent2_bus["sequences"].plot(
-        ax=ax, kind="line", drawstyle="steps-post"
-    )
-    plt.legend(
-        loc="lower center",
-        prop={"size": 8},
-        bbox_to_anchor=(0.5, 1.25),
-        ncol=1,
-    )
-    fig.subplots_adjust(top=0.7)
-    plt.title("Effluent2 Bus")
-    plt.xlabel("Time Period [hour]")
-    plt.ylabel("Flow [m³]")
-    plt.show()
+    #fig, ax = plt.subplots(figsize=(10, 3))
+    #effluent2_bus["sequences"].plot(
+        #ax=ax, kind="line", drawstyle="steps-post"
+    #)
+    #plt.legend(
+        #loc="lower center",
+        #prop={"size": 8},
+        #bbox_to_anchor=(0.5, 1.25),
+        #ncol=1,
+    #)
+    #fig.subplots_adjust(top=0.7)
+    #plt.title("Effluent2 Bus")
+    #plt.xlabel("Time Period [hour]")
+    #plt.ylabel("Flow [m³]")
+    #plt.show()
 
 # ***************************************************************************
 #  print and export the results
@@ -558,26 +574,26 @@ print(effluent1_bus["sequences"].sum(axis=0))
 print(effluent2_bus["sequences"].sum(axis=0))
 print(bio_methane_bus["sequences"].sum(axis=0))
 
-logging.info("************Average discharge (influent & effluent) in CW************")
-print(effluent1_bus["sequences"].mean())
-influ_array = effluent1_bus["sequences"].max().to_numpy()
-influ_list1 = np.array(influ_array.tolist())
-inflow = float(round(influ_list1[0], 2))
+# logging.info("************Average discharge (influent & effluent) in CW************")
+# print(effluent1_bus["sequences"].mean())
+# influ_array = effluent1_bus["sequences"].max().to_numpy()
+# influ_list1 = np.array(influ_array.tolist())
+# inflow = float(round(influ_list1[0], 2))
 
-print(effluent2_bus["sequences"].mean())
-influ_array = effluent2_bus["sequences"].max().to_numpy()
-influ_list2 = np.array(influ_array.tolist())
-outflow = float(round(influ_list2[0], 2))
+# print(effluent2_bus["sequences"].mean())
+# influ_array = effluent2_bus["sequences"].max().to_numpy()
+# influ_list2 = np.array(influ_array.tolist())
+# outflow = float(round(influ_list2[0], 2))
 # inflow1 = str(round(inflow, 2))
-print(inflow)
-print(outflow)
+# print(inflow)
+# print(outflow)
 
-logging.info("*****Checking different parameters with WHO guidelines*******")
-parameter = Constructed_wetlands(152, 137)
-avg_discharge, cw_area, net_evaporation, BOD_effluent, COD_effluent, NO3_effluent = parameter.compute()
-print('BOD5 effluent : ', round(BOD_effluent, 2))
-print('COD effluent : ', round(COD_effluent, 2))
-print('Nitrate effluent: ', round(NO3_effluent, 2))
+# logging.info("*****Checking different parameters with WHO guidelines*******")
+# parameter = Constructed_wetlands(152, 137)
+# avg_discharge, cw_area, net_evaporation, BOD_effluent, COD_effluent, NO3_effluent = parameter.compute()
+# print('BOD5 effluent : ', round(BOD_effluent, 2))
+# print('COD effluent : ', round(COD_effluent, 2))
+# print('Nitrate effluent: ', round(NO3_effluent, 2))
 
 logging.info("***********Bio-gas utilization graph***************")
 # print(len(bio_methane_bus["sequences"]))
@@ -588,7 +604,7 @@ print(bio_methane_bus_npy)
 bio_methane = bio_methane_bus_npy[:, 0]
 fig, axs = plt.subplots(1, 2, figsize=(5, 5))
 axs[0].plot(bio_methane)
-axs[0].set_title('bio_methane production')
-axs[0].set_ylabel('bio_methane (KW)')
-axs[0].set_xlabel('time (hour)')
+axs[0].set_title('Bio Methane production')
+axs[0].set_ylabel('Energy Content bio-methane (KW)')
+axs[0].set_xlabel('time (h)')
 plt.show()
