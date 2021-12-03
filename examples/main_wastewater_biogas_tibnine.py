@@ -124,8 +124,8 @@ print(date_time_index)
 # *********************************************************************************************
 # Read input data file
 data = pd.read_csv(r"ww_biogas_tibnine_raw.csv")
-# Units of raw data file: dewatered_sludge [kg/h], heat demand [kWh/h],
-# electricity demand [kWh/h], water demand [m³]
+# Units of raw data file: dewatered_sludge [kg/h], heat demand [kW],
+# electricity demand [kW], water demand [m³/h], timestep: H
 
 
 # *********************************************************************************************
@@ -142,6 +142,9 @@ specific_gas_production = 1  # [m³/kg VS] specific biogas production per kg des
 
 # Digester Design Parameters
 design_mass_flow = data["dewatered_sludge"].max()  # [kg/h]
+average_mass_flow =data["dewatered_sludge"].mean()  # [kg/h]
+average_volumetric_flow = 24*average_mass_flow/(sludge_specific_gravity*sludge_density)  # [m³/d]
+
 retention_time = 22  # [d]
 volatile_solid_destruction_rate = 0.6175  # @ retention time of 22 days
 temp_digester = 35  # Temperature inside the Digester
@@ -168,14 +171,16 @@ for i, r in data.iterrows():
 
 data.to_csv("ww_biogas_tibnine_proceed.csv", index=False)
 
-# Create electricity demand panda.Series in same time index as the oemof flows
+# Create electricity demand panda.Series in same time index as the oemof flows for plotting
 demand_electricity = data["demand_electricity"].to_list()
-print(demand_electricity)
 electricity_demand = pd.Series(demand_electricity,
                               index=date_time_index, name="electricity demand WWTP")
-#electricity_demand = pd.Series([1, 1, 1, 1, 1, 3, 5, 7, 12, 6, 4, 4, 9, 14, 8, 3, 4, 4, 9, 10, 6, 5, 3, 2],
- #                              index=date_time_index, name="electricity demand")
-print(electricity_demand)
+
+# Create dewatered_sludge panda.Series in same time index as the oemof flows for plotting
+dewatered_sludge_ls = data["dewatered_sludge"].to_list()
+dewatered_sludge = pd.Series(dewatered_sludge_ls,
+                              index=date_time_index, name="dewatered sludge")
+
 
 # *********************************************************************************************
 # define iWEFEs/Create oemof objects (bus, sink , source, transformer....)
@@ -257,19 +262,20 @@ energysystem.add(
 digester_design = Digester(retention_time, design_mass_flow, volatile_solid_destruction_rate, sludge_density,
                  sludge_specific_gravity, dry_solid_concentration, volatile_solid_concentration,
                  specific_gas_production)
-design_diameter, volume, biogas_prod, surface_area_total, filled_up_volume, organic_loading_rate, volumetric_flowrate = digester_design.compute()
-print(f'Total design diameter : {round(design_diameter, 2)} m')
-print(f'Total volume of digester : {round(volume, 2)} m³')
-print('feedstock to biogas conversion factor [kg -> m³]: ', round(f_b_cf, 2))
-print(f'surface_area_total: , {round(surface_area_total, 2)} m²')
-print(f'Organic loading rate (OLR) : {round(organic_loading_rate, 2)} Kg VS/m3.days')
-print(f'volumetric flowrate : {round(volumetric_flowrate, 2)} m3/hour')
+design_diameter, volume, biogas_prod, surface_area_total, filled_up_volume, organic_loading_rate, design_volumetric_flow = digester_design.compute()
+print(f'Diameter [m] : {round(design_diameter, 2)} ')
+print(f'Total volume of digester [m³] : {round(volume, 2)}')
+print(f'feedstock to biogas conversion factor [kg -> m³]: {round(f_b_cf, 2)}')
+print(f'Total Surface Area: , {round(surface_area_total, 2)}')
+print(f'Organic loading rate (OLR) : {round(organic_loading_rate, 2)} [Kg VS/(m³d)]')
+print(f'Volumetric Flow Rate : {round(design_volumetric_flow, 2)} [m3/h]')
 a_file = open("Digester_Dimension.csv", "w")
-a_dict = {"Total design diameter": f'{round(design_diameter, 2)} m'}
-b_dict = {"Total volume of digester": f'{round(volume, 2)} m³'}
-c_dict = {"Biogas Conversion Factor": f'{round(f_b_cf, 2)} '}
-d_dict = {"surface_area_total": f'{round(surface_area_total, 2)} m²'}
-e_dict = {"Volumetric flow rate": f'{volumetric_flowrate} m3/days'}
+a_dict = {"Diameter [m]": f'{round(design_diameter, 2)}'}
+b_dict = {"Total Volume of Digester [m³]": f'{round(volume, 2)}'}
+c_dict = {"Feed to Biogas Conversion Factor[m³/kg]": f'{round(f_b_cf, 2)}'}
+d_dict = {"Total Surface Area [m²]": f'{round(surface_area_total, 2)}'}
+e_dict = {"Design Volumetric Flow [m³/d]": f'{design_volumetric_flow}'}
+f_dict = {"Average Volumetric Flow [m³/d]": f'{average_volumetric_flow}'}
 writer = csv.writer(a_file)
 for key, value in a_dict.items():
     writer.writerow([key, value])
@@ -284,6 +290,9 @@ for key, value in d_dict.items():
     writer.writerow([key, value])
 
 for key, value in e_dict.items():
+    writer.writerow([key, value])
+
+for key, value in f_dict.items():
     writer.writerow([key, value])
 a_file.close()
 
@@ -332,8 +341,9 @@ energysystem.add(
         inputs={bch4: solph.Flow()},
         outputs={bel: solph.Flow(nominal_value=10e5),
                  bheat: solph.Flow(nominal_value=10e5)},
-        conversion_factors={bel: 0.35, bheat: 0.6},  # electrical conversion factor: 0.35;
-        # thermal conversion factor: 0.6
+        conversion_factors={bel: 0.9*0.35, bheat: 0.9*0.65},  # biogas boiler efficiency: 0.9 (BAU, 2021);
+        # electrical conversion factor 0.35;
+        # thermal conversion factor: 0.65
     )
 )
 
@@ -462,19 +472,42 @@ bio_methane_bus = solph.views.node(results, "bio-methane")
 # ******************************************************************************
 # plot the time series (sequences) of specific components
 # ******************************************************************************
+# Create electricity demand panda.Series in same time index as the oemof flows for plotting
+demand_electricity = data["demand_electricity"].to_list()
+electricity_demand = pd.Series(demand_electricity,
+                              index=date_time_index, name="electricity demand WWTP")
+
+# Create dewatered_sludge volumetric flow panda.Series in same time index as the oemof flows for plotting
+dewatered_sludge_ls = data["dewatered_sludge"].to_list()
+dewatered_sludge = pd.Series(dewatered_sludge_ls,
+                              index=date_time_index, name="dewatered sludge")
+
 if plt is not None:
 
     fig, ax = plt.subplots(figsize=(10,5))
-    sludge_bus["sequences"].plot(
+    dewatered_sludge.plot(
         ax=ax, kind="line", drawstyle="steps-post"
     )
     plt.legend(
         loc="upper center", prop={"size": 8}, bbox_to_anchor=(0.5, 1.3), ncol=2
     )
-    fig.subplots_adjust(top=0.8)
+    fig.subplots_adjust(top=0.8, bottom=0.15)
     plt.title("Dewatered Sludge")
+    plt.xlabel("Time Period")
+    plt.ylabel("Mass Flow [kg/h]")
+    plt.show()
+
+    fig, ax = plt.subplots(figsize=(10, 5))
+    biogas_bus["sequences"].plot(
+    ax= ax, kind="line", drawstyle="steps-post"
+    )
+    plt.legend(
+        loc="upper center", prop={"size": 8}, bbox_to_anchor=(0.5, 1.3), ncol=2
+    )
+    fig.subplots_adjust(top=0.8, bottom=0.15)
+    plt.title("Biogas")
     plt.xlabel("Time Period [h]")
-    plt.ylabel("Mass Flow Rate [kg]")
+    plt.ylabel("Biogas Production [m³/h]")
     plt.show()
 
     fig, ax = plt.subplots(figsize=(10, 5))
@@ -487,7 +520,7 @@ if plt is not None:
     plt.legend(
         loc="upper center", prop={"size": 8}, bbox_to_anchor=(0.5, 1.3), ncol=2
     )
-    fig.subplots_adjust(top=0.8)
+    fig.subplots_adjust(top=0.8, bottom=0.15)
     plt.title("Electricity Bus")
     plt.xlabel("Time Period [h]")
     plt.ylabel("Electrical Energy [kW]")
@@ -503,44 +536,13 @@ if plt is not None:
         bbox_to_anchor=(0.5, 1.3),
         ncol=3,
     )
-    fig.subplots_adjust(top=0.8)
+    fig.subplots_adjust(top=0.8, bottom=0.15)
     plt.title("Heat Bus")
     plt.xlabel("Time Period [h]")
     plt.ylabel("Heat [kW]")
     plt.show()
-    #
-    fig, ax = plt.subplots(figsize=(10, 5))
-    digestate_bus["sequences"].plot(
-        ax=ax, kind="line", drawstyle="steps-post"
-    )
-    plt.legend(
-        loc="upper center",
-        prop={"size": 8},
-        bbox_to_anchor=(0.5, 1.25),
-        ncol=2,
-    )
-    #fig.subplots_adjust(top=0.8)
-    #plt.title("Digestate Bus")
-    #plt.xlabel("Time Period [h]")
-    #plt.ylabel("Flow [m³]")
-    #plt.grid()
-    #plt.show()
 
-    #fig, ax = plt.subplots(figsize=(10, 3))
-    #effluent2_bus["sequences"].plot(
-        #ax=ax, kind="line", drawstyle="steps-post"
-    #)
-    #plt.legend(
-        #loc="lower center",
-        #prop={"size": 8},
-        #bbox_to_anchor=(0.5, 1.25),
-        #ncol=1,
-    #)
-    #fig.subplots_adjust(top=0.7)
-    #plt.title("Effluent2 Bus")
-    #plt.xlabel("Time Period [hour]")
-    #plt.ylabel("Flow [m³]")
-    #plt.show()
+
 
 # ***************************************************************************
 #  print and export the results
@@ -552,27 +554,31 @@ print("")
 print("********* Main results *********")
 pp.pprint(energysystem.results["main"])
 
-# caclulate annual production sums and export them as csv file
-methane_series = bio_methane_bus["sequences"].sum(axis=0)
-elec_series = electricity_bus["sequences"].sum(axis=0)
-heat_series = heat_bus["sequences"].sum(axis=0)
-storage_series = custom_storage["sequences"].sum(axis=0)
+# calculate annual production sums and export them as csv file
+dewatered_sludge_sum = dewatered_sludge.sum()  #  cannot concatenate object of class numpy.float64,
+# only Series and DataFrame objs are valid
+biogas_sum = biogas_bus["sequences"].sum(axis=0)
+electricity_sum = electricity_bus["sequences"].sum(axis=0)
+heat_sum = heat_bus["sequences"].sum(axis=0)
+#storage_series = custom_storage["sequences"].sum(axis=0)
 
-comb_series = pd.concat([methane_series, elec_series, heat_series, storage_series], axis=0)
-dfcomb = pd.DataFrame(comb_series, columns=["Value"])
+type(dewatered_sludge)
+type(dewatered_sludge_sum)
+comb_sum = pd.concat([biogas_sum, electricity_sum, heat_sum], axis=0)
+dfcomb = pd.DataFrame(comb_sum, columns=["Value"])
 dfcomb.to_csv("main_results.csv", index=True)
-print(comb_series)
+print(comb_sum)
 print("----------")
 
 # print(heat2_bus["sequences"].sum(axis=0))
-print(digestate_bus["sequences"].sum(axis=0))
-print(custom_storage["sequences"].sum(axis=0))
-print(sludge_bus["sequences"].sum(axis=0))
-print(slurry_bus["sequences"].sum(axis=0))
-print(biogas_bus["sequences"].sum(axis=0))
-print(effluent1_bus["sequences"].sum(axis=0))
-print(effluent2_bus["sequences"].sum(axis=0))
-print(bio_methane_bus["sequences"].sum(axis=0))
+# print(digestate_bus["sequences"].sum(axis=0))
+# print(custom_storage["sequences"].sum(axis=0))
+# print(sludge_bus["sequences"].sum(axis=0))
+# print(slurry_bus["sequences"].sum(axis=0))
+# print(biogas_bus["sequences"].sum(axis=0))
+# print(effluent1_bus["sequences"].sum(axis=0))
+# print(effluent2_bus["sequences"].sum(axis=0))
+# print(bio_methane_bus["sequences"].sum(axis=0))
 
 # logging.info("************Average discharge (influent & effluent) in CW************")
 # print(effluent1_bus["sequences"].mean())
@@ -595,16 +601,23 @@ print(bio_methane_bus["sequences"].sum(axis=0))
 # print('COD effluent : ', round(COD_effluent, 2))
 # print('Nitrate effluent: ', round(NO3_effluent, 2))
 
-logging.info("***********Bio-gas utilization graph***************")
-# print(len(bio_methane_bus["sequences"]))
-print(bio_methane_bus["sequences"])
 
-bio_methane_bus_npy = bio_methane_bus["sequences"].to_numpy()
-print(bio_methane_bus_npy)
-bio_methane = bio_methane_bus_npy[:, 0]
-fig, axs = plt.subplots(1, 2, figsize=(5, 5))
-axs[0].plot(bio_methane)
-axs[0].set_title('Bio Methane production')
-axs[0].set_ylabel('Energy Content bio-methane (KW)')
-axs[0].set_xlabel('time (h)')
-plt.show()
+# Biogas Production_single graph: sequences_is pd DataFrame -> make to pd.Series should work!
+# bio_methane_bus_npy = bio_methane_bus["sequences"].to_numpy()
+# print(bio_methane_bus_npy)
+# bio_methane = bio_methane_bus_npy[:, 2]
+# fig, ax = plt.subplots(figsize=(10, 5))
+# bio_methane.plot(
+#    ax=ax, kind="line", drawstyle = "steps-post"
+#)
+#plt.legend(
+#    loc="upper center", prop={"size": 8}, bbox_to_anchor=(0.5, 1.3), ncol=2
+#)
+#fig.subplots_adjust(top=0.8, bottom=0.15)
+#plt.title('Bio Methane production')
+#plt.xlabel('Time Period [h]')
+#plt.ylabel('Energy Content bio-methane [kW]')
+#plt.show()
+
+
+

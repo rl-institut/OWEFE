@@ -1,13 +1,7 @@
-,OWEFE,BAU
-Total design diameter [m},5.82,5
-,,
-Total volume of digester [m³],82.47,50.47
-,,
-Biogas conversion factor; ?,0.12,
-,,
-surface_area_total,131.4 m²,108.21
-,,
-Total Depth/Height [m³],,4.37
-Volumetric flow rate,2.294176647589828 m3/days,
-,,
-Retention Time ,22,22
+Design Parameter,OWEFE,BAU (2021)
+Diameter [m],6.09,5
+Total volume of digester [m³],96.64,50.47
+Total Surface Area [m²],144.04,108.21
+Average Flow Rate [m³/d],1.69,2.29
+Design Flow Rate [m³/d],2.63,2.29
+Retention Time [d],22,22

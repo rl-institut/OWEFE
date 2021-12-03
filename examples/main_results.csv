@@ -1,15 +1,9 @@
 ,Value
-"(('CH4 storage', 'bio-methane'), 'flow')",0.0
-"(('bio-methane', 'CH4 storage'), 'flow')",0.0
-"(('bio-methane', 'CHP'), 'flow')",378326.2686
-"(('bio-methane', 'excess_biogas'), 'flow')",0.0
-"(('bio-methane bus', 'bio-methane'), 'flow')",378326.2686
-"(('CHP', 'electricity'), 'flow')",132414.194676
+"(('biogas', 'bio-methane bus'), 'flow')",61919.19302399999
+"(('digester_gas', 'biogas'), 'flow')",61919.19302399999
+"(('CHP', 'electricity'), 'flow')",119172.77561760001
 "(('electricity', 'electricity demand digester'), 'flow')",21744.430026409584
-"(('electricity', 'electricity production'), 'flow')",110669.76338639998
-"(('CHP', 'heat'), 'flow')",226995.761304
-"(('heat', 'excess heat production'), 'flow')",204507.041851
+"(('electricity', 'electricity production'), 'flow')",97428.3447816
+"(('CHP', 'heat'), 'flow')",221320.86727199997
+"(('heat', 'excess heat production'), 'flow')",198832.1477721
 "(('heat', 'heat demand digester'), 'flow')",22488.71977770838
-"(('CH4 storage', 'None'), 'storage_content')",0.0
-"(('CH4 storage', 'bio-methane'), 'flow')",0.0
-"(('bio-methane', 'CH4 storage'), 'flow')",0.0
