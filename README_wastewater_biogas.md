@@ -176,9 +176,10 @@ Energy model is always ready for new filters and functions, so if you'd like to 
 ## To Do
 
 *  Fix Constructed wetlands 
-*  Fix Digestate and effluent 2 graph
-*  change methane bus unit from kWh (chemical energy content) to m³
-*  Plot electrical energy demand together with electrical energy production
+*  Fix slurry flow (currently 0), digestate and effluent 2 graph
+*  Simplify Sludge to Methane Conversion (omit Biogas Bus and Methane storage),
+*   change methane bus unit from kWh (chemical energy content) to m³
+*  add dewatered_sludge_sum to output results.csv, main_wastewater_tibnine, line 558
 
 ## Contributors
 
