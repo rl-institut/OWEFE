@@ -63,11 +63,11 @@ bsr = solph.Bus(label="solar radiation")
 # create electricity bus
 be = solph.Bus(label="electricity")
 
-# create AC electricity bus
-bhc = solph.Bus(label="harvested crops")
+# create biomass production bus
+bb = solph.Bus(label="biomass")
 
 # add buses to the iWEFEs
-energysystem.add(bsr, be, bhc)
+energysystem.add(bsr, be, bb)
 
 # Sources
 
@@ -82,8 +82,8 @@ energysystem.add(
 # precipitation
 # fertilizer
 
-# Transformers
-
+## Transformers
+# Solar Energy System
 energysystem.add(
     solph.Transformer(
         label="solar energy system",
@@ -97,8 +97,8 @@ energysystem.add(
     solph.Transformer(
         label="plants",
         inputs={bsr: solph.Flow()},
-        outputs={bhc: solph.Flow()},
-        conversion_factors={be: 0.5}  # Wh -> kcal?
+        outputs={bb: solph.Flow()},
+        conversion_factors={bb: 0.5}  # Wh -> kcal?
     )
 )
 # Sinks
@@ -110,7 +110,7 @@ energysystem.add(solph.Sink(label="grid", inputs={be: solph.Flow()}))
 energysystem.add(solph.Sink(label="atmosphere", inputs={bsr: solph.Flow()}))
 
 # food consumption
-energysystem.add(solph.Sink(label="food consumption", inputs={bhc: solph.Flow()}))
+energysystem.add(solph.Sink(label="biomass use", inputs={bb: solph.Flow()}))
 
 ##########################################################################
 # Simulate the iWEFEs and plot the results
@@ -172,7 +172,7 @@ results = energysystem.results["main"]
 
 solar_bus = solph.views.node(results, "sun")
 e_bus = solph.views.node(results, "electricity")
-hc_bus = solph.views.node(results, "harvested crops")
+b_bus = solph.views.node(results, "biomass")
 
 # ***************************************************************************
 #  print the results
@@ -234,3 +234,20 @@ plt.xlabel("Time Period [h]")
 plt.ylabel("Energy [kW]")
 plt.show()
 
+# plot biomass production bus
+
+fig, ax = plt.subplots(figsize=(10, 5))
+b_bus["sequences"].plot(
+    ax=ax, kind="line", drawstyle="steps-post"
+)
+plt.legend(
+    loc="upper center",
+    prop={"size": 8},
+    bbox_to_anchor=(0.5, 1.3),
+    ncol=3,
+)
+fig.subplots_adjust(top=0.8)
+plt.title("Biomass Production")
+plt.xlabel("Time Period [h]")
+plt.ylabel("Mass [kg]")
+plt.show()
