@@ -57,8 +57,8 @@ logging.info("Create oemof objects")
 # The bus objects were assigned to variables which makes it easier to connect
 # components to these buses (see below).
 
-# create solar energy distribution bus
-bsed = solph.Bus(label="solar energy bus")
+# create solar energy bus
+bse = solph.Bus(label="solar energy bus")
 
 # create DC electricity bus
 bedc = solph.Bus(label="DC electricity bus")
@@ -66,17 +66,28 @@ bedc = solph.Bus(label="DC electricity bus")
 # create AC electricity bus
 beac = solph.Bus(label="AC electricity bus")
 
+# create CO2 Bus
+bco2 = solph.Bus(label="CO2 bus")
+
+# create Biomass Bus
+bb = solph.Bus(label="biomass bus")
+
 # add buses to the iWEFEs
-energysystem.add(bsed, bedc, beac)
+energysystem.add(bse, bedc, beac, bco2, bb)
 
 # Resources
 
-# solar radiation
+# solar radiation from the sun
 energysystem.add(
     solph.Source(
-        label="solar",
-        outputs={bsed: solph.Flow(fix=data["BHI"], nominal_value=1)})),
+        label="sun",
+        outputs={bse: solph.Flow(fix=data["BHI"], nominal_value=1)})),
 
+# CO2 from the atmosphere
+energysystem.add(
+    solph.Source(
+        label="atmosphere",
+        outputs={bco2: solph.Flow(fix=400, nominal_value=1)})),
 # dew
 # irrigation
 # precipitation
@@ -86,7 +97,7 @@ energysystem.add(
 energysystem.add(
     solph.Transformer(
         label="Photovoltaic Panels",
-        inputs={bsed: solph.Flow()},
+        inputs={bse: solph.Flow()},
         outputs={bedc: solph.Flow()},
         conversion_factors={bedc: 0.17},
     )
@@ -102,9 +113,20 @@ energysystem.add(
     )
 )
 
-# electricity production
-energysystem.add(solph.Sink(label="electricity production", inputs={beac: solph.Flow()}))
+energysystem.add(
+    solph.Transformer(
+        label="Plants",
+        inputs={bco2: solph.Flow()},
+        outputs={bb: solph.Flow()},
+        conversion_factors={bb: 0.1},
+    )
+)
 
+# grid
+energysystem.add(solph.Sink(label="grid", inputs={beac: solph.Flow()}))
+
+# biomass processing
+energysystem.add(solph.Sink(label="biomass processing", inputs={bb: solph.Flow()}))
 
 ##########################################################################
 # Simulate the iWEFEs and plot the results
@@ -165,6 +187,7 @@ results = energysystem.results["main"]
 # *****************************************************************************
 ac_electricity_bus = solph.views.node(results, "AC electricity bus")
 solar_bus = solph.views.node(results, "solar energy bus")
+biomass_bus = solph.views.node(results, "biomass bus")
 
 # ***************************************************************************
 #  print the results
@@ -212,3 +235,18 @@ plt.xlabel("Time Period [h]")
 plt.ylabel("Energy [kW]")
 plt.show()
 
+fig, ax = plt.subplots(figsize=(10, 5))
+biomass_bus["sequences"].plot(
+    ax=ax, kind="line", drawstyle="steps-post"
+)
+plt.legend(
+    loc="upper center",
+    prop={"size": 8},
+    bbox_to_anchor=(0.5, 1.3),
+    ncol=3,
+)
+fig.subplots_adjust(top=0.8)
+plt.title("Biomass Production")
+plt.xlabel("Time Period [h]")
+plt.ylabel("Biomass [kg]")
+plt.show()
