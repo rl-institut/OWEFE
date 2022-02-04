@@ -57,60 +57,54 @@ logging.info("Create oemof objects")
 # The bus objects were assigned to variables which makes it easier to connect
 # components to these buses (see below).
 
-# create solar radiation bus
-bsr = solph.Bus(label="solar radiation")
+# create solar energy distribution bus
+bsed = solph.Bus(label="solar energy bus")
 
-# create electricity bus
-be = solph.Bus(label="electricity")
+# create DC electricity bus
+bedc = solph.Bus(label="DC electricity bus")
 
-# create biomass production bus
-bb = solph.Bus(label="biomass")
+# create AC electricity bus
+beac = solph.Bus(label="AC electricity bus")
 
 # add buses to the iWEFEs
-energysystem.add(bsr, be, bb)
+energysystem.add(bsed, bedc, beac)
 
-# Sources
+# Resources
 
 # solar radiation
 energysystem.add(
     solph.Source(
-        label="sun",
-        outputs={bsr: solph.Flow(fix=data["BHI"], nominal_value=1)})),
+        label="solar",
+        outputs={bsed: solph.Flow(fix=data["BHI"], nominal_value=1)})),
 
 # dew
 # irrigation
 # precipitation
 # fertilizer
 
-## Transformers
-# Solar Energy System
-energysystem.add(
-    solph.Transformer(
-        label="solar energy system",
-        inputs={bsr: solph.Flow()},
-        outputs={be: solph.Flow()},
-        conversion_factors={be: 0.17*0.9}  # efficiency photovoltaic panel: 0.17; DC-AC inverter efficiency 0.9
-    )
-)
 
 energysystem.add(
     solph.Transformer(
-        label="plants",
-        inputs={bsr: solph.Flow()},
-        outputs={bb: solph.Flow()},
-        conversion_factors={bb: 0.5}  # Wh -> kcal?
+        label="Photovoltaic Panels",
+        inputs={bsed: solph.Flow()},
+        outputs={bedc: solph.Flow()},
+        conversion_factors={bedc: 0.17},
     )
 )
-# Sinks
 
-# grid
-energysystem.add(solph.Sink(label="grid", inputs={be: solph.Flow()}))
 
-# atmosphere
-energysystem.add(solph.Sink(label="atmosphere", inputs={bsr: solph.Flow()}))
+energysystem.add(
+    solph.Transformer(
+        label="Inverter",
+        inputs={bedc: solph.Flow()},
+        outputs={beac: solph.Flow()},
+        conversion_factors={beac: 0.9},
+    )
+)
 
-# food consumption
-energysystem.add(solph.Sink(label="biomass use", inputs={bb: solph.Flow()}))
+# electricity production
+energysystem.add(solph.Sink(label="electricity production", inputs={beac: solph.Flow()}))
+
 
 ##########################################################################
 # Simulate the iWEFEs and plot the results
@@ -169,10 +163,8 @@ results = energysystem.results["main"]
 # *****************************************************************************
 # get results of a specific component/bus
 # *****************************************************************************
-
-solar_bus = solph.views.node(results, "sun")
-e_bus = solph.views.node(results, "electricity")
-b_bus = solph.views.node(results, "biomass")
+ac_electricity_bus = solph.views.node(results, "AC electricity bus")
+solar_bus = solph.views.node(results, "solar energy bus")
 
 # ***************************************************************************
 #  print the results
@@ -186,9 +178,9 @@ print("********* Main results *********")
 pp.pprint(energysystem.results["main"])
 
 print("-----------")
-print(e_bus["sequences"].sum(axis=0))
-print(type(e_bus["sequences"].sum(axis=0).to_numpy()))
-print(e_bus["sequences"].sum(axis=0).to_numpy())
+print(ac_electricity_bus["sequences"].sum(axis=0))
+print(type(ac_electricity_bus["sequences"].sum(axis=0).to_numpy()))
+print(ac_electricity_bus["sequences"].sum(axis=0).to_numpy())
 print("----------")
 
 # ***************************************************************************
@@ -198,26 +190,12 @@ print("----------")
 # plot electricity production from solar input and electricity demand
 
 fig, ax = plt.subplots(figsize=(10, 5))
+ac_electricity_bus["sequences"].plot(
+    ax=ax, kind="line", drawstyle="steps-post"
+)
 solar_bus["sequences"].plot(
     ax=ax, kind="line", drawstyle="steps-post"
 )
-plt.legend(
-    loc="upper center",
-    prop={"size": 8},
-    bbox_to_anchor=(0.5, 1.3),
-    ncol=3,
-)
-fig.subplots_adjust(top=0.8)
-plt.title("Solar Distribution")
-plt.xlabel("Time Period [h]")
-plt.ylabel("Energy [kW]")
-plt.show()
-
-fig, ax = plt.subplots(figsize=(10, 5))
-e_bus["sequences"].plot(
-    ax=ax, kind="line", drawstyle="steps-post"
-)
-
 electricity_demand.plot(
     ax=ax, kind="line", drawstyle="steps-post"
 )
@@ -234,20 +212,3 @@ plt.xlabel("Time Period [h]")
 plt.ylabel("Energy [kW]")
 plt.show()
 
-# plot biomass production bus
-
-fig, ax = plt.subplots(figsize=(10, 5))
-b_bus["sequences"].plot(
-    ax=ax, kind="line", drawstyle="steps-post"
-)
-plt.legend(
-    loc="upper center",
-    prop={"size": 8},
-    bbox_to_anchor=(0.5, 1.3),
-    ncol=3,
-)
-fig.subplots_adjust(top=0.8)
-plt.title("Biomass Production")
-plt.xlabel("Time Period [h]")
-plt.ylabel("Mass [kg]")
-plt.show()
