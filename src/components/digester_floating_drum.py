@@ -1,11 +1,9 @@
-# Digester Model following the approach for biogas production calculation of BAU (Source:
-# final year project, Beirut Arab University, 2021)
-
+# Floating Drum Plant Digester Model following the approach of biogas production calculation of El. Jouahari et al. 2021
 
 
 """
     ********** Dimension of Digester ************
-    digester type: floating drum plant (photo source: IRENA_statistics_Measuring_scale_biogas, 2016)
+    digester type: floating drum plant
     Optimum Design Suggestions:
     diameter : total_height = 1.5 : 1;
     (Source: michigan.gov/documents/deq/wrd-ot-anaerobic-digestion-process, 2013))
