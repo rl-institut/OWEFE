@@ -183,7 +183,7 @@ dewatered_sludge = pd.Series(dewatered_sludge_ls,
 
 
 # *********************************************************************************************
-# define iWEFEs/Create oemof objects (bus, sink , source, transformer....)
+# define iWEFEs/Create oemof objects (bus, sink , source, transformer, ...)
 # *********************************************************************************************
 logging.info("Create oemof objects")
 
@@ -325,16 +325,16 @@ energysystem.add(
         conversion_factors={bslu: 0.50},
     )
 )
+
 energysystem.add(
     solph.Transformer(
         label="bio-methane bus",
         inputs={bbgas: solph.Flow()},
         outputs={bch4: solph.Flow(nominal_value=10e5)},
-        conversion_factors={bch4: 0.6*9.4},  # biogas to methane conversion factor: 0.6;
+        conversion_factors={bch4: 0.62*9.4},  # biogas to methane conversion factor: 0.62 (El Joauhari et al. 2021);
         # heat value of methane: 34 MJ/m³ -> 9.4 kWh/m³
     )
 )
-
 
 energysystem.add(
     solph.Transformer(

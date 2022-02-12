@@ -1,5 +1,9 @@
 # we assume : electrical energy needed to mix the sludge is 5.27- 7.9 W/m³ filled up volume
-#            : electrical energy needed to pump is 28.3 Wh/kg dewatered sludge
+#            : electrical energy needed to pump is 28.15 Wh/kg dewatered; assuming a sludge densitiy of 997 kg/m³,
+#            and applying a progressive cavity pump from FlowRox
+#            assuming that it requires a constant power application of 1.2 kW to pump 1 m³/day;
+#            with a constant power to pumped volume relation
+
 # (source: A.E. Joauhari et al., 2021,Final Project, Beirut Arab University)
 # SED is the specific energy demand
 
@@ -36,7 +40,7 @@ class ElectricityCalculation:
         sed_mixing = 0.0079 * self.filled_up_volume    # electricity demand for mixing
         # of the organic matter in the digester [kWh],assuming 7.9 W/m³
         # (Final Year Project, Beirut Arab University 2021)
-        sed_pumping = 0.0283 * self.om_flow            # electricity demand for pumping the organic matter flow,
-        # assuming 28.3 Wh/kg (Final Year Project, Beirut Arab University 2021)
+        sed_pumping = 0.02815 * self.om_flow            # electricity demand for pumping the organic matter flow,
+        # assuming 28.15 Wh/kg (Joauhari et al., 2021, Final Year Project, Beirut Arab University 2021)
         electricity_demand = sed_mixing + sed_pumping  # [kWh/h]
         return electricity_demand
