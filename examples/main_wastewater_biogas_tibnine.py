@@ -79,7 +79,7 @@ import logging
 import os
 import pandas as pd
 import pprint as pp
-import numpy as np
+# import numpy as np
 
 try:
     import matplotlib.pyplot as plt
@@ -88,7 +88,7 @@ except ImportError:
 
 # changing cwd to use the function from the main file
 os.chdir("../src/")
-from src.components.digester_BAU import Digester
+from src.specs.digester_floating_drum import Digester
 #  from src.components.constructedwetlands import Constructed_wetlands
 from digester_demand import HeatCalculation
 from digester_demand import ElectricityCalculation

@@ -88,8 +88,8 @@ import numpy as np
 
 # changing cwd to use the function from the main file
 os.chdir("../src/")
-from src.components.digester_KT import Digester
-from src.components.constructedwetlands import Constructed_wetlands
+from src.specs.digester_KT import Digester
+from src.specs.constructedwetlands import Constructed_wetlands
 from digester_demand import HeatCalculation
 from digester_demand import ElectricityCalculation
 
