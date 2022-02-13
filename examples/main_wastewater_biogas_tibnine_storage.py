@@ -10,47 +10,6 @@
             # Biogas production [m3/h]
             # Methane CH4  1m3 CH4 = 34 MJ : 3.6 MJ ~ 1 khw (source: IRENA statistics 2016)
    
-   Following integrated water energy system is modelled: 
-   
-                                    input/output    bsld  bbgas  bch4  bel  bheat  bslu  bdig  beff1  beff2      
-                                        |           |      |      |    |     |      |     |     |      |
-                                        |           |      |      |    |     |      |     |     |      |
-     sewage(fixed source)               |---------->|      |      |    |     |      |     |     |      |       
-                                        |           |      |      |    |     |      |     |     |      |
-     digester_gas(Transformer)          |<----------|      |      |    |     |      |     |     |      |
-                                        |----------------->|      |    |     |      |     |     |      |
-                                        |           |      |      |    |     |      |     |     |      |
-     digester_slu(Transformer)          |<----------|      |      |    |     |      |     |     |      |
-                                        |------------------------------------------>|     |     |      |
-                                        |           |      |      |    |     |      |     |     |      |                                 
-     bio_methane(Transformer)           |<-----------------|      |    |     |      |     |     |      |      
-                                        |------------------------>|    |     |      |     |     |      |     
-                                        |           |      |      |    |     |      |     |     |      |
-     CHP(Transformer)                   |<------------------------|    |     |      |     |     |      |     
-                                        |----------------------------->|     |      |     |     |      |                   
-                                        |----------------------------------->|      |     |     |      |     
-                                        |           |      |      |    |     |      |     |     |      |
-     dewatering_dig(Transformer)        |<------------------------------------------|     |     |      |     
-                                        |------------------------------------------------>|     |      |    
-                                        |           |      |      |    |     |      |     |     |      |                                 
-     dewatering_eff(Transformer)        |<------------------------------------------|     |     |      |     
-                                        |------------------------------------------------------>|      |                                    
-                                        |           |      |      |    |     |      |     |     |      |
-     constructed_wetland(Transformer)   |<------------------------------------------------------|      |                                  
-                                        |------------------------------------------------------------->|    
-                                        |           |      |      |    |     |      |     |     |      |                                 
-     demand(electricity)(sink)          |<-----------------------------|     |      |     |     |      |     
-                                        |           |      |      |    |     |      |     |     |      |                                 
-     demand(heat)(sink)                 |<-----------------------------------|      |     |     |      |      
-                                        |           |      |      |    |     |      |     |     |      |                                 
-     demand(water)(sink)                |<-------------------------------------------------------------|     
-                                        |           |      |      |    |     |      |     |     |      |                                 
-     demand(fertilizer)(sink)           |<------------------------------------------------|     |      |    
-                                        |           |      |      |    |     |      |     |     |      |                                 
-     storage(Storage)                   |<------------------------|    |     |      |     |     |      |     
-                                        |------------------------>|    |     |      |     |     |      |                                    
-
-
    Data                                      
    ------                              
    ww_biogas_tibnine_raw.csv                                      
@@ -88,7 +47,7 @@ except ImportError:
 
 # changing cwd to use the function from the main file
 os.chdir("../src/")
-from src.specs.digester_floating_drum import Digester
+from src.specs.digester_CSTR import Digester
 #  from src.components.constructedwetlands import Constructed_wetlands
 from digester_demand import HeatCalculation
 from digester_demand import ElectricityCalculation
@@ -196,16 +155,6 @@ bsld = solph.Bus(label="sludge")
 # create electricity bus
 bel = solph.Bus(label="electricity")
 
-# create slurry bus
-bslu = solph.Bus(label="slurry")
-
-# create effluent bus
-beff1 = solph.Bus(label="effluent1")
-beff2 = solph.Bus(label="effluent2")
-
-# create digestate bus
-bdig = solph.Bus(label="digestate")
-
 # create biogas bus
 bbgas = solph.Bus(label="biogas")
 bch4 = solph.Bus(label="bio-methane")
@@ -214,7 +163,7 @@ bch4 = solph.Bus(label="bio-methane")
 bheat = solph.Bus(label="heat")
 
 # adding the buses to the energy system
-energysystem.add(bsld, bel, bslu, beff1, beff2, bdig, bbgas, bch4, bheat)
+energysystem.add(bsld, bel, bbgas, bch4, bheat)
 
 # create excess sink for the biogas bus to allow overproduction
 energysystem.add(solph.Sink(label="excess_biogas", inputs={bch4: solph.Flow()}))
@@ -224,12 +173,6 @@ energysystem.add(solph.Sink(label="electricity production", inputs={bel: solph.F
 
 # create excess sink to represent heat production
 energysystem.add(solph.Sink(label="excess heat production", inputs={bheat: solph.Flow()}))
-
-# create excess sink to represent the water production
-energysystem.add(solph.Sink(label="water production", inputs={beff2: solph.Flow()}))
-
-# create sink object representing the fertilizer production
-energysystem.add(solph.Sink(label="fertilizer production", inputs={bdig: solph.Flow()}))
 
 # create fixed source object representing domestic sewage
 energysystem.add(
@@ -308,9 +251,23 @@ a_file.close()
 
 # create simple transformer object representing the biogas digester
 
+# create dewatered sludge storage
+storage = solph.components.GenericStorage(
+    nominal_storage_capacity=10000,
+    label="dewatered sludge storage",
+    inputs={bsld: solph.Flow()},
+    outputs={bsld: solph.Flow()},
+    loss_rate=0.00,
+    initial_storage_level=None,
+    inflow_conversion_factor=1,
+    outflow_conversion_factor=1,
+)
+
+energysystem.add(storage)
+
 energysystem.add(
     solph.Transformer(
-        label="digester_gas",
+        label="anaerobic digester",
         inputs={bsld: solph.Flow()},
         outputs={bbgas: solph.Flow(nominal_value=10e5)},
         conversion_factors={bbgas: f_b_cf},
@@ -319,16 +276,7 @@ energysystem.add(
 
 energysystem.add(
     solph.Transformer(
-        label="slurry output of digester",
-        inputs={bsld: solph.Flow()},
-        outputs={bslu: solph.Flow(nominal_value=10e5)},
-        conversion_factors={bslu: 0.50},
-    )
-)
-
-energysystem.add(
-    solph.Transformer(
-        label="bio-methane bus",
+        label="biogas to methane conversion",
         inputs={bbgas: solph.Flow()},
         outputs={bch4: solph.Flow(nominal_value=10e5)},
         conversion_factors={bch4: 0.62*9.4},  # biogas to methane conversion factor: 0.62 (El Joauhari et al. 2021);
@@ -347,47 +295,6 @@ energysystem.add(
         # thermal conversion factor: 0.65
     )
 )
-
-energysystem.add(
-    solph.Transformer(
-        label="dewatering unit",
-        inputs={bslu: solph.Flow()},
-        outputs={bdig: solph.Flow(nominal_value=10e2)},
-        conversion_factors={bdig: 0.42},
-    )
-)
-
-energysystem.add(
-    solph.Transformer(
-        label="dewatering eff",
-        inputs={bslu: solph.Flow()},
-        outputs={beff1: solph.Flow(nominal_value=10e2)},
-        conversion_factors={beff1: 0.9},
-    )
-)
-
-energysystem.add(
-    solph.Transformer(
-        label="constructed wetland",
-        inputs={beff1: solph.Flow()},
-        outputs={beff2: solph.Flow(nominal_value=10e2)},
-        conversion_factors={beff2: 0.9},
-    )
-)
-
-# create storage object representing a biogas storage
-storage = solph.components.GenericStorage(
-    nominal_storage_capacity=10000,
-    label="CH4 storage",
-    inputs={bch4: solph.Flow()},
-    outputs={bch4: solph.Flow(nominal_value=10000 / 6)},
-    loss_rate=0.00,
-    initial_storage_level=None,
-    inflow_conversion_factor=1,
-    outflow_conversion_factor=0.8,
-)
-
-energysystem.add(storage)
 
 ##########################################################################
 # Simulate the iWEFEs and plot the results
@@ -442,7 +349,7 @@ energysystem.restore(dpath=None, filename=None)
 
 # define an alias for shorter calls below (optional)
 results = energysystem.results["main"]
-storage = energysystem.groups["CH4 storage"]
+storage = energysystem.groups["dewatered sludge storage"]
 
 # print a time slice of the state of charge
 print("")
