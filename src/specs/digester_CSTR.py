@@ -1,9 +1,9 @@
-# Continuos Stirred Tank Reactor Digester Model following the approach for biogas production calculation of
+# Continuos Stirred Tank Reactor Digester Model, geometry and approach for biogas production calculation by
 # El Joauhari et al. (2021)
 
 """
-    ********** Dimension of Digester ************
-    Digester Type: Continuous Stirred Tank Reactor
+    ********** Digester Type ************
+    Digester Type: Continuous Stirred Tank Reactor (CSTR)
 
    - open systems: material is free to enter or exit the system
    - operate on a steady-state basis: the conditions in the reactor don't change with time
@@ -12,16 +12,15 @@
    Source: University of Michigan, available online:
     https://encyclopedia.che.engin.umich.edu/Pages/Reactors/CSTR/CSTR.html
 
-    Geometry
-    Cylinder with rounded top including gas outlet and conic bottom for digested sludge outlet
-    inflowing dewatered sludge fills cylindric middle part;
-    for simplfication we assume a perfect cylinder for geometry calculations
-    Digester Volume = π*r^2*h
-    (Area which can be filled by inflowing dewatered sludge without space for gas and digested sludge)
-    Surface Area = 2πr*(h+r)
-    (Just Surface Area of cylinder)
-     ******** calculation of feedstock to biogas conversion factor********
+    ********** Geometry ************
+    The CSTR digester is represented as a Cylinder with rounded top and a conic bottom
+    Active depth (ad) is calculated directly from the radius and the volume assuming a fixed height:radius ratio of 3:2
+    there are additional depths for grit deposit, scum blanket, and space below cover at maximum filling level;
+    each measuring 1/5*ad
+    the conic bottom has a slope of 1/5; slope = h/R; and thus adds a depth of 1/5r
+    Volume & surface area calculation follows the cylinder and cone geomtery laws;
 
+     ******** calculation of feedstock to biogas conversion factor********
     biogas production [m³/h] = mf * sds * svs * rvsd * sgp
     where,
     mf = feedstock mass_flow [kg/h]
@@ -29,7 +28,6 @@
     svs =share of volatile solids in dry solid
     rvsd = volatile solid destruction rate
     sgp = specific gas production for destroyed volatile solids for chosen feedstock [m³/kg]
-    (Source: Final Year Project, Beirut Arab University, 2021)
     feedstock to biogas conversion factor: f_b_cf = sds * svs * rvsd * sgp
 
 """
@@ -53,16 +51,24 @@ class Digester:
     def compute(self):
         volumetric_flow = self.design_mass_flow * 24 / (self.sludge_density * self.sludge_specific_gravity)
         filled_up_volume = volumetric_flow * self.retention_time  # assuming continuous & constant input of
-        # filled up volume is constant
+        # dewatered sludge -> filled up volume is constant
 
-        # digester geometry
+        # digester volume
         volume_total = volumetric_flow * self.retention_time
-        radius = (volume_total/math.pi * 2/3)**(1/3)  # assuming a fixed height:radius ration of 3:2,
+        # digester geometry
+        radius = (volume_total/math.pi * 2/3)**(1/3)  # assuming a fixed height:radius ratio of 3:2,
         # rearranged cylindric volume formula; h = 3/2 r
         diameter = 2*radius
-        height = 3/2*radius
-        surface_area_cylinder = 2 * math.pi * (radius + height)
-        surface_area_total = surface_area_cylinder
+        active_depth = 3/2*radius
+        total_sidewall_height = 8/5 * active_depth
+        # Surface Area
+        wall_area = 2*math.pi*radius*total_sidewall_height
+        roof_area = math.pi * radius**2
+        # Floor Area
+        cone_height = 1/5*radius
+        generatrix = (cone_height**2+radius**2)**(1/2)
+        floor_area = math.pi*radius*generatrix
+        surface_area_total = wall_area+roof_area+floor_area
 
         # organic loading rate
         total_dry_solids = 0.2 * self.design_mass_flow  # [kg/h]

@@ -1,9 +1,9 @@
 ,Value
-"(('anaerobic digester', 'biogas'), 'flow')",61919.19302399999
-"(('biogas', 'biogas to methane conversion'), 'flow')",61919.19302399999
-"(('CHP', 'electricity'), 'flow')",113672.49269279999
-"(('electricity', 'electricity demand digester'), 'flow')",21650.42315440959
-"(('electricity', 'electricity production'), 'flow')",92022.068196
-"(('CHP', 'heat'), 'flow')",211106.05809600002
-"(('heat', 'excess heat production'), 'flow')",197613.31341129998
-"(('heat', 'heat demand digester'), 'flow')",13492.744921365716
+"(('anaerobic digester', 'biogas'), 'flow')",61919.19275999998
+"(('biogas', 'biogas to methane conversion'), 'flow')",61919.19275999998
+"(('CHP', 'electricity'), 'flow')",113672.49312000004
+"(('electricity', 'electricity demand digester'), 'flow')",20212.553492341023
+"(('electricity', 'electricity production'), 'flow')",93459.94068000003
+"(('CHP', 'heat'), 'flow')",211106.05739999993
+"(('heat', 'excess heat production'), 'flow')",192413.31162700002
+"(('heat', 'heat demand digester'), 'flow')",18692.746651355443
