@@ -193,7 +193,7 @@ bel = solph.Bus(label="electricity")
 
 # create biogas bus
 bbgas = solph.Bus(label="biogas")
-bch4 = solph.Bus(label="bio-methane")
+bch4 = solph.Bus(label="methane")
 
 # create heat bus
 bheat = solph.Bus(label="heat")
@@ -262,8 +262,7 @@ energysystem.add(
         label="biogas to methane conversion",
         inputs={bbgas: solph.Flow()},
         outputs={bch4: solph.Flow(nominal_value=10e5)},
-        conversion_factors={bch4: 0.62*9.4},  # biogas to methane conversion factor: 0.62 (El Joauhari et al. 2021);
-        # heat value of methane: 34 MJ/m³ -> 9.4 kWh/m³
+        conversion_factors={bch4: 0.62},  # biogas to methane conversion factor: 0.62 (El Joauhari et al. 2021);
     )
 )
 
@@ -273,8 +272,8 @@ energysystem.add(
         inputs={bch4: solph.Flow()},
         outputs={bel: solph.Flow(nominal_value=10e5),
                  bheat: solph.Flow(nominal_value=10e5)},
-        conversion_factors={bel: 0.9*0.35, bheat: 0.9*0.65},  # biogas boiler efficiency: 0.9 (BAU, 2021);
-        # biogas engine efficiency 0.35 (BAU, 2021);
+        conversion_factors={bel: 0.9*0.35*9.4, bheat: 0.9*0.65*9.4},  # biogas boiler efficiency: 0.9 (BAU, 2021);
+        # biogas engine efficiency 0.35 (BAU, 2021); heat value of methane: 34 MJ/m³ -> 9.4 kWh/m³
         # thermal conversion factor: 0.65
     )
 )
@@ -342,7 +341,7 @@ electricity_bus = solph.views.node(results, "electricity")
 heat_bus = solph.views.node(results, "heat")
 sludge_bus = solph.views.node(results, "sludge")
 biogas_bus = solph.views.node(results, "biogas")
-bio_methane_bus = solph.views.node(results, "bio-methane")
+methane_bus = solph.views.node(results, "methane")
 storage_sequence_kg = results[(storage, None)]["sequences"]
 # changing unit of storage sequence [kg -> m³]
 storage_sequence_m3 = storage_sequence_kg * 1/(sludge_density*sludge_specific_gravity)
@@ -391,16 +390,16 @@ if plt is not None:
     plt.show()
 
     fig, ax = plt.subplots(figsize=(10, 5))
-    biogas_bus["sequences"].plot(
+    methane_bus["sequences"].plot(
     ax= ax, kind="line", drawstyle="steps-post", ylim=[0, 10]
     )
     plt.legend(
         loc="upper center", prop={"size": 8}, bbox_to_anchor=(0.5, 1.3), ncol=2
     )
     fig.subplots_adjust(top=0.8, bottom=0.15)
-    plt.title("Biogas")
+    plt.title("Methane_Bus")
     plt.xlabel("Time Period [h]")
-    plt.ylabel("Biogas Production [m³/h]")
+    plt.ylabel("Methane Production [m³/h]")
     plt.show()
 
     fig, ax = plt.subplots(figsize=(10, 5))
@@ -447,15 +446,14 @@ pp.pprint(energysystem.results["main"])
 
 # calculate annual production sums and export them as csv file
 sludge_sum = sludge_bus["sequences"].sum(axis=0)
-# only Series and DataFrame objs are valid
-biogas_sum = biogas_bus["sequences"].sum(axis=0)
+methane_sum = methane_bus["sequences"].sum(axis=0)
 electricity_sum = electricity_bus["sequences"].sum(axis=0)
 heat_sum = heat_bus["sequences"].sum(axis=0)
 # calculate minimum required storage capacity
 storage_capacity_min = storage_sequence_m3.max(axis=0)
 
 
-comb_sum = pd.concat([sludge_sum, biogas_sum, electricity_sum, heat_sum, storage_capacity_min], axis=0)
+comb_sum = pd.concat([sludge_sum, methane_sum, electricity_sum, heat_sum, storage_capacity_min], axis=0)
 dfcomb = pd.DataFrame(comb_sum, columns=["Value"])
 dfcomb.to_csv("main_results.csv", index=True)
 dfcomb.info()

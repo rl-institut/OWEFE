@@ -3,8 +3,9 @@
 "(('dewatered_sludge', 'sludge'), 'flow')",626712.48
 "(('sludge', 'anaerobic digester'), 'flow')",626712.4839599999
 "(('sludge', 'dewatered sludge storage'), 'flow')",87293.38362000001
-"(('anaerobic digester', 'biogas'), 'flow')",61919.19275999998
-"(('biogas', 'biogas to methane conversion'), 'flow')",61919.19275999998
+"(('biogas to methane conversion', 'methane'), 'flow')",38389.89933599999
+"(('methane', 'CHP'), 'flow')",38389.89933599999
+"(('methane', 'excess_biogas'), 'flow')",0.0
 "(('CHP', 'electricity'), 'flow')",113672.49312000004
 "(('electricity', 'electricity demand digester'), 'flow')",20212.553492341023
 "(('electricity', 'electricity production'), 'flow')",93459.94068000003
