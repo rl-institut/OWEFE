@@ -1,4 +1,8 @@
 ,Value
+"(('dewatered sludge storage', 'sludge'), 'flow')",87293.38611610001
+"(('dewatered_sludge', 'sludge'), 'flow')",626712.48
+"(('sludge', 'anaerobic digester'), 'flow')",626712.4839599999
+"(('sludge', 'dewatered sludge storage'), 'flow')",87293.38362000001
 "(('anaerobic digester', 'biogas'), 'flow')",61919.19275999998
 "(('biogas', 'biogas to methane conversion'), 'flow')",61919.19275999998
 "(('CHP', 'electricity'), 'flow')",113672.49312000004
@@ -7,3 +11,4 @@
 "(('CHP', 'heat'), 'flow')",211106.05739999993
 "(('heat', 'excess heat production'), 'flow')",192413.31162700002
 "(('heat', 'heat demand digester'), 'flow')",18692.746651355443
+storage_content,82.13186618679568

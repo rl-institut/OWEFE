@@ -139,14 +139,15 @@ dewatered_sludge_ls = data["dewatered_sludge"].to_list()
 dewatered_sludge = pd.Series(dewatered_sludge_ls,
                               index=date_time_index, name="dewatered sludge")
 
+
 # *********************************************************************************************
-# Saving digester design results in csv
+# Saving system design results in csv
 # *********************************************************************************************
 
 a_file = open("Digester_Dimension.csv", "w")
 a_dict = {"Diameter [m]": f'{round(diameter, 2)}'}
 b_dict = {"Total Volume of Digester [m³]": f'{round(volume, 2)}'}
-c_dict = {"Organic Loading Rate [kgVS/m³d]": f'{round(organic_loading_rate, 2)}'}
+c_dict = {"Organic Loading Rate [kgVS/m³d]": f'{round(organic_loading_rate, 3)}'}
 d_dict = {"Feed to Biogas Conversion Factor[m³/kg]": f'{round(f_b_cf, 2)}'}
 e_dict = {"Total Surface Area [m²]": f'{round(surface_area_total, 2)}'}
 f_dict = {"Design Volumetric Flow [m³/d]": f'{design_volumetric_flow}'}
@@ -339,16 +340,15 @@ storage = energysystem.groups["dewatered sludge storage"]
 
 electricity_bus = solph.views.node(results, "electricity")
 heat_bus = solph.views.node(results, "heat")
-digestate_bus = solph.views.node(results, "digestate")
 sludge_bus = solph.views.node(results, "sludge")
-slurry_bus = solph.views.node(results, "slurry")
 biogas_bus = solph.views.node(results, "biogas")
-effluent1_bus = solph.views.node(results, "effluent1")
-effluent2_bus = solph.views.node(results, "effluent2")
 bio_methane_bus = solph.views.node(results, "bio-methane")
+storage_sequence_kg = results[(storage, None)]["sequences"]
+# changing unit of storage sequence [kg -> m³]
+storage_sequence_m3 = storage_sequence_kg * 1/(sludge_density*sludge_specific_gravity)
 
 # ******************************************************************************
-# plot operational time series (sequences)
+# Create further operation time series (sequences)
 # ******************************************************************************
 # Create electricity demand panda.Series in same time index as the oemof flows for plotting
 demand_electricity = data["demand_electricity"].to_list()
@@ -360,23 +360,25 @@ dewatered_sludge_ls = data["dewatered_sludge"].to_list()
 dewatered_sludge = pd.Series(dewatered_sludge_ls,
                               index=date_time_index, name="dewatered sludge")
 
+
+
 if plt is not None:
 
     fig, ax = plt.subplots(figsize=(10,5))
-    dewatered_sludge.plot(
+    sludge_bus["sequences"].plot(
         ax=ax, kind="line", drawstyle="steps-post", ylim=[0, None]
     )
     plt.legend(
         loc="upper center", prop={"size": 8}, bbox_to_anchor=(0.5, 1.3), ncol=2
     )
     fig.subplots_adjust(top=0.8, bottom=0.15)
-    plt.title("Dewatered Sludge Inflow")
+    plt.title("Dewatered Sludge Bus")
     plt.xlabel("Time Period")
     plt.ylabel("Mass Flow [kg/h]")
     plt.show()
 
     fig, ax = plt.subplots(figsize=(10,5))
-    results[(storage, None)]["sequences"].plot(
+    storage_sequence_m3.plot(
         ax=ax, kind="line", drawstyle="steps-post"
     )
     plt.legend(
@@ -385,7 +387,7 @@ if plt is not None:
     fig.subplots_adjust(top=0.8, bottom=0.15)
     plt.title("Dewatered Sludge Storage")
     plt.xlabel("Time Period")
-    plt.ylabel("Storage Content [kg]")
+    plt.ylabel("Storage Content [m³]")
     plt.show()
 
     fig, ax = plt.subplots(figsize=(10, 5))
@@ -433,8 +435,6 @@ if plt is not None:
     plt.ylabel("Heat [kW]")
     plt.show()
 
-
-
 # ***************************************************************************
 #  print and export the results
 # ***************************************************************************
@@ -446,16 +446,16 @@ print("********* Main results *********")
 pp.pprint(energysystem.results["main"])
 
 # calculate annual production sums and export them as csv file
-dewatered_sludge_sum = dewatered_sludge.sum()  #  cannot concatenate object of class numpy.float64,
+sludge_sum = sludge_bus["sequences"].sum(axis=0)
 # only Series and DataFrame objs are valid
 biogas_sum = biogas_bus["sequences"].sum(axis=0)
 electricity_sum = electricity_bus["sequences"].sum(axis=0)
 heat_sum = heat_bus["sequences"].sum(axis=0)
-#storage_series = custom_storage["sequences"].sum(axis=0)
+# calculate minimum required storage capacity
+storage_capacity_min = storage_sequence_m3.max(axis=0)
 
-type(dewatered_sludge)
-type(dewatered_sludge_sum)
-comb_sum = pd.concat([biogas_sum, electricity_sum, heat_sum], axis=0)
+
+comb_sum = pd.concat([sludge_sum, biogas_sum, electricity_sum, heat_sum, storage_capacity_min], axis=0)
 dfcomb = pd.DataFrame(comb_sum, columns=["Value"])
 dfcomb.to_csv("main_results.csv", index=True)
 dfcomb.info()
