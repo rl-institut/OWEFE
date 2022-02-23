@@ -104,7 +104,7 @@ design_mass_flow = average_mass_flow  # [kg/h]
 average_volumetric_flow = 24*average_mass_flow/(sludge_specific_gravity*sludge_density)  # [m³/d]
 
 retention_time = 30  # [d]
-volatile_solid_destruction_rate = 0.6175  # @ retention time of 22 days
+volatile_solid_destruction_rate = 0.6175  # @ retention time of 22 days; what is the rate for retention time of 30 days?
 temp_digester = 35  # Temperature inside the Digester
 # source: Final year project, Beirut Arab University, 2021
 
@@ -112,19 +112,19 @@ temp_digester = 35  # Temperature inside the Digester
 digester_design = Digester(retention_time, design_mass_flow, volatile_solid_destruction_rate, sludge_density,
                  sludge_specific_gravity, dry_solid_concentration, volatile_solid_concentration,
                  specific_gas_production)
-diameter, volume, f_b_cf, surface_area_total, filled_up_volume, organic_loading_rate, design_volumetric_flow = digester_design.compute()
+diameter, volume, f_b_cf, surface_area_total, active_volume, organic_loading_rate, design_volumetric_flow = digester_design.compute()
 
 
 for i, r in data.iterrows():
     heat_demand = HeatCalculation(temp_ambient=r['temperature'], heat_transfer_coefficient=0.6,
                                   temp_digester=temp_digester, surface_area=surface_area_total,
-                                  heat_capacity=sludge_heat_capacity, om_flow=average_mass_flow)
+                                  heat_capacity=sludge_heat_capacity, average_mass_flow=average_mass_flow)
     data.loc[i, "heat_demand_digester"] = heat_demand.compute()
 
 data.to_csv("ww_biogas_tibnine_proceed.csv", index=False)
 
 for i, r in data.iterrows():
-    electricity_demand_digester = ElectricityCalculation(om_flow=average_mass_flow, filled_up_volume=filled_up_volume)
+    electricity_demand_digester = ElectricityCalculation(average_mass_flow=average_mass_flow, active_volume=active_volume)
     data.loc[i, "electricity_demand_digester"] = electricity_demand_digester.compute()
 
 data.to_csv("ww_biogas_tibnine_proceed.csv", index=False)
@@ -401,10 +401,9 @@ if plt is not None:
     plt.xlabel("Time Period [h]")
     plt.ylabel("Methane Production [m³/h]")
     plt.show()
-
     fig, ax = plt.subplots(figsize=(10, 5))
     electricity_bus["sequences"].plot(
-        ax=ax, kind="line", drawstyle="steps-post"
+        ax=ax, kind="line", drawstyle="steps-post", ylim=[0, 70]
     )
     electricity_demand.plot(
        ax=ax, kind="line", drawstyle="steps-post"

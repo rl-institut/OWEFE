@@ -50,7 +50,7 @@ class Digester:
 
     def compute(self):
         volumetric_flow = self.design_mass_flow * 24 / (self.sludge_density * self.sludge_specific_gravity)
-        filled_up_volume = volumetric_flow * self.retention_time  # assuming continuous & constant input of
+        active_volume = volumetric_flow * self.retention_time  # assuming continuous & constant input of
         # dewatered sludge -> filled up volume is constant
 
         # digester volume
@@ -73,10 +73,10 @@ class Digester:
         # organic loading rate
         total_dry_solids = 0.2 * self.design_mass_flow  # [kg/h]
         total_vs_loading = 0.8 * total_dry_solids  # [kg/h], total volatile solid loading
-        olr = total_vs_loading / filled_up_volume * 24  # [kg vs/m³.d], organic loading rate
+        olr = total_vs_loading / active_volume * 24  # [kg vs/m³.d], organic loading rate
 
         # feedstock to biogas conversion factor
         f_b_cf = self.dry_solid_concentration * self.volatile_solid_concentration \
                  * self.volatile_solid_destruction_rate * self.specific_gas_production  # formula explained above
 
-        return diameter, volume_total, f_b_cf, surface_area_total, filled_up_volume, olr, volumetric_flow
+        return diameter, volume_total, f_b_cf, surface_area_total, active_volume, olr, volumetric_flow
