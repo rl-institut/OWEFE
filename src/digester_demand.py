@@ -38,9 +38,11 @@ class ElectricityCalculation:
     def compute(self):
 
         sed_mixing = 0.0079 * self.filled_up_volume    # electricity demand for mixing
-        # of the organic matter in the digester [kWh],assuming 7.9 W/m³
+        # of the organic matter in the digester [kWh],assuming 7.9 W/m³ constant filling level
         # (Final Year Project, Beirut Arab University 2021)
         sed_pumping = 0.02815 * self.om_flow            # electricity demand for pumping the organic matter flow,
         # assuming 28.15 Wh/kg (Joauhari et al., 2021, Final Year Project, Beirut Arab University 2021)
+        #print(sed_mixing)
+        #print(sed_pumping)
         electricity_demand = sed_mixing + sed_pumping  # [kWh/h]
         return electricity_demand

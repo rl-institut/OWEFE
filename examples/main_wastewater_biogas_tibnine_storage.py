@@ -22,7 +22,7 @@
 '''
 
 __copyright__ = "oemof developer group"
-__license__ = "GPLv3"
+__license__ = "AGPL-3.0"
 
 # *********************************************************************************************
 # imports
@@ -93,8 +93,8 @@ data = pd.read_csv(r"ww_biogas_tibnine_raw.csv")
 sludge_density = 997  # [kg/m³]
 sludge_specific_gravity = 1.02
 sludge_heat_capacity = 4200  # [# J/kg°C] heat capacity of dewatered sludge assumed to be same as water
-dry_solid_concentration = 0.2
-volatile_solid_concentration = 0.8
+dry_solid_concentration = 0.15
+volatile_solid_concentration = 0.7
 specific_gas_production = 1  # [m³/kg VS] specific biogas production per kg destroyed volatile solid
 # source: Final year project, Beirut Arab University, 2021
 
@@ -103,7 +103,7 @@ average_mass_flow =data["dewatered_sludge"].mean()  # [kg/h]
 design_mass_flow = average_mass_flow  # [kg/h]
 average_volumetric_flow = 24*average_mass_flow/(sludge_specific_gravity*sludge_density)  # [m³/d]
 
-retention_time = 22  # [d]
+retention_time = 30  # [d]
 volatile_solid_destruction_rate = 0.6175  # @ retention time of 22 days
 temp_digester = 35  # Temperature inside the Digester
 # source: Final year project, Beirut Arab University, 2021
