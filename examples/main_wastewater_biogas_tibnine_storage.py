@@ -95,24 +95,20 @@ sludge_specific_gravity = 1.02
 sludge_heat_capacity = 4200  # [# J/kg°C] heat capacity of dewatered sludge assumed to be same as water
 dry_solid_concentration = 0.15
 volatile_solid_concentration = 0.7
-specific_gas_production = 1  # [m³/kg VS] specific biogas production per kg destroyed volatile solid
-# source: Final year project, Beirut Arab University, 2021
-
+biomethane_potential = 0.62  # [m³/kgVS] biomethane potential in m³ per total destructed volatile solids [kg]
+# value measured in the laboratory for specific sludge at Tibnine (El Joauhari et al. 2021)
 # Digester Design Parameters
 average_mass_flow =data["dewatered_sludge"].mean()  # [kg/h]
 design_mass_flow = average_mass_flow  # [kg/h]
 average_volumetric_flow = 24*average_mass_flow/(sludge_specific_gravity*sludge_density)  # [m³/d]
-
 retention_time = 30  # [d]
-volatile_solid_destruction_rate = 0.6175  # @ retention time of 22 days; what is the rate for retention time of 30 days?
 temp_digester = 35  # Temperature inside the Digester
 # source: Final year project, Beirut Arab University, 2021
 
 # Digester Design
-digester_design = Digester(retention_time, design_mass_flow, volatile_solid_destruction_rate, sludge_density,
-                 sludge_specific_gravity, dry_solid_concentration, volatile_solid_concentration,
-                 specific_gas_production)
-diameter, volume, f_b_cf, surface_area_total, active_volume, organic_loading_rate, design_volumetric_flow = digester_design.compute()
+digester_design = Digester(retention_time, design_mass_flow, sludge_density,
+                 sludge_specific_gravity, dry_solid_concentration, volatile_solid_concentration, biomethane_potential)
+diameter, volume, f_m_cf, surface_area_total, active_volume, organic_loading_rate, design_volumetric_flow = digester_design.compute()
 
 
 for i, r in data.iterrows():
@@ -148,7 +144,7 @@ a_file = open("Digester_Dimension.csv", "w")
 a_dict = {"Diameter [m]": f'{round(diameter, 2)}'}
 b_dict = {"Total Volume of Digester [m³]": f'{round(volume, 2)}'}
 c_dict = {"Organic Loading Rate [kgVS/m³d]": f'{round(organic_loading_rate, 3)}'}
-d_dict = {"Feed to Biogas Conversion Factor[m³/kg]": f'{round(f_b_cf, 2)}'}
+d_dict = {"Feed to Biogas Conversion Factor[m³/kg]": f'{round(f_m_cf, 2)}'}
 e_dict = {"Total Surface Area [m²]": f'{round(surface_area_total, 2)}'}
 f_dict = {"Design Volumetric Flow [m³/d]": f'{design_volumetric_flow}'}
 g_dict = {"Average Volumetric Flow [m³/d]": f'{average_volumetric_flow}'}
@@ -191,15 +187,14 @@ bsld = solph.Bus(label="sludge")
 # create electricity bus
 bel = solph.Bus(label="electricity")
 
-# create biogas bus
-bbgas = solph.Bus(label="biogas")
+# create methane bus
 bch4 = solph.Bus(label="methane")
 
 # create heat bus
 bheat = solph.Bus(label="heat")
 
 # adding the buses to the energy system
-energysystem.add(bsld, bel, bbgas, bch4, bheat)
+energysystem.add(bsld, bel, bch4, bheat)
 
 # create excess sink for the biogas bus to allow overproduction
 energysystem.add(solph.Sink(label="excess_biogas", inputs={bch4: solph.Flow()}))
@@ -252,17 +247,8 @@ energysystem.add(
     solph.Transformer(
         label="anaerobic digester",
         inputs={bsld: solph.Flow(nominal_value=average_mass_flow)},  # constant inflow for CSTR digester
-        outputs={bbgas: solph.Flow()},
-        conversion_factors={bbgas: f_b_cf},
-    )
-)
-
-energysystem.add(
-    solph.Transformer(
-        label="biogas to methane conversion",
-        inputs={bbgas: solph.Flow()},
-        outputs={bch4: solph.Flow(nominal_value=10e5)},
-        conversion_factors={bch4: 0.62},  # biogas to methane conversion factor: 0.62 (El Joauhari et al. 2021);
+        outputs={bch4: solph.Flow()},
+        conversion_factors={bch4: f_m_cf},
     )
 )
 
