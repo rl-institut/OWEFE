@@ -100,7 +100,8 @@ biomethane_potential = 0.62  # [m³/kgVS] biomethane potential in m³ per total 
 # Digester Design Parameters
 average_mass_flow =data["dewatered_sludge"].mean()  # [kg/h]
 design_mass_flow = average_mass_flow  # [kg/h]
-average_volumetric_flow = 24*average_mass_flow/(sludge_specific_gravity*sludge_density)  # [m³/d]
+average_volumetric_flow = average_mass_flow/(sludge_specific_gravity*sludge_density)  # [m³/h]
+average_daily_volumetric_flow = average_volumetric_flow * 24  # [m³/d]
 retention_time = 30  # [d]
 temp_digester = 35  # Temperature inside the Digester
 # source: Final year project, Beirut Arab University, 2021
@@ -120,7 +121,7 @@ for i, r in data.iterrows():
 data.to_csv("ww_biogas_tibnine_proceed.csv", index=False)
 
 for i, r in data.iterrows():
-    electricity_demand_digester = ElectricityCalculation(average_mass_flow=average_mass_flow, active_volume=active_volume)
+    electricity_demand_digester = ElectricityCalculation(average_volumetric_flow=average_volumetric_flow, active_volume=active_volume)
     data.loc[i, "electricity_demand_digester"] = electricity_demand_digester.compute()
 
 data.to_csv("ww_biogas_tibnine_proceed.csv", index=False)
@@ -147,7 +148,7 @@ c_dict = {"Organic Loading Rate [kgVS/m³d]": f'{round(organic_loading_rate, 3)}
 d_dict = {"Feed to Biogas Conversion Factor[m³/kg]": f'{round(f_m_cf, 2)}'}
 e_dict = {"Total Surface Area [m²]": f'{round(surface_area_total, 2)}'}
 f_dict = {"Design Volumetric Flow [m³/d]": f'{design_volumetric_flow}'}
-g_dict = {"Average Volumetric Flow [m³/d]": f'{average_volumetric_flow}'}
+g_dict = {"Average Daily Volumetric Flow [m³/d]": f'{average_daily_volumetric_flow}'}
 
 writer = csv.writer(a_file)
 for key, value in a_dict.items():

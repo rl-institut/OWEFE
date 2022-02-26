@@ -7,8 +7,8 @@
 "(('methane', 'CHP'), 'flow')",40798.982556
 "(('methane', 'excess_biogas'), 'flow')",0.0
 "(('CHP', 'electricity'), 'flow')",120805.7874
-"(('electricity', 'electricity demand digester'), 'flow')",21147.31610337412
-"(('electricity', 'electricity production'), 'flow')",99658.47288000002
+"(('electricity', 'electricity demand digester'), 'flow')",17753.52572678034
+"(('electricity', 'electricity production'), 'flow')",103052.26332000003
 "(('CHP', 'heat'), 'flow')",224353.60391999997
 "(('heat', 'excess heat production'), 'flow')",204499.768325
 "(('heat', 'heat demand digester'), 'flow')",19853.836136203063
