@@ -95,7 +95,7 @@ sludge_specific_gravity = 1.02
 sludge_heat_capacity = 4200  # [# J/kg°C] heat capacity of dewatered sludge assumed to be same as water
 dry_solid_concentration = 0.15
 volatile_solid_concentration = 0.7
-biomethane_potential = 0.62  # [m³/kgVS] biomethane potential in m³ per total destructed volatile solids [kg]
+biomethane_potential = 0.3403  # [m³/kgVS] biomethane potential in m³ per total destructed volatile solids [kg]
 # value measured in the laboratory for specific sludge at Tibnine (El Joauhari et al. 2021)
 # Digester Design Parameters
 average_mass_flow =data["dewatered_sludge"].mean()  # [kg/h]
@@ -103,8 +103,8 @@ design_mass_flow = average_mass_flow  # [kg/h]
 average_volumetric_flow = average_mass_flow/(sludge_specific_gravity*sludge_density)  # [m³/h]
 average_daily_volumetric_flow = average_volumetric_flow * 24  # [m³/d]
 retention_time = 30  # [d]
-temp_digester = 35  # Temperature inside the Digester
-# source: Final year project, Beirut Arab University, 2021
+temp_digester = 37  # [°C] operation temperature of th digester
+# source all of the above:  El Joauhari et al al. (2021)
 
 # Digester Design
 digester_design = Digester(retention_time, design_mass_flow, sludge_density,
@@ -136,7 +136,6 @@ dewatered_sludge_ls = data["dewatered_sludge"].to_list()
 dewatered_sludge = pd.Series(dewatered_sludge_ls,
                               index=date_time_index, name="dewatered sludge")
 
-
 # *********************************************************************************************
 # Saving system design results in csv
 # *********************************************************************************************
@@ -145,7 +144,7 @@ a_file = open("Digester_Dimension.csv", "w")
 a_dict = {"Diameter [m]": f'{round(diameter, 2)}'}
 b_dict = {"Total Volume of Digester [m³]": f'{round(volume, 2)}'}
 c_dict = {"Organic Loading Rate [kgVS/m³d]": f'{round(organic_loading_rate, 3)}'}
-d_dict = {"Feed to Biogas Conversion Factor[m³/kg]": f'{round(f_m_cf, 2)}'}
+d_dict = {"Feed to Methane Conversion Factor[m³/kg]": f'{round(f_m_cf, 2)}'}
 e_dict = {"Total Surface Area [m²]": f'{round(surface_area_total, 2)}'}
 f_dict = {"Design Volumetric Flow [m³/d]": f'{design_volumetric_flow}'}
 g_dict = {"Average Daily Volumetric Flow [m³/d]": f'{average_daily_volumetric_flow}'}
@@ -401,7 +400,7 @@ if plt is not None:
     fig.subplots_adjust(top=0.8, bottom=0.15)
     plt.title("Electricity Bus")
     plt.xlabel("Time Period [h]")
-    plt.ylabel("Electrical Energy [kW]")
+    plt.ylabel("Electrical Energy [kWh]")
     plt.show()
 
     fig, ax = plt.subplots(figsize=(10, 5))
@@ -417,7 +416,7 @@ if plt is not None:
     fig.subplots_adjust(top=0.8, bottom=0.15)
     plt.title("Heat Bus")
     plt.xlabel("Time Period [h]")
-    plt.ylabel("Heat [kW]")
+    plt.ylabel("Heat [kWh]")
     plt.show()
 
 # ***************************************************************************

@@ -3,13 +3,13 @@
 "(('dewatered_sludge', 'sludge'), 'flow')",626712.48
 "(('sludge', 'anaerobic digester'), 'flow')",626712.4839599999
 "(('sludge', 'dewatered sludge storage'), 'flow')",87293.38362000001
-"(('anaerobic digester', 'methane'), 'flow')",40798.982556
-"(('methane', 'CHP'), 'flow')",40798.982556
+"(('anaerobic digester', 'methane'), 'flow')",22393.377215999997
+"(('methane', 'CHP'), 'flow')",22393.377215999997
 "(('methane', 'excess_biogas'), 'flow')",0.0
-"(('CHP', 'electricity'), 'flow')",120805.7874
+"(('CHP', 'electricity'), 'flow')",66306.78943199998
 "(('electricity', 'electricity demand digester'), 'flow')",17753.52572678034
-"(('electricity', 'electricity production'), 'flow')",103052.26332000003
-"(('CHP', 'heat'), 'flow')",224353.60391999997
-"(('heat', 'excess heat production'), 'flow')",204499.768325
-"(('heat', 'heat demand digester'), 'flow')",19853.836136203063
+"(('electricity', 'electricity production'), 'flow')",48553.263599999984
+"(('CHP', 'heat'), 'flow')",123141.17711999995
+"(('heat', 'excess heat production'), 'flow')",100786.74043159999
+"(('heat', 'heat demand digester'), 'flow')",22354.439571388084
 storage_content,82.13186618679568

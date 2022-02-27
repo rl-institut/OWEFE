@@ -17,7 +17,7 @@
     Active depth (ad) is calculated directly from the radius and the volume assuming a fixed height:radius ratio of 2:1
     there are additional depths for grit deposit, scum blanket, and space below cover at maximum filling level;
     each measuring 0.15*active depth
-    the conic bottom has a slope of 1/5; slope = h/R; and thus adds a depth of 1/5r
+    the conic bottom has a slope of 1/5; slope = h/R; with R = 2 and thus adds a depth of 0.2*r
     Volume & surface area calculation follows the cylinder and cone geometry laws;
 
      ******** calculation of feedstock to biogas conversion factor********
@@ -58,7 +58,8 @@ class Digester:
         # assuming a fixed active depth : radius ratio of 2:1 (El Jouahari et al. 2021)
         diameter = 2*radius
         active_depth = 2*radius
-        total_sidewall_height = 1.45 * active_depth #
+        total_sidewall_height = 1.45 * active_depth
+        # including heights for grit deposit, scum blanket, and space below cover
         # Wall Area
         wall_area = 2*math.pi*radius*total_sidewall_height
         # Surface Area
@@ -73,7 +74,6 @@ class Digester:
         total_dry_solids = 0.15 * self.design_mass_flow  # [kg/h]
         total_vs_loading = 0.7 * total_dry_solids  # [kg/h], total volatile solid loading
         olr = total_vs_loading / active_volume * 24  # [kg vs/m³.d], organic loading rate
-
 
         # feedstock to biogas conversion factor; calculation over BMP (Biomethane potential)
         f_b_cf = self.dry_solid_concentration * self.volatile_solid_concentration * self.biomethane_potential
