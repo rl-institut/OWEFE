@@ -5,7 +5,7 @@
 * We use the data produced by students from [Beirut Arab University](https://www.bau.edu.lb) for the town Tebnine, Lebanon. 
 * If you want to see the code with better readability, refer to [this branch](https://github.com/rl-institut/OWEFE/tree/Kapil)
 
-**Summary**
+## Summary
 > The domestic sewage carried into the Anaerobic digester [Floating drum digester](https://energypedia.info/wiki/Floating_Drum_Biogas_Plants) by the truck. The digester consist of the propeller for mixing with a sludge retention time of 22 days. Methane gas which is in the range of 55 - 65% of bio-gas [[reference]](https://www.researchgate.net/publication/264416846_Development_of_Biogas_Combustion_in_Combined_Heat_and_Power_Generation) is also considered during modelling of the energy system. Methane gas is burned in a combined heat & power plant(CHP). Part of the heat and electricity is supplied to the digester itself to maintain the heat loss and to power the propeller respectively. The major part of electricity produced is used to power the wastewater treatment plant. [Slurry](https://en.wikipedia.org/wiki/Slurry#:~:text=A%20slurry%20is%20a%20mixture,up%20to%20hundreds%20of%20millimeters.) is taken into consideration through [dewatering unit](https://www.hcr-llc.com/blog/what-is-sludge-dewatering) where water is allowed to pass through [constructed wetlands](https://sswm.info/taxonomy/term/3933/horizontal-subsurface-flow-constructed-wetland) and remained [digestate](https://en.wikipedia.org/wiki/Digestate) can be further used as fertilizer. The model analyze the operational parameters like; [Biochemical oxygen demand (BOD)]( https://en.wikipedia.org/wiki/Biochemical_oxygen_demand), [Chemical oxygen demand (COD)](https://en.wikipedia.org/wiki/Chemical_oxygen_demand), Nitrate, [pathogens](https://en.wikipedia.org/wiki/Escherichia_coli). 
 
 
@@ -13,30 +13,16 @@
 
 ![Biogas:wastewater_CFD](https://github.com/rl-institut/OWEFE/blob/master/docs/assets/flowchart.png)
 
-### 📚 Removal of hydrogen Sulphide (H2S)
+## Elements
 
-* Desulphurization (letting the biogas to pass through the iron tube to react with) [[reference]](https://www.researchgate.net/publication/278024272_Removal_of_Hydrogen_Sulfide_H2S_from_Biogas_Using_Zero-Valent_Iron).
-* Absorption into a liquid either water or caustic solution (might cause the wastewater problem if not treated well) [[reference]](https://www.researchgate.net/publication/222814070_Biogas_Scrubbing_Compression_and_Storage_Perspective_and_Prospectus_in_Indian_Context).
-* Biological conversion by which sulfur compounds are converted into elemental sulfur by sulfide oxidizing microorganisms with addition of air/oxygen (might lead to explosive in the range of 6 – 12% CH4 in the presence of O2 [[reference]](https://www.semanticscholar.org/paper/Removal-of-Hydrogen-Sulfide-from-Biogas-Using-Zicari-Graf/f233ab85e32a7c22bdf0887d2b5be0a76b796f1c).
-* Activated carbon.
-
-### 📚 Removal of Carbon dioxide (CO2)
-
-* water scrubbing (example; by using iron wool)
-* Membrane systems
-* Pressure swing adsorption (PSA) 
-* Chemical CO2 absorption
-* Amine gas treatment
-* CO2 by cooling and recovering dry ice.
-
-## Components
-
+* Bus
+* FLow
 * Sink (one input, no output)
 * Source (one output, no input)
 * Linear Transformer (one input, n outputs)
 * Storage (one input, one output)
 
-### BUS
+### Bus
 
 All flows into and out of a bus are balanced. Following names were used to define BUS. 
 * Sludge (m3/day)
@@ -53,7 +39,7 @@ The flow class has to be used to connect. An instance of the Flow class is norma
 
 ### [Sink](https://oemof-solph.readthedocs.io/en/latest/usage.html#sink-basic)
 
-Sink is normally used to define the demand within the model, but it can also be used to detect excesses. Following names were used to define SINK.
+Sink is normally used to define the demand within the model, but it can also be used to detect excesses. Following names were used to define the sinks of the iWEFEs.
 * Demand 1 (water)
 * Demand 2 (fertilizer)
 * Demand 3 (electricity)
@@ -161,17 +147,17 @@ A line graph for electricity demand, heat demand, water demand, fertilizer deman
 
 Feel free to create a issue or contact us if there are any questions [Julian Fleischmann](julian.fleischmann@rl-institute.de) or [Kapil Tiwari](Kapil.Tiwari@rl-institut.de).
 
-If there are any issues involving running/using the library, make sure to open an issue, it would be greatly appreciated, and will help improve the library.
+If there are any issues involving running/using OWEFE, make sure to open an issue, it would be greatly appreciated, and will help improve the project.
 
 ## Additional Notes
 
 Functions have been designed with flexibility in mind, so that full customization of built-in-functions and filters can be utilised; for every buses differing graph with demand and supply can be created; just by changing parameters slightly, demand sink can be convert into excess sink.
 
-Planners & developers who would like to work with renewable energy and environmental can use the present tool to model biogas wastewater systems including usability of methane gas for combined heat and power generation, water filtration under WHO guideliness, and usage of digestate as fertilizer. This library provides a complete suite of functions to do so, as well as in-built filters and presets.
+Planners & developers who would like to work with renewable energy and environmental technolohies can use the present tool to model biogas wastewater systems including usability of methane gas for combined heat and power generation, water filtration under WHO guideliness, and usage of digestate as fertilizer. This library provides a complete suite of functions to do so, as well as in-built filters and presets.
 
 ## Contributing
 
-Energy model is always ready for new filters and functions, so if you'd like to contribute, we're always ready to accept new Pull Requests or investigate new issues.
+OWEFE is always open for modeling further technologies and functionalities. So if you'd like to contribute, we're always ready to investigate and develop new models coperativley.
 
 ## To Do
 
