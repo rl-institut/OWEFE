@@ -1,15 +1,21 @@
-# Basic Photovoltaic Model
+# Basic Agrivoltaics Model (Version 0.1) - Case Study of Hegelbach
 # import csv
 # import mat
 
 from oemof.tools import logger
 from oemof import solph
-#import bifacial_radiance
 
 import logging
 import os
+from pathlib import Path
 import pandas as pd
 import pprint as pp
+
+try:
+    from bifacial_radiance import *
+except ImportError:
+    raise RuntimeError('bifacial_radiance is required. download distribution')
+
 import numpy as np
 
 try:
@@ -50,9 +56,61 @@ data = pd.read_csv(r"apv_hegelbach_raw.csv")
 electricity_demand = pd.Series([1, 1, 1, 1, 1, 3, 5, 7, 12, 6, 4, 4, 9, 14, 8, 3, 4, 4, 9, 10, 6, 5, 3, 2],
                                index=date_time_index, name="electricity demand")
 # *********************************************************************************************
-# define iWEFEs/Create oemof objects (bus, sink , source, transformer....)
+# define geometry and iWEFEs elements
 # *********************************************************************************************
-logging.info("Create oemof objects")
+# Create Geometry
+
+testfolder = Path().resolve() / 'APV_Solar_Irradiance_Simulation' / 'TEMP' / 'Geometry_1'
+
+print("Your simulation will be stored in %s" % testfolder)
+
+if not os.path.exists(testfolder):
+    os.makedirs(testfolder)
+
+# Create a RadianceObj 'object' named bifacial_example. no whitespace allowed
+demo = RadianceObj('bifacial_example',str(testfolder))
+
+# Input albedo number or material name like 'concrete'.
+demo.setGround()  # This prints available materials.
+albedo = 0.62
+demo.setGround(albedo)
+# Pull in meteorological data using pyEPW for any global lat/lon
+epwfile = demo.getEPW(lat = 47.9, lon = 9.1)  # This location corresponds to Hegelbach, Germany
+# Read in the weather data pulled in above.
+metdata = demo.readWeatherFile(epwfile, coerce_year=2017)
+# Generate the Sky
+fullYear = True
+if fullYear:
+    demo.genCumSky() # entire year.
+else:
+    timeindex = metdata.datetime.index(pd.to_datetime('2017-06-17 12:0:0 -7'))
+    demo.gendaylit(timeindex)  # Noon, June 17th (timepoint # 4020)
+
+# Define a module type
+module_type = 'test-module'
+module = demo.makeModule(name=module_type,x=1.695, y=0.984)
+print(module)
+availableModules = demo.printModules()
+
+# Make the scene
+sceneDict = {'tilt':10,'pitch':3,'clearance_height':0.2,'azimuth':180, 'nMods': 20, 'nRows': 7}  # set scene parameters
+scene = demo.makeScene(module,sceneDict)  # create scene object
+
+# Combine ground, sky, and scene objects
+octfile = demo.makeOct(demo.getfilelist())
+
+# demo.getfilelist()  # see what files got merged into the octfile
+
+# Analyze and get Results
+
+analysis = AnalysisObj(octfile, demo.basename)
+analysis = AnalysisObj(octfile, demo.basename)
+
+
+logging.info("Create iWEFEs elements")
+
+
+
 
 # The bus objects were assigned to variables which makes it easier to connect
 # components to these buses (see below).
