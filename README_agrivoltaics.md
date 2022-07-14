@@ -4,12 +4,14 @@
 
 ## Summary
 
-## FloW Chart
+## Flowchart
+
+![flowchart_agrivoltaics](https://github.com/rl-institut/OWEFE/blob/master/docs/assets/flowchart_agrivoltaics_0.1.png)
 
 ## Elements
 
 * Bus
-* FLow
+* Flow
 * Sink (one input, no output)
 * Source (one output, no input)
 * Linear Transformer (one input, n outputs)
