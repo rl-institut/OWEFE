@@ -4,7 +4,7 @@
 
 from oemof.tools import logger
 from oemof import solph
-
+#import bifacial_radiance
 
 import logging
 import os
@@ -61,33 +61,23 @@ logging.info("Create oemof objects")
 bse = solph.Bus(label="solar energy bus")
 
 # create DC electricity bus
-bedc = solph.Bus(label="DC electricity bus")
-
-# create AC electricity bus
-beac = solph.Bus(label="AC electricity bus")
-
-# create CO2 Bus
-bco2 = solph.Bus(label="CO2 bus")
+bec = solph.Bus(label="electricity bus")
 
 # create Biomass Bus
 bb = solph.Bus(label="biomass bus")
 
 # add buses to the iWEFEs
-energysystem.add(bse, bedc, beac, bco2, bb)
+energysystem.add(bse, bec, bb)
 
 # Resources
 
 # solar radiation from the sun
 energysystem.add(
     solph.Source(
-        label="sun",
+        label="Sun",
         outputs={bse: solph.Flow(fix=data["BHI"], nominal_value=1)})),
 
 # CO2 from the atmosphere
-energysystem.add(
-    solph.Source(
-        label="atmosphere",
-        outputs={bco2: solph.Flow(fix=400, nominal_value=1)})),
 # dew
 # irrigation
 # precipitation
@@ -96,34 +86,25 @@ energysystem.add(
 
 energysystem.add(
     solph.Transformer(
-        label="Photovoltaic Panels",
+        label="Solar Energy System",
         inputs={bse: solph.Flow()},
-        outputs={bedc: solph.Flow()},
-        conversion_factors={bedc: 0.17},
+        outputs={bec: solph.Flow()},
+        conversion_factors={bec: 0.17*0.9},  # efficiency PV Panels: 17%, efficiency Inverter: 90 %
     )
 )
 
-
-energysystem.add(
-    solph.Transformer(
-        label="Inverter",
-        inputs={bedc: solph.Flow()},
-        outputs={beac: solph.Flow()},
-        conversion_factors={beac: 0.9},
-    )
-)
 
 energysystem.add(
     solph.Transformer(
         label="Plants",
-        inputs={bco2: solph.Flow()},
+        inputs={bse: solph.Flow()},
         outputs={bb: solph.Flow()},
         conversion_factors={bb: 0.1},
     )
 )
 
 # grid
-energysystem.add(solph.Sink(label="grid", inputs={beac: solph.Flow()}))
+energysystem.add(solph.Sink(label="grid", inputs={bec: solph.Flow()}))
 
 # biomass processing
 energysystem.add(solph.Sink(label="biomass processing", inputs={bb: solph.Flow()}))
@@ -185,7 +166,7 @@ results = energysystem.results["main"]
 # *****************************************************************************
 # get results of a specific component/bus
 # *****************************************************************************
-ac_electricity_bus = solph.views.node(results, "AC electricity bus")
+electricity_bus = solph.views.node(results, "electricity bus")
 solar_bus = solph.views.node(results, "solar energy bus")
 biomass_bus = solph.views.node(results, "biomass bus")
 
@@ -201,9 +182,9 @@ print("********* Main results *********")
 pp.pprint(energysystem.results["main"])
 
 print("-----------")
-print(ac_electricity_bus["sequences"].sum(axis=0))
-print(type(ac_electricity_bus["sequences"].sum(axis=0).to_numpy()))
-print(ac_electricity_bus["sequences"].sum(axis=0).to_numpy())
+print(electricity_bus["sequences"].sum(axis=0))
+print(type(electricity_bus["sequences"].sum(axis=0).to_numpy()))
+print(electricity_bus["sequences"].sum(axis=0).to_numpy())
 print("----------")
 
 # ***************************************************************************
@@ -213,13 +194,10 @@ print("----------")
 # plot electricity production from solar input and electricity demand
 
 fig, ax = plt.subplots(figsize=(10, 5))
-ac_electricity_bus["sequences"].plot(
+electricity_bus["sequences"].plot(
     ax=ax, kind="line", drawstyle="steps-post"
 )
 solar_bus["sequences"].plot(
-    ax=ax, kind="line", drawstyle="steps-post"
-)
-electricity_demand.plot(
     ax=ax, kind="line", drawstyle="steps-post"
 )
 
