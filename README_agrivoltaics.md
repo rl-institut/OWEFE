@@ -24,8 +24,7 @@ The currently supported Python Version is 3.8.10. For using OWEFE clone the repo
 
     `pip install -r requirements`
 
-Further, you need to intall a solver in your system. To do so, please see the oemof README: 
-[oemof README](https://github.com/oemof/oemof-solph#readme)
+Further, you need to intall a solver in your system. To do so, please see the [oemof README](https://github.com/oemof/oemof-solph#readme)
 
 For Agrivoltaics systems we use the bifacial_radiance package to model the distribution of solar irradiance on the plants. Therefore bifacial_radiance has to be installed on the computer. To do so please check out [bifacial_radiance README](https://github.com/NREL/bifacial_radiance/blob/main/README.md)
 ## Results
