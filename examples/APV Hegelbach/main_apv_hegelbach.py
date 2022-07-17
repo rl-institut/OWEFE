@@ -88,12 +88,13 @@ else:
 
 # Define a module type
 module_type = 'test-module'
-module = demo.makeModule(name=module_type,x=1.695, y=0.984)
+module = demo.makeModule(name=module_type,x=1.675, y=1.001)  # Source Riedelsheimer (2021)
 print(module)
 availableModules = demo.printModules()
 
 # Make the scene
-sceneDict = {'tilt':10,'pitch':3,'clearance_height':0.2,'azimuth':180, 'nMods': 20, 'nRows': 7}  # set scene parameters
+sceneDict = {'tilt':20,'pitch':9.5,'clearance_height':5,'azimuth':225, 'nMods': 720, 'nRows': 15}  # set scene parameters
+# pitch = row distance, clearance height = installation height, Source: Riedelsheimer(2021), azimuth: google maps
 scene = demo.makeScene(module,sceneDict)  # create scene object
 
 # Combine ground, sky, and scene objects
@@ -104,13 +105,10 @@ octfile = demo.makeOct(demo.getfilelist())
 # Analyze and get Results
 
 analysis = AnalysisObj(octfile, demo.basename)
-analysis = AnalysisObj(octfile, demo.basename)
-
+frontscan, backscan = analysis.moduleAnalysis(scene)
+results = analysis.analysis(octfile, demo.basename, frontscan, backscan)
 
 logging.info("Create iWEFEs elements")
-
-
-
 
 # The bus objects were assigned to variables which makes it easier to connect
 # components to these buses (see below).
