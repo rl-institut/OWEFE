@@ -1,0 +1,1 @@
+! genbox Metal_Aluminum_Anodized torquetube_row2 24.263999999999996 0.2 0.3 | xform -t -10.456999999999997 -0.1 -0.3 | xform -t 0 15 4.2

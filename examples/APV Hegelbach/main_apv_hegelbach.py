@@ -1,6 +1,6 @@
 # Basic Agrivoltaics Model (Version 0.1) - Case Study of Hegelbach
 # import csv
-# import mat
+import math
 
 from oemof.tools import logger
 from oemof import solph
@@ -58,55 +58,84 @@ electricity_demand = pd.Series([1, 1, 1, 1, 1, 3, 5, 7, 12, 6, 4, 4, 9, 14, 8, 3
 # *********************************************************************************************
 # define geometry and iWEFEs elements
 # *********************************************************************************************
-# Create Geometry
 
-testfolder = Path().resolve() / 'APV_Solar_Irradiance_Simulation' / 'TEMP' / 'Geometry_1'
+# Create Geometry & solar distribution by using bifacial_radiance
+# (inspired by Tutorial 11 - Advanced topics - AgriPV Systems,
+# available online: https://github.com/NREL/bifacial_radiance/tree/main/docs/tutorials)
+
+testfolder = Path().resolve() / 'Geometry' / 'TEMP' / 'T1'
 
 print("Your simulation will be stored in %s" % testfolder)
 
 if not os.path.exists(testfolder):
     os.makedirs(testfolder)
+# Create a Radiance Object
+demo = RadianceObj('T1', str(testfolder))
 
-# Create a RadianceObj 'object' named bifacial_example. no whitespace allowed
-demo = RadianceObj('bifacial_example',str(testfolder))
+# Make Module
 
-# Input albedo number or material name like 'concrete'.
-demo.setGround()  # This prints available materials.
-albedo = 0.62
+# Module Parameters
+moduletype='APV_2_UP'
+numpanels = 2  # Number of modules arrayed in the Y-direction
+x=1.001  # Width of module along the axis of the torque tube or rack. (m)
+y=1.675  # Length of module (m) Source, Module Parameters Source: Riedelsheimer (2021)
+# Making module with set parameters
+module=demo.makeModule(name=moduletype,x=x,y=y,numpanels=numpanels)
+print(module)
+
+# Make Scene
+# SceneDict Parameters # Source Scene Parameters: Riedelsheimer (2021)
+pitch = 9.5  # row distance [m], stated outside of dictionary because it is used below for ground irradiance calculation
+tilt = 20    # in degrees
+clearance_height = 5  # [m]
+azimuth = 225  # in degrees
+nMods = 24  # number of modules
+nRows = 15  # number of rows
+sceneDict = {'tilt': tilt, 'pitch': pitch, 'clearance_height': clearance_height, 'azimuth': azimuth, 'nMods': nMods, 'nRows': nRows}
+# Create Scene Object
+scene = demo.makeScene(module, sceneDict)
+
+# Set Ground
+albedo = 0.2  # 'grass'     # ground albedo
 demo.setGround(albedo)
+
 # Pull in meteorological data using pyEPW for any global lat/lon
 epwfile = demo.getEPW(lat = 47.9, lon = 9.1)  # This location corresponds to Hegelbach, Germany
 # Read in the weather data pulled in above.
 metdata = demo.readWeatherFile(epwfile, coerce_year=2017)
 # Generate the Sky
-fullYear = True
-if fullYear:
-    demo.genCumSky() # entire year.
-else:
-    timeindex = metdata.datetime.index(pd.to_datetime('2017-06-17 12:0:0 -7'))
-    demo.gendaylit(timeindex)  # Noon, June 17th (timepoint # 4020)
-
-# Define a module type
-module_type = 'test-module'
-module = demo.makeModule(name=module_type,x=1.675, y=1.001)  # Source Riedelsheimer (2021)
-print(module)
-availableModules = demo.printModules()
-
-# Make the scene
-sceneDict = {'tilt':20,'pitch':9.5,'clearance_height':5,'azimuth':225, 'nMods': 720, 'nRows': 15}  # set scene parameters
-# pitch = row distance, clearance height = installation height, Source: Riedelsheimer(2021), azimuth: google maps
-scene = demo.makeScene(module,sceneDict)  # create scene object
+demo.genCumSky() # entire year.
 
 # Combine ground, sky, and scene objects
-octfile = demo.makeOct(demo.getfilelist())
+octfile = demo.makeOct()
 
 # demo.getfilelist()  # see what files got merged into the octfile
+demo.getfilelist()
 
 # Analyze and get Results
 
-analysis = AnalysisObj(octfile, demo.basename)
+analysis = AnalysisObj(octfile, "on_module")
 frontscan, backscan = analysis.moduleAnalysis(scene)
-results = analysis.analysis(octfile, demo.basename, frontscan, backscan)
+results = analysis.analysis(octfile, "on_module", frontscan, backscan)
+
+# Adding the structure -> simplification -> no structure
+
+# Analyse Ground Irradiance
+
+analysis = AnalysisObj(octfile, "ground")
+sensorsy = 1
+frontscan, backscan = analysis.moduleAnalysis(scene, sensorsy=sensorsy)
+
+groundscan = frontscan
+groundscan['zstart'] = 0.05  # measurements 5 cm above the ground
+groundscan['ystart'] = 0  # groundscan in center of APV plant below Modules (row 8)
+groundscan['xstart'] = 0  # groundscan in center of APV plant below Modules (row 8)
+#  Measurements along azimuth of APV Plant south/west direction
+#  groundscan['zinc'] = 0   # height measurement remains constant
+#  groundscan['yinc'] = -((math.cos(tilt)*(numpanels*y)+pitch*(nRows-1))/sensorsy)
+#  groundscan['xinc'] = -((math.cos(tilt)*(numpanels*y)+pitch*(nRows-1))/sensorsy)
+
+analysis.analysis(octfile, "ground", groundscan, backscan)
 
 logging.info("Create iWEFEs elements")
 
