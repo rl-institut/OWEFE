@@ -6,59 +6,25 @@ Climate change and the unfettered consumption of resources threaten the very exi
 ___
 ## Installation
 
-The currently supported Python Version is 3.8.10. For using OWEFE clone the repository to your local machine. Then create a new virtual environment with Python Version 3.8.10. Activate the new virtual environment and move to the repository folder.
+The currently supported Python Version is 3.8.10. For using OWEFE clone the repository to your local machine. Then create a new virtual environment with Python Version 3.8.10. Activate the new virtual environment and move to the repository folder to install the requirements of OWEFE.
 
     `pip install -r requirements`.txt
      pip install oemof.solph=0.4.4
 
-Further, you need to intall a solver in your system. To do so, please see the oemof README: 
-[oemof README](https://github.com/oemof/oemof-solph#readme)
+Further, you need to intall a solver in your system. To do so, please see the [oemof README](https://github.com/oemof/oemof-solph#readme)
 
+## Get Started
+
+For using OWEFE, check out the wastewater-biogas and agrivoltaics models in the example folders. You can adapt them acccording to your site conditions and create further model examples. Specfic components of the iWEFEs are stored in src/specs.
 
 ## Contribution
 
-OWEFE is always ready for new functions and representations of environmental technologies, so if you'd like to contribute, we're always ready to accept new Pull Requests or investigate new issues.
-
-## License
-
-This project is licensed under the GNU Affero General Public License v3.0 - see the [LICENSE.md](https://github.com/rl-institut/OWEFE/blob/master/LICENSE) file for details.
-
-# rli_template
-
-This repository is based on rli-template, a template repository for creating new projects under the RLI's umbrella
-
-## Get started
-
-Simply click on the green `Use this template` button on the left of the `Clone or download` button.
-
-The detailed instructions to create a new repository from this template can be found [here](https://help.github.com/en/articles/creating-a-repository-from-a-template).
-
-## src folder
-
-This folder is where you should place the code of your package (package name to be edited in `setup.py` under name)
-
-You can install it locally for developing with
-
-    python setup.py install
-    
-More details for packaging are available on [https://packaging.python.org](https://packaging.python.org/tutorials/packaging-projects/)
+OWEFE is open for new functions and models of environmental technologies. So if you'd like to contribute, we're always ready to answer your questions, investigate new issues and review pull requests.
 
 
-## Docs
+## Documentation
 
-To build the docs simply go to the `docs` folder
-
-    cd docs
-
-Install the requirements
-
-    pip install -r docs_requirements.txt
-
-and run
-
-    make html
-
-The output will then be located in `docs/_build/html` and can be opened with your favorite browser
+Documentation is currenty done in README files. For seeing how the wastewater-biogas model and the agrivoltaics model work, please check their READMEs in the main directory. In a next step, we build up a readthedocs in the `docs` folder.
 
 ## Code linting
 
@@ -68,3 +34,11 @@ In this template, 3 possible linters are proposed:
 - black sends warning but can also fix the files for you
 
 You can perfectly use the 3 of them or subset, at your preference. Don't forget to edit `.travis.yml` if you want to deactivate the automatic testing of some linters!
+
+## License
+
+This project is licensed under the GNU Affero General Public License v3.0 - see the [LICENSE.md](https://github.com/rl-institut/OWEFE/blob/master/LICENSE) file for details.
+
+# rli_template
+
+This repository is based on rli-template, a template repository for creating new projects under the RLI's umbrella
