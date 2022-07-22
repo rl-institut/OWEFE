@@ -59,6 +59,10 @@ electricity_demand = pd.Series([1, 1, 1, 1, 1, 3, 5, 7, 12, 6, 4, 4, 9, 14, 8, 3
 # define geometry and iWEFEs elements
 # *********************************************************************************************
 
+# Plant characterisitcs
+# winter_wheat
+light_saturation_point = 5000  # [lux]
+
 # Create Geometry & solar distribution by using bifacial_radiance
 # (inspired by Tutorial 11 - Advanced topics - AgriPV Systems,
 # available online: https://github.com/NREL/bifacial_radiance/tree/main/docs/tutorials)
@@ -142,8 +146,11 @@ logging.info("Create iWEFEs elements")
 # The bus objects were assigned to variables which makes it easier to connect
 # components to these buses (see below).
 
-# create solar energy bus
-bse = solph.Bus(label="solar energy bus")
+# create solar energy bus on module
+bsem = solph.Bus(label="solar energy bus module")
+
+# create solar energy bus on ground
+bseg = solph.Bus(label="solar energy bus ground")
 
 # create DC electricity bus
 bec = solph.Bus(label="electricity bus")
@@ -152,15 +159,20 @@ bec = solph.Bus(label="electricity bus")
 bb = solph.Bus(label="biomass bus")
 
 # add buses to the iWEFEs
-energysystem.add(bse, bec, bb)
+energysystem.add(bsem, bseg, bec, bb)
 
 # Resources
 
 # solar radiation from the sun
 energysystem.add(
     solph.Source(
-        label="Sun",
-        outputs={bse: solph.Flow(fix=data["BHI"], nominal_value=1)})),
+        label="Sun_module",
+        outputs={bsem: solph.Flow(fix=data["BHI"], nominal_value=1)})),
+
+energysystem.add(
+    solph.Source(
+        label="Sun_ground",
+        outputs={bseg: solph.Flow(fix=data["BHI"], nominal_value=1)})),
 
 # CO2 from the atmosphere
 # dew
@@ -172,7 +184,7 @@ energysystem.add(
 energysystem.add(
     solph.Transformer(
         label="Solar Energy System",
-        inputs={bse: solph.Flow()},
+        inputs={bsem: solph.Flow()},
         outputs={bec: solph.Flow()},
         conversion_factors={bec: 0.17*0.9},  # efficiency PV Panels: 17%, efficiency Inverter: 90 %
     )
@@ -182,9 +194,10 @@ energysystem.add(
 energysystem.add(
     solph.Transformer(
         label="Plants",
-        inputs={bse: solph.Flow()},
+        inputs={bseg: solph.Flow()},
         outputs={bb: solph.Flow()},
-        conversion_factors={bb: 0.1},
+        conversion_factors={bb: 120},  # conversion factor solar irradiance [W/m²] -> lux [lumen/m²]
+        # light saturation points are given in lux
     )
 )
 
@@ -252,7 +265,8 @@ results = energysystem.results["main"]
 # get results of a specific component/bus
 # *****************************************************************************
 electricity_bus = solph.views.node(results, "electricity bus")
-solar_bus = solph.views.node(results, "solar energy bus")
+solar_bus_module = solph.views.node(results, "solar energy bus module")
+solar_bus_ground = solph.views.node(results, "solar energy bus ground")
 biomass_bus = solph.views.node(results, "biomass bus")
 
 # ***************************************************************************
@@ -282,10 +296,12 @@ fig, ax = plt.subplots(figsize=(10, 5))
 electricity_bus["sequences"].plot(
     ax=ax, kind="line", drawstyle="steps-post"
 )
-solar_bus["sequences"].plot(
+solar_bus_module["sequences"].plot(
     ax=ax, kind="line", drawstyle="steps-post"
 )
-
+solar_bus_ground["sequences"].plot(
+    ax=ax, kind="line", drawstyle="steps-post"
+)
 plt.legend(
     loc="upper center",
     prop={"size": 8},
