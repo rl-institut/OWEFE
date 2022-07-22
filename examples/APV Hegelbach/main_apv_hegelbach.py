@@ -195,7 +195,7 @@ energysystem.add(
     solph.Transformer(
         label="Plants",
         inputs={bseg: solph.Flow()},
-        outputs={bb: solph.Flow(nominal_value=1, max=50000, min=0)},
+        outputs={bb: solph.Flow()},
         conversion_factors={bb: 120},  # conversion factor solar irradiance [W/m²] -> lux [lumen/m²]
         # light saturation points are given in lux
     )
@@ -205,10 +205,10 @@ energysystem.add(
 energysystem.add(solph.Sink(label="grid", inputs={bec: solph.Flow()}))
 
 # biomass processing
-energysystem.add(solph.Sink(label="biomass processing", inputs={bb: solph.Flow()}))
+energysystem.add(solph.Sink(label="biomass processing", inputs={bb: solph.Flow(nominal_value=1, max=10000, min=0)}))
 
-# create excess sink to represent unused solar energy excess by plants
-# energysystem.add(solph.Sink(label="excess solar plant", inputs={bep: solph.Flow()}))
+#create excess sink to represent unused solar energy excess by plants
+energysystem.add(solph.Sink(label="excess solar plant", inputs={bb: solph.Flow()}))
 
 ##########################################################################
 # Simulate the iWEFEs and plot the results
