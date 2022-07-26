@@ -59,7 +59,7 @@ electricity_demand = pd.Series([1, 1, 1, 1, 1, 3, 5, 7, 12, 6, 4, 4, 9, 14, 8, 3
 # define geometry and iWEFEs elements
 # *********************************************************************************************
 
-# Plant characterisitcs
+# Plant characteristics
 # winter_wheat
 light_saturation_point = 5000  # [lux]
 
@@ -79,7 +79,7 @@ demo = RadianceObj('T1', str(testfolder))
 # Make Module
 
 # Module Parameters
-moduletype='APV_2_UP'
+moduletype = 'APV_2_UP'
 numpanels = 2  # Number of modules arrayed in the Y-direction
 x=1.001  # Width of module along the axis of the torque tube or rack. (m)
 y=1.675  # Length of module (m) Source, Module Parameters Source: Riedelsheimer (2021)
@@ -190,6 +190,7 @@ energysystem.add(
     )
 )
 
+# Plant Transformer
 
 energysystem.add(
     solph.Transformer(
@@ -201,11 +202,13 @@ energysystem.add(
     )
 )
 
+# Plant Biomass Storage
+
 # grid
 energysystem.add(solph.Sink(label="grid", inputs={bec: solph.Flow()}))
 
 # biomass processing
-energysystem.add(solph.Sink(label="biomass processing", inputs={bb: solph.Flow(nominal_value=1, max=10000, min=0)}))
+energysystem.add(solph.Sink(label="harvest", inputs={bb: solph.Flow(nominal_value=1, max=10000, min=0)}))
 
 #create excess sink to represent unused solar energy excess by plants
 energysystem.add(solph.Sink(label="excess solar plant", inputs={bb: solph.Flow()}))
@@ -220,7 +223,7 @@ logging.info("Optimise the energy system")
 model = solph.Model(energysystem)
 
 # This is for debugging only. It is not(!) necessary to solve the problem and
-# should be set to False to save time and disc space in normal use. For
+# should be set to false to save time and disc space in normal use. For
 # debugging the timesteps should be set to 3, to increase the readability of
 # the lp-file.
 if debug:
