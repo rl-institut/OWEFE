@@ -50,17 +50,30 @@ print(date_time_index)
 # Read input data file
 data = pd.read_csv(r"apv_hegelbach_raw.csv")
 # define ambient temperature panda series
-temp = pd.Series([10, 14, 12, 12, 14, 16, 17, 19, 20, 23, 25, -3, 0, 0, 31, 31, 29, 26, 24, 22, 20, 19, 17, 16],
+temp = pd.Series([10, 14, 12, 12, 14, 16, 17, 19, 20, 23, 25, 27, 30, 32, 31, 31, 29, 26, 24, 22, 20, 19, 17, 16],
                  index=date_time_index, name="t")
 # *********************************************************************************************
 # define geometry and iWEFEs elements
 # *********************************************************************************************
 
 # Plant characteristics
-# C4 plant
+# Wheat Batten
 light_saturation_point = 60000  # [lux]
+# Cultivar parameters, source: simple crop model
+t_sum = 2150
+HI = 0.34
+I50A = 280
+I50B = 50
+# Species Parameters
 t_base = 0
 t_opt = 15
+RUE = 1.24
+I50maxH = 100
+I50maxW = 25
+Tmax = 34
+Text = 45
+SCO2 = 0.08
+Swater = 0.4
 
 logging.info("Create iWEFEs elements")
 
@@ -70,7 +83,7 @@ logging.info("Create iWEFEs elements")
 # create solar energy bus on ground
 bseg = solph.Bus(label="solar energy bus ground")
 
-# create Biomass Bus
+# create biomass bus
 bb = solph.Bus(label="biomass bus")
 
 # add buses to the iWEFEs
@@ -89,9 +102,10 @@ energysystem.add(
 te = plant.calc_te(temp=temp, t_opt=t_opt, t_base=t_base)
 # add plant transformer
 print(te)
+# plant leaves
 energysystem.add(
     solph.Transformer(
-        label="Plants",
+        label="plant leafs",
         inputs={bseg: solph.Flow()},
         conversion_factors={bb: te},
         outputs={bb: solph.Flow()},
@@ -211,3 +225,11 @@ plt.title("received solar irradiance")
 plt.xlabel("Time Period [day]")
 plt.ylabel("biomass production rate[g/day]")
 plt.show()
+
+
+# calculate annual production sums
+biomass_sum = biomass_bus["sequences"].sum(axis=0)
+
+# calculate harvested biomass
+harvest = biomass_sum * HI
+print(harvest)
