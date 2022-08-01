@@ -71,12 +71,25 @@ temp = pd.Series([10, 14, 12, 12, 14, 16, 17, 19, 20, 23, 25, 27, 29, 30, 31, 31
 # *********************************************************************************************
 
 # Plant characteristics
-# C4 plant
+# Wheat Batten
 light_saturation_point = 60000  # [lux]
+# Cultivar parameters, source: simple crop model
+t_sum = 2150
+HI = 0.34
+I50A = 280
+I50B = 50
+# Species Parameters
 t_base = 0
 t_opt = 15
+RUE = 1.24
+I50maxH = 100
+I50maxW = 25
+Tmax = 34
+Text = 45
+SCO2 = 0.08
+Swater = 0.4
 
-# Create Geometry & solar distribution by using bifacial_radiance
+# Create geometry & solar distribution to calculate shading factor using bifacial_radiance
 # (inspired by Tutorial 11 - Advanced topics - AgriPV Systems,
 # available online: https://github.com/NREL/bifacial_radiance/tree/main/docs/tutorials)
 
@@ -121,8 +134,7 @@ epwfile = demo.getEPW(lat = 47.9, lon = 9.1)  # This location corresponds to Heg
 # Read in the weather data pulled in above.
 metdata = demo.readWeatherFile(epwfile, coerce_year=2017)
 # Generate the Sky
-demo.genCumSky() # entire year.
-
+demo.genCumSky()
 # Combine ground, sky, and scene objects
 octfile = demo.makeOct()
 
@@ -132,7 +144,8 @@ demo.getfilelist()
 # Analyze and get Results
 
 analysis = AnalysisObj(octfile, "on_module")
-frontscan, backscan = analysis.moduleAnalysis(scene)
+sensorsy = 1
+frontscan, backscan = analysis.moduleAnalysis(scene, sensorsy=sensorsy)
 results = analysis.analysis(octfile, "on_module", frontscan, backscan)
 
 # Adding the structure -> simplification -> no structure
@@ -154,6 +167,20 @@ groundscan['xstart'] = 0  # groundscan in center of APV plant below Modules (row
 
 analysis.analysis(octfile, "ground", groundscan, backscan)
 
+# Calculate Shading Factor
+#os.chdir("/Geometry/TEMP/T1/EPWs")
+#epw_irradiance_data = pd.read_csv(r"metdata_temp.csv")
+#sum_irradiance_sky = epw_irradiance_data.sum(axis=0)
+#os.chdir("../results")
+#irr_ground=pd.read_csv("irr_ground.csv")
+#sum_irradiance_ground=irr_ground("Wm2Front")
+#shading_factor = sum_irradiance_ground/sum_irradiance_sky
+
+
+shading_factor = 688494.6/1501495.7685  # currently chdir does not work
+# I just have looked up the values in the csv files
+print(shading_factor)
+os.chdir("../../../../")
 logging.info("Create iWEFEs elements")
 
 # The bus objects were assigned to variables which makes it easier to connect
@@ -182,10 +209,14 @@ energysystem.add(
         label="Sun_module",
         outputs={bsem: solph.Flow(fix=data["BHI"], nominal_value=1)})),
 
+# calculate shading factor
+
+# irradiance on ground
+
 energysystem.add(
     solph.Source(
         label="Sun_ground",
-        outputs={bseg: solph.Flow(fix=data["BHI"], nominal_value=1)})),
+        outputs={bseg: solph.Flow(fix=data["BHI"], nominal_value=shading_factor)})),
 
 # CO2 from the atmosphere
 # dew
@@ -212,8 +243,7 @@ energysystem.add(
     solph.Transformer(
         label="Plants",
         inputs={bseg: solph.Flow()},
-        conversion_factors={bb: 0.4 * te},  # conversion factor solar irradiance [W/m²] -> lux [lumen/m²]
-        # light saturation points are given in lux
+        conversion_factors={bb: te},
     )
 )
 
@@ -348,7 +378,7 @@ plt.legend(
     ncol=3,
 )
 fig.subplots_adjust(top=0.8)
-plt.title("received solar irradiance")
+plt.title("Biomass Production")
 plt.xlabel("Time Period [h]")
-plt.ylabel("[lux=lumen/m²]")
+plt.ylabel("[g/h]")
 plt.show()

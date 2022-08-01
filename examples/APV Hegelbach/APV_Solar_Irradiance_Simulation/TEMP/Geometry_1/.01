@@ -1,8 +1,0 @@
-**************
-*** PID 26068: rvu -vf views\front.vp -e .01 bifacial_example.oct
-
-rvu: warning - no light sources found
-QWindowsNativeFileDialogBase::onSelectionChange () 0
-QWindowsNativeFileDialogBase::onSelectionChange (QUrl("file:///C:/Users/Julian/PycharmProjects/OWEFE/examples/APV Hegelbach/APV_Solar_Irradiance_Simulation/TEMP/Geometry_1/views")) 1
-QWindowsNativeFileDialogBase::onSelectionChange () 0
-QWindowsNativeFileDialogBase::onSelectionChange (QUrl("file:///C:/Users/Julian/PycharmProjects/OWEFE/examples/APV Hegelbach/APV_Solar_Irradiance_Simulation/TEMP/Geometry_1/views/front.vp")) 1
