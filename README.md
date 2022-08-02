@@ -8,7 +8,7 @@ ___
 
 The currently supported Python Version is 3.8.10. For using OWEFE clone the repository to your local machine. Then create a new virtual environment with Python Version 3.8.10. Activate the new virtual environment and move to the repository folder to install the requirements of OWEFE.
 
-    `pip install -r requirements`.txt
+     pip install -r requirements.txt
      pip install oemof.solph=0.4.4
 
 Further, you need to intall a solver in your system. To do so, please see the [oemof README](https://github.com/oemof/oemof-solph#readme)
