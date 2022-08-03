@@ -9,7 +9,7 @@ oemof-thermal/src/oemof/thermal/compression_heatpumps_and_chillers.py
 """
 
 import pandas as pd
-def calc_te (temp, t_opt, t_base):
+def calc_te(temp, t_opt, t_base):
 
     r"""
     Calculates the temperature effect on the biomass rate

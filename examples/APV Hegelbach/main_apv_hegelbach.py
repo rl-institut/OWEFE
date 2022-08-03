@@ -88,7 +88,8 @@ Tmax = 34
 Text = 45
 SCO2 = 0.08
 Swater = 0.4
-
+# cultivation area
+area = 2000  # [m²]
 # Create geometry & solar distribution to calculate shading factor using bifacial_radiance
 # (inspired by Tutorial 11 - Advanced topics - AgriPV Systems,
 # available online: https://github.com/NREL/bifacial_radiance/tree/main/docs/tutorials)
@@ -243,22 +244,17 @@ energysystem.add(
     solph.Transformer(
         label="Plants",
         inputs={bseg: solph.Flow()},
-        conversion_factors={bb: te},
+        conversion_factors={bb: te*area},
+        outputs={bb: solph.Flow()},
     )
 )
-
-# Plant Biomass Storage
-outputs={bb: solph.Flow()},
-
-
+# Sinks
 # grid
 energysystem.add(solph.Sink(label="grid", inputs={bec: solph.Flow()}))
 
 # biomass harvest
 energysystem.add(solph.Sink(label="harvest", inputs={bb: solph.Flow()}))
 
-# create excess sink to represent unused solar energy excess by plants
-energysystem.add(solph.Sink(label="excess solar plant", inputs={bb: solph.Flow()}))
 
 ##########################################################################
 # Simulate the iWEFEs and plot the results
