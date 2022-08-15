@@ -13,11 +13,10 @@ try:
 except ImportError:
     plt = None
 
-# changing cwd to use the function from the main file
+# changing working directory to use module from source
 os.chdir("../../src")
 
 import src.specs.plant as plant
-
 os.chdir("../examples/APV Hegelbach")
 
 # *********************************************************************************************
@@ -50,7 +49,7 @@ print(date_time_index)
 # Read input data file
 data = pd.read_csv(r"apv_hegelbach_raw.csv")
 # define ambient temperature panda series
-temp = pd.Series([10, 14, 12, 12, 14, 16, 17, 19, 20, 23, 25, 27, 30, 32, 31, 31, 29, 26, 24, 22, 20, 19, 17, 16],
+temp = pd.Series([5, 7, 7, 8, 9, 10, 11, 12, 13, 14, 15, 0, 0, 14, 13, 12, 11, 10, 9, 2, 8, 7, 6, 6],
                  index=date_time_index, name="t")
 # *********************************************************************************************
 # define geometry and iWEFEs elements
@@ -221,7 +220,7 @@ plt.legend(
     ncol=3,
 )
 fig.subplots_adjust(top=0.8)
-plt.title("received solar irradiance")
+plt.title("biomass production rate")
 plt.xlabel("Time Period [day]")
 plt.ylabel("biomass production rate[g/day]")
 plt.show()

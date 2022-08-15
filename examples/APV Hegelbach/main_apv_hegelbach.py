@@ -60,6 +60,7 @@ print(date_time_index)
 # *********************************************************************************************
 # Read input data file
 data = pd.read_csv(r"apv_hegelbach_raw.csv")
+climate_df = pd.read_csv(r"ERA5_pvlib_2017.csv")
 # define electricity demand curve and set it to same
 electricity_demand = pd.Series([1, 1, 1, 1, 1, 3, 5, 7, 12, 6, 4, 4, 9, 14, 8, 3, 4, 4, 9, 10, 6, 5, 3, 2],
                                index=date_time_index, name="electricity demand")
@@ -178,7 +179,7 @@ analysis.analysis(octfile, "ground", groundscan, backscan)
 #shading_factor = sum_irradiance_ground/sum_irradiance_sky
 
 
-shading_factor = 688494.6/1501495.7685  # currently chdir does not work
+shading_factor = 688494.6/1501495.7685  # currently chdir command does not work
 # I just have looked up the values in the csv files
 print(shading_factor)
 os.chdir("../../../../")
@@ -208,7 +209,7 @@ energysystem.add(bsem, bseg, bec, bb)
 energysystem.add(
     solph.Source(
         label="Sun_module",
-        outputs={bsem: solph.Flow(fix=data["BHI"], nominal_value=1)})),
+        outputs={bsem: solph.Flow(fix=climate_df["ssrd"], nominal_value=1)})),
 
 # calculate shading factor
 
@@ -217,7 +218,7 @@ energysystem.add(
 energysystem.add(
     solph.Source(
         label="Sun_ground",
-        outputs={bseg: solph.Flow(fix=data["BHI"], nominal_value=shading_factor)})),
+        outputs={bseg: solph.Flow(fix=climate_df["ssrd"], nominal_value=shading_factor)})),
 
 # CO2 from the atmosphere
 # dew

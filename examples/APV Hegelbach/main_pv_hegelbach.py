@@ -10,7 +10,14 @@ import logging
 import os
 import pandas as pd
 import pprint as pp
+import xarray as xr
 import numpy as np
+
+# changing working directory to use module from source
+os.chdir("../../src")
+
+import src.specs.photovoltaic_panel as photovoltaic_panel
+os.chdir("../examples/APV Hegelbach")
 
 try:
     import matplotlib.pyplot as plt
@@ -36,7 +43,7 @@ print(number_of_time_steps)
 
 logging.info("Initialize the iWEFEs system")
 date_time_index = pd.date_range(
-    "1/1/2018", periods=number_of_time_steps, freq="H")
+    "1/1/2017", periods=number_of_time_steps, freq="H")
 
 energysystem = solph.EnergySystem(timeindex=date_time_index)
 print(date_time_index)
@@ -46,9 +53,28 @@ print(date_time_index)
 # *********************************************************************************************
 # Read input data file
 data = pd.read_csv(r"apv_hegelbach_raw.csv")
+climate_df = pd.read_csv('ERA5_pvlib_2017.csv')
+print(list(data.columns.values))
+print(list(climate_df.columns.values))
+latitude = 47.9
+longitude = 9.1
 # define electricity demand curve and set it to same
 electricity_demand = pd.Series([1, 1, 1, 1, 1, 3, 5, 7, 12, 6, 4, 4, 9, 14, 8, 3, 4, 4, 9, 10, 6, 5, 3, 2],
                                index=date_time_index, name="electricity demand")
+# define ambient temperature panda series
+temp = pd.Series([10, 14, 12, 12, 14, 16, 17, 19, 20, 23, 25, 27, 29, 30, 31, 31, 29, 26, 24, 22, 20, 19, 17, 16],
+                 index=date_time_index, name="ambient temperature")
+# *********************************************************************************************
+# Component Characteristics
+# *********************************************************************************************
+# Photovoltaic Panel Characteristics
+# module_name = "SolarWorld SW 270 duo bifacial PV" Source: Schindele et al. 2020
+# module_area = 1206 [m²], Source: Schindele et al. 2020
+p_rpv = 270  # [Wp]
+r_ref = 1000  # [W/m²]
+n_t = -0.0037  # [1/°C], Value Source: Maleki et al. (2015), Ismail et al. (2013)
+t_c_ref = 25  # [°C]
+noct = 48  # [°C]
 # *********************************************************************************************
 # define iWEFEs/Create oemof objects (bus, sink , source, transformer....)
 # *********************************************************************************************
@@ -75,20 +101,21 @@ energysystem.add(bsed, bedc, beac)
 energysystem.add(
     solph.Source(
         label="solar",
-        outputs={bsed: solph.Flow(fix=data["BHI"], nominal_value=1)})),
+        outputs={bsed: solph.Flow(fix=climate_df["ssrd"], nominal_value=1)})),
 
 # dew
 # irrigation
 # precipitation
 # fertilizer
-
-
+# photovoltaic panels
+pv_te = photovoltaic_panel.calc_pv_te(
+    t_air=climate_df["t_air"], ghi=climate_df["ghi"], p_rpv=p_rpv, r_ref=r_ref, n_t=n_t, t_c_ref=t_c_ref, noct=noct)
 energysystem.add(
     solph.Transformer(
         label="Photovoltaic Panels",
         inputs={bsed: solph.Flow()},
         outputs={bedc: solph.Flow()},
-        conversion_factors={bedc: 0.17},
+        conversion_factors={bedc: pv_te},
     )
 )
 
@@ -177,11 +204,11 @@ print("")
 print("********* Main results *********")
 pp.pprint(energysystem.results["main"])
 
-print("-----------")
-print(ac_electricity_bus["sequences"].sum(axis=0))
-print(type(ac_electricity_bus["sequences"].sum(axis=0).to_numpy()))
-print(ac_electricity_bus["sequences"].sum(axis=0).to_numpy())
-print("----------")
+# print("-----------")
+# print(ac_electricity_bus["sequences"].sum(axis=0))
+# print(type(ac_electricity_bus["sequences"].sum(axis=0).to_numpy()))
+# print(ac_electricity_bus["sequences"].sum(axis=0).to_numpy())
+# print("----------")
 
 # ***************************************************************************
 #  plot the results
