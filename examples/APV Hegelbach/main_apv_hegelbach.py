@@ -1,5 +1,4 @@
 # Basic Agrivoltaics Model (Version 0.1) - Case Study of Hegelbach
-# import csv
 import math
 
 from oemof.tools import logger
@@ -7,15 +6,8 @@ from oemof import solph
 
 import logging
 import os
-from pathlib import Path
 import pandas as pd
 import pprint as pp
-
-try:
-    from bifacial_radiance import *
-except ImportError:
-    raise RuntimeError('bifacial_radiance is required. download distribution')
-
 import numpy as np
 
 try:
@@ -50,7 +42,7 @@ print(number_of_time_steps)
 
 logging.info("Initialize the iWEFEs system")
 date_time_index = pd.date_range(
-    "1/1/2018", periods=number_of_time_steps, freq="H")
+    "1/1/2017", periods=number_of_time_steps, freq="H")
 
 energysystem = solph.EnergySystem(timeindex=date_time_index)
 print(date_time_index)
@@ -67,11 +59,23 @@ electricity_demand = pd.Series([1, 1, 1, 1, 1, 3, 5, 7, 12, 6, 4, 4, 9, 14, 8, 3
 # define ambient temperature panda series
 temp = pd.Series([10, 14, 12, 12, 14, 16, 17, 19, 20, 23, 25, 27, 29, 30, 31, 31, 29, 26, 24, 22, 20, 19, 17, 16],
                  index=date_time_index, name="ambient temperature")
+
 # *********************************************************************************************
-# define geometry and iWEFEs elements
+# Component Characteristics
 # *********************************************************************************************
 
+# Photovoltaic Panel Characteristics
+
+# module_name = "SolarWorld SW 270 duo bifacial PV" Source: Schindele et al. 2020
+# module_area = 1206 [m²], Source: Schindele et al. 2020
+p_rpv = 270  # [Wp]
+r_ref = 1000  # [W/m²]
+n_t = -0.0037  # [1/°C], Value Source: Maleki et al. (2015), Ismail et al. (2013)
+t_c_ref = 25  # [°C]
+noct = 48  # [°C]
+
 # Plant characteristics
+
 # Wheat Batten
 light_saturation_point = 60000  # [lux]
 # Cultivar parameters, source: simple crop model
@@ -91,98 +95,27 @@ SCO2 = 0.08
 Swater = 0.4
 # cultivation area
 area = 2000  # [m²]
-# Create geometry & solar distribution to calculate shading factor using bifacial_radiance
-# (inspired by Tutorial 11 - Advanced topics - AgriPV Systems,
-# available online: https://github.com/NREL/bifacial_radiance/tree/main/docs/tutorials)
 
-testfolder = Path().resolve() / 'Geometry' / 'TEMP' / 'T1'
-
-print("Your simulation will be stored in %s" % testfolder)
-
-if not os.path.exists(testfolder):
-    os.makedirs(testfolder)
-# Create a Radiance Object
-demo = RadianceObj('T1', str(testfolder))
-
-# Make Module
-
-# Module Parameters
-moduletype = 'APV_2_UP'
-numpanels = 2  # Number of modules arrayed in the Y-direction
-x=1.001  # Width of module along the axis of the torque tube or rack. (m)
-y=1.675  # Length of module (m) Source, Module Parameters Source: Riedelsheimer (2021)
-# Making module with set parameters
-module=demo.makeModule(name=moduletype,x=x,y=y,numpanels=numpanels)
-print(module)
-
-# Make Scene
-# SceneDict Parameters # Source Scene Parameters: Riedelsheimer (2021)
-pitch = 9.5  # row distance [m], stated outside of dictionary because it is used below for ground irradiance calculation
-tilt = 20    # in degrees
-clearance_height = 5  # [m]
-azimuth = 225  # in degrees
-nMods = 24  # number of modules
-nRows = 15  # number of rows
-sceneDict = {'tilt': tilt, 'pitch': pitch, 'clearance_height': clearance_height, 'azimuth': azimuth, 'nMods': nMods, 'nRows': nRows}
-# Create Scene Object
-scene = demo.makeScene(module, sceneDict)
-
-# Set Ground
-albedo = 0.2  # 'grass'     # ground albedo
-demo.setGround(albedo)
-
-# Pull in meteorological data using pyEPW for any global lat/lon
-epwfile = demo.getEPW(lat = 47.9, lon = 9.1)  # This location corresponds to Hegelbach, Germany
-# Read in the weather data pulled in above.
-metdata = demo.readWeatherFile(epwfile, coerce_year=2017)
-# Generate the Sky
-demo.genCumSky()
-# Combine ground, sky, and scene objects
-octfile = demo.makeOct()
-
-# demo.getfilelist()  # see what files got merged into the octfile
-demo.getfilelist()
-
-# Analyze and get Results
-
-analysis = AnalysisObj(octfile, "on_module")
-sensorsy = 1
-frontscan, backscan = analysis.moduleAnalysis(scene, sensorsy=sensorsy)
-results = analysis.analysis(octfile, "on_module", frontscan, backscan)
-
-# Adding the structure -> simplification -> no structure
-
-# Analyse Ground Irradiance
-
-analysis = AnalysisObj(octfile, "ground")
-sensorsy = 1
-frontscan, backscan = analysis.moduleAnalysis(scene, sensorsy=sensorsy)
-
-groundscan = frontscan
-groundscan['zstart'] = 0.05  # measurements 5 cm above the ground
-groundscan['ystart'] = 0  # groundscan in center of APV plant below Modules (row 8)
-groundscan['xstart'] = 0  # groundscan in center of APV plant below Modules (row 8)
-#  Measurements along azimuth of APV Plant south/west direction
-#  groundscan['zinc'] = 0   # height measurement remains constant
-#  groundscan['yinc'] = -((math.cos(tilt)*(numpanels*y)+pitch*(nRows-1))/sensorsy)
-#  groundscan['xinc'] = -((math.cos(tilt)*(numpanels*y)+pitch*(nRows-1))/sensorsy)
-
-analysis.analysis(octfile, "ground", groundscan, backscan)
-
-# Calculate Shading Factor
-#os.chdir("/Geometry/TEMP/T1/EPWs")
-#epw_irradiance_data = pd.read_csv(r"metdata_temp.csv")
-#sum_irradiance_sky = epw_irradiance_data.sum(axis=0)
-#os.chdir("../results")
-#irr_ground=pd.read_csv("irr_ground.csv")
-#sum_irradiance_ground=irr_ground("Wm2Front")
-#shading_factor = sum_irradiance_ground/sum_irradiance_sky
+# *********************************************************************************************
+# Create Geometry
+# *********************************************************************************************
+# lacks automation !, calling APV_geometry from main file shall be implemented in future versions.
+# Currently, we just have looked up the values for APV_geometry in the csv result files
+shading_factor = 688494.6/1501495.7685
+back_front_ratio = 0.126485
+bifacial_factor = 1+back_front_ratio  # radiance ratio on bifacial module 1 (front) + back to front ratio
+# W/m2 Front: 1207246; ->  1207 kWh/m²yr;
+# in comparison; era5 ghi on horizontal plane
+annual_ghi = climate_df["ghi"].sum()/1000
+print("annual ghi [kWh/m²]")
+print(annual_ghi)
+# yes läuft, D ~ 1000 kWh/yr; horizontale Fläche; Neigung + Süden bringt bisschen mehr
 
 
-shading_factor = 688494.6/1501495.7685  # currently chdir command does not work
-# I just have looked up the values in the csv files
-print(shading_factor)
-os.chdir("../../../../")
+# *********************************************************************************************
+# define iWEFEs/Create oemof objects (bus, sink , source, transformer....)
+# *********************************************************************************************
+logging.info("Create OWEFE elements")
 logging.info("Create iWEFEs elements")
 
 # The bus objects were assigned to variables which makes it easier to connect
@@ -209,7 +142,7 @@ energysystem.add(bsem, bseg, bec, bb)
 energysystem.add(
     solph.Source(
         label="Sun_module",
-        outputs={bsem: solph.Flow(fix=climate_df["ssrd"], nominal_value=1)})),
+        outputs={bsem: solph.Flow(fix=climate_df["ghi"], nominal_value=bifacial_factor)})),
 
 # calculate shading factor
 
@@ -218,7 +151,7 @@ energysystem.add(
 energysystem.add(
     solph.Source(
         label="Sun_ground",
-        outputs={bseg: solph.Flow(fix=climate_df["ssrd"], nominal_value=shading_factor)})),
+        outputs={bseg: solph.Flow(fix=climate_df["ghi"], nominal_value=shading_factor)})),
 
 # CO2 from the atmosphere
 # dew
@@ -226,6 +159,7 @@ energysystem.add(
 # precipitation
 # fertilizer
 
+# Photovoltaic Panels
 
 energysystem.add(
     solph.Transformer(
@@ -235,6 +169,9 @@ energysystem.add(
         conversion_factors={bec: 0.17*0.9},  # efficiency PV Panels: 17%, efficiency Inverter: 90 %
     )
 )
+
+# Inverter
+
 
 # plant
 # temperature effect on biomass growth rate

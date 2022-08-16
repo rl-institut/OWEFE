@@ -78,7 +78,7 @@ noct = 48  # [°C]
 # *********************************************************************************************
 # define iWEFEs/Create oemof objects (bus, sink , source, transformer....)
 # *********************************************************************************************
-logging.info("Create oemof objects")
+logging.info("Create OWEFE elements")
 
 # The bus objects were assigned to variables which makes it easier to connect
 # components to these buses (see below).
