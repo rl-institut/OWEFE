@@ -9,7 +9,7 @@ oemof-thermal/src/oemof/thermal/compression_heatpumps_and_chillers.py
 """
 
 import pandas as pd
-def calc_te(temp, t_opt, t_base):
+def calc_te(t_air, t_opt, t_base):
 
     r"""
     Calculates the temperature effect on the biomass rate
@@ -26,11 +26,11 @@ def calc_te(temp, t_opt, t_base):
 
     """
     # Check if input arguments have proper type and length
-    if not isinstance(temp, (list, pd.Series)):
+    if not isinstance(t_air, (list, pd.Series)):
         raise TypeError("Argument 'temp' is not of type list or pd.Series!")
     te = []    # creating a list
     # Calculate te
-    for t in temp:
+    for t in t_air:
         if t < t_base:
             x = 0
             te.append(x)

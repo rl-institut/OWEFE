@@ -19,6 +19,7 @@ except ImportError:
 os.chdir("../../src")
 
 import src.specs.plant as plant
+import src.specs.photovoltaic_panel as photovoltaic_panel
 
 os.chdir("../examples/APV Hegelbach")
 
@@ -29,7 +30,7 @@ os.chdir("../examples/APV Hegelbach")
 
 solver = "cbc"
 debug = False  # Set number_of_timesteps to 3 to get a readable lp-file.
-number_of_time_steps = 24
+number_of_time_steps = 8760
 solver_verbose = False  # show/hide solver output
 
 # initiate the logger (see the API docs for more information)
@@ -53,18 +54,12 @@ print(date_time_index)
 # Read input data file
 data = pd.read_csv(r"apv_hegelbach_raw.csv")
 climate_df = pd.read_csv(r"ERA5_pvlib_2017.csv")
-# define electricity demand curve and set it to same
-electricity_demand = pd.Series([1, 1, 1, 1, 1, 3, 5, 7, 12, 6, 4, 4, 9, 14, 8, 3, 4, 4, 9, 10, 6, 5, 3, 2],
-                               index=date_time_index, name="electricity demand")
-# define ambient temperature panda series
-temp = pd.Series([10, 14, 12, 12, 14, 16, 17, 19, 20, 23, 25, 27, 29, 30, 31, 31, 29, 26, 24, 22, 20, 19, 17, 16],
-                 index=date_time_index, name="ambient temperature")
 
 # *********************************************************************************************
 # Component Characteristics
 # *********************************************************************************************
 
-# Photovoltaic Panel Characteristics
+# Solar Energy System Characteristics
 
 # module_name = "SolarWorld SW 270 duo bifacial PV" Source: Schindele et al. 2020
 # module_area = 1206 [m²], Source: Schindele et al. 2020
@@ -73,6 +68,9 @@ r_ref = 1000  # [W/m²]
 n_t = -0.0037  # [1/°C], Value Source: Maleki et al. (2015), Ismail et al. (2013)
 t_c_ref = 25  # [°C]
 noct = 48  # [°C]
+# Inverter
+# inverter_type/name
+inverter_efficiency = 0.9
 
 # Plant characteristics
 
@@ -128,13 +126,16 @@ bsem = solph.Bus(label="solar energy bus module")
 bseg = solph.Bus(label="solar energy bus ground")
 
 # create DC electricity bus
-bec = solph.Bus(label="electricity bus")
+bedc = solph.Bus(label="DC electricity bus")
+
+# create AC electricty bus
+beac = solph.Bus(label="AC electricity bus")
 
 # create Biomass Bus
 bb = solph.Bus(label="biomass bus")
 
 # add buses to the iWEFEs
-energysystem.add(bsem, bseg, bec, bb)
+energysystem.add(bsem, bseg, bedc, beac, bb)
 
 # Resources
 
@@ -144,40 +145,38 @@ energysystem.add(
         label="Sun_module",
         outputs={bsem: solph.Flow(fix=climate_df["ghi"], nominal_value=bifacial_factor)})),
 
-# calculate shading factor
-
 # irradiance on ground
-
 energysystem.add(
     solph.Source(
         label="Sun_ground",
         outputs={bseg: solph.Flow(fix=climate_df["ghi"], nominal_value=shading_factor)})),
 
-# CO2 from the atmosphere
-# dew
-# irrigation
-# precipitation
-# fertilizer
-
 # Photovoltaic Panels
-
+pv_te = photovoltaic_panel.calc_pv_te(
+    t_air=climate_df["t_air"], ghi=climate_df["ghi"], p_rpv=p_rpv, r_ref=r_ref, n_t=n_t, t_c_ref=t_c_ref, noct=noct)
 energysystem.add(
     solph.Transformer(
-        label="Solar Energy System",
+        label="Photovoltaic Panels",
         inputs={bsem: solph.Flow()},
-        outputs={bec: solph.Flow()},
-        conversion_factors={bec: 0.17*0.9},  # efficiency PV Panels: 17%, efficiency Inverter: 90 %
+        outputs={bedc: solph.Flow()},
+        conversion_factors={bedc: pv_te},
     )
 )
 
 # Inverter
-
+energysystem.add(
+    solph.Transformer(
+        label="Inverter",
+        inputs={bedc: solph.Flow()},
+        outputs={beac: solph.Flow()},
+        conversion_factors={beac: inverter_efficiency},
+    )
+)
 
 # plant
 # temperature effect on biomass growth rate
-te = plant.calc_te(temp=temp, t_opt=t_opt, t_base=t_base)
+te = plant.calc_te(t_air=climate_df["t_air"], t_opt=t_opt, t_base=t_base)
 # add plant transformer
-print(te)
 energysystem.add(
     solph.Transformer(
         label="Plants",
@@ -188,7 +187,7 @@ energysystem.add(
 )
 # Sinks
 # grid
-energysystem.add(solph.Sink(label="grid", inputs={bec: solph.Flow()}))
+energysystem.add(solph.Sink(label="grid", inputs={beac: solph.Flow()}))
 
 # biomass harvest
 energysystem.add(solph.Sink(label="harvest", inputs={bb: solph.Flow()}))
@@ -251,7 +250,7 @@ results = energysystem.results["main"]
 # *****************************************************************************
 # get results of a specific component/bus
 # *****************************************************************************
-electricity_bus = solph.views.node(results, "electricity bus")
+electricity_bus = solph.views.node(results, "AC electricity bus")
 solar_bus_module = solph.views.node(results, "solar energy bus module")
 solar_bus_ground = solph.views.node(results, "solar energy bus ground")
 biomass_bus = solph.views.node(results, "biomass bus")

@@ -58,12 +58,12 @@ print(list(data.columns.values))
 print(list(climate_df.columns.values))
 latitude = 47.9
 longitude = 9.1
-# define electricity demand curve and set it to same
-electricity_demand = pd.Series([1, 1, 1, 1, 1, 3, 5, 7, 12, 6, 4, 4, 9, 14, 8, 3, 4, 4, 9, 10, 6, 5, 3, 2],
-                               index=date_time_index, name="electricity demand")
-# define ambient temperature panda series
-temp = pd.Series([10, 14, 12, 12, 14, 16, 17, 19, 20, 23, 25, 27, 29, 30, 31, 31, 29, 26, 24, 22, 20, 19, 17, 16],
-                 index=date_time_index, name="ambient temperature")
+# define electricity demand curve for testing
+# electricity_demand = pd.Series([1, 1, 1, 1, 1, 3, 5, 7, 12, 6, 4, 4, 9, 14, 8, 3, 4, 4, 9, 10, 6, 5, 3, 2],
+#                               index=date_time_index, name="electricity demand")
+# define ambient temperature panda series for testing
+# temp = pd.Series([10, 14, 12, 12, 14, 16, 17, 19, 20, 23, 25, 27, 29, 30, 31, 31, 29, 26, 24, 22, 20, 19, 17, 16],
+#                 index=date_time_index, name="ambient temperature")
 # *********************************************************************************************
 # Component Characteristics
 # *********************************************************************************************
@@ -101,7 +101,7 @@ energysystem.add(bsed, bedc, beac)
 energysystem.add(
     solph.Source(
         label="solar",
-        outputs={bsed: solph.Flow(fix=climate_df["ssrd"], nominal_value=1)})),
+        outputs={bsed: solph.Flow(fix=climate_df["ghi"], nominal_value=1)})),
 
 # dew
 # irrigation
@@ -223,9 +223,9 @@ ac_electricity_bus["sequences"].plot(
 solar_bus["sequences"].plot(
     ax=ax, kind="line", drawstyle="steps-post"
 )
-electricity_demand.plot(
-    ax=ax, kind="line", drawstyle="steps-post"
-)
+# electricity_demand.plot(
+#    ax=ax, kind="line", drawstyle="steps-post"
+#)
 
 plt.legend(
     loc="upper center",
