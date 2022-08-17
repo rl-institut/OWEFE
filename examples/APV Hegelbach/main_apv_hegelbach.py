@@ -68,6 +68,7 @@ r_ref = 1000  # [W/m²]
 n_t = -0.0037  # [1/°C], Value Source: Maleki et al. (2015), Ismail et al. (2013)
 t_c_ref = 25  # [°C]
 noct = 48  # [°C]
+n_pv = 720  # ammount of pv modules
 # Inverter
 # inverter_type/name
 inverter_efficiency = 0.9
@@ -82,9 +83,9 @@ HI = 0.34
 I50A = 280
 I50B = 50
 # Species Parameters
-t_base = 0
-t_opt = 15
-RUE = 1.24
+t_base = 0  # base temperature for phenological development and growth
+t_opt = 15  # optimal temperature for biomass growth
+RUE = 1.24  # Radiation Use efficiency (above ground only and without respiration) (g/MJm²)
 I50maxH = 100
 I50maxW = 25
 Tmax = 34
@@ -159,7 +160,7 @@ energysystem.add(
         label="Photovoltaic Panels",
         inputs={bsem: solph.Flow()},
         outputs={bedc: solph.Flow()},
-        conversion_factors={bedc: pv_te},
+        conversion_factors={bedc: pv_te*n_pv},
     )
 )
 
@@ -175,16 +176,18 @@ energysystem.add(
 
 # plant
 # temperature effect on biomass growth rate
-te = plant.calc_te(t_air=climate_df["t_air"], t_opt=t_opt, t_base=t_base)
+ei = plant.calc_ei(t_air=climate_df["t_air"], t_opt=t_opt, t_base=t_base, RUE=RUE)
+
 # add plant transformer
 energysystem.add(
     solph.Transformer(
         label="Plants",
         inputs={bseg: solph.Flow()},
-        conversion_factors={bb: te*area},
+        conversion_factors={bb: ei},
         outputs={bb: solph.Flow()},
     )
 )
+
 # Sinks
 # grid
 energysystem.add(solph.Sink(label="grid", inputs={beac: solph.Flow()}))
@@ -255,21 +258,36 @@ solar_bus_module = solph.views.node(results, "solar energy bus module")
 solar_bus_ground = solph.views.node(results, "solar energy bus ground")
 biomass_bus = solph.views.node(results, "biomass bus")
 
+# ****************************************************************************
+# Saving electricity and biomass production results in csv
+# ****************************************************************************
+# calculate annual production sums and export them as csv file
+electricity_production = electricity_bus["sequences"].sum(axis=0)
+biomass_production = biomass_bus["sequences"].sum(axis=0)
+biomass_growth_period = biomass_bus["sequences"].loc["2017-01-01 00:00:00":"2017-08-08 12:00:00", :]
+biomass_harvest = biomass_growth_period.sum(axis=0) * HI
+
+comb_sum = pd.concat([electricity_production, biomass_production, biomass_harvest], axis=0)
+dfcomb = pd.DataFrame(comb_sum, columns=["Value"])
+dfcomb.to_csv("production.csv", index=True)
+dfcomb.info()
+print(comb_sum)
+
 # ***************************************************************************
 #  print the results
 # ***************************************************************************
 
 print("********* Meta results *********")
-pp.pprint(energysystem.results["meta"])
+# pp.pprint(energysystem.results["meta"])
 print("")
 
 print("********* Main results *********")
-pp.pprint(energysystem.results["main"])
+# pp.pprint(energysystem.results["main"])
 
 print("-----------")
-print(electricity_bus["sequences"].sum(axis=0))
-print(type(electricity_bus["sequences"].sum(axis=0).to_numpy()))
-print(electricity_bus["sequences"].sum(axis=0).to_numpy())
+# print(electricity_bus["sequences"].sum(axis=0))
+# print(type(electricity_bus["sequences"].sum(axis=0).to_numpy()))
+# print(electricity_bus["sequences"].sum(axis=0).to_numpy())
 print("----------")
 
 # ***************************************************************************
@@ -311,7 +329,7 @@ plt.legend(
     ncol=3,
 )
 fig.subplots_adjust(top=0.8)
-plt.title("Biomass Production")
+plt.title("Biomass Rate")
 plt.xlabel("Time Period [h]")
-plt.ylabel("[g/h]")
+plt.ylabel("[g/(h*m²)]")
 plt.show()
