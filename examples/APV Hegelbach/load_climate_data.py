@@ -11,13 +11,13 @@ longitude = 9.1
 
 # set start and end date (end date will be included
 # in the time period for which data is downloaded)
-start_date, end_date = '2016-12-31', '2017-05-31'  # time in UTC choose start date one day before time of interest
+start_date, end_date = '2017-12-31', '2018-12-31'  # time in UTC choose start date one day before time of interest
 # for position east of 0° meridian for covering all hours of interest
 
 # set variable set to download
 
 variable = "pvlib"
-target_file = 'ERA5_pvlib_2017.nc'
+target_file = 'ERA5_pvlib_2018.nc'
 
 ds = era5.get_era5_data_from_datespan_and_position(
     variable=variable,

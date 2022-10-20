@@ -43,7 +43,7 @@ print(number_of_time_steps)
 
 logging.info("Initialize the iWEFEs system")
 date_time_index = pd.date_range(
-    "1/1/2017", periods=number_of_time_steps, freq="H")
+    "1/1/2018", periods=number_of_time_steps, freq="H")
 
 energysystem = solph.EnergySystem(timeindex=date_time_index)
 print(date_time_index)
@@ -53,7 +53,7 @@ print(date_time_index)
 # *********************************************************************************************
 # Read input data file
 data = pd.read_csv(r"apv_hegelbach_raw.csv")
-climate_df = pd.read_csv(r"ERA5_pvlib_2017.csv")
+climate_df = pd.read_csv(r"ERA5_pvlib_2018.csv")
 
 # *********************************************************************************************
 # Component Characteristics
@@ -70,7 +70,7 @@ t_c_ref = 25  # [°C]
 noct = 48  # [°C]
 n_pv = 720  # ammount of pv modules
 # Inverter
-# inverter_type/name
+# inverter_type/name: Huawei, SUN2000-36KTL; effciency: 0.986; 0.9 is chosen to also cover further losses
 inverter_efficiency = 0.9
 
 # Plant characteristics
@@ -100,7 +100,9 @@ area = 2000  # [m²]
 # *********************************************************************************************
 # lacks automation !, calling APV_geometry from main file shall be implemented in future versions.
 # Currently, we just have looked up the values for APV_geometry in the csv result files
-shading_factor = 688494.6/1501495.7685
+shading_factor = 836447.4/1195402 # input [Wh/m²a],output: dimensionless
+# ground irradiance average value of 9 measurements
+# going from center of APV outward in azimuth direction
 back_front_ratio = 0.126485
 bifacial_factor = 1+back_front_ratio  # radiance ratio on bifacial module 1 (front) + back to front ratio
 # W/m2 Front: 1207246; ->  1207 kWh/m²yr;
@@ -264,7 +266,7 @@ biomass_bus = solph.views.node(results, "biomass bus")
 # calculate annual production sums and export them as csv file
 electricity_production = electricity_bus["sequences"].sum(axis=0)
 biomass_production = biomass_bus["sequences"].sum(axis=0)
-biomass_growth_period = biomass_bus["sequences"].loc["2017-01-01 00:00:00":"2017-08-08 12:00:00", :]
+biomass_growth_period = biomass_bus["sequences"].loc["2018-01-01 00:00:00":"2018-07-31 12:00:00", :]
 biomass_harvest = biomass_growth_period.sum(axis=0) * HI
 
 comb_sum = pd.concat([electricity_production, biomass_production, biomass_harvest], axis=0)
