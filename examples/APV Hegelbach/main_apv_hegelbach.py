@@ -1,4 +1,4 @@
-# Basic Agrivoltaics Model (Version 0.1) - Case Study of Hegelbach
+# Basic Agrivoltaics Model (Version 0.2) - Case Study of Hegelbach
 import math
 
 from oemof.tools import logger
@@ -53,6 +53,7 @@ print(date_time_index)
 # *********************************************************************************************
 # Read input data file
 data = pd.read_csv(r"apv_hegelbach_raw.csv")
+apv_temp = pd.read_csv(r"t_air_below_apv_calibrated_2018.csv")
 climate_df = pd.read_csv(r"ERA5_pvlib_2018.csv")
 
 # *********************************************************************************************
@@ -68,9 +69,9 @@ r_ref = 1000  # [W/m²]
 n_t = -0.0037  # [1/°C], Value Source: Maleki et al. (2015), Ismail et al. (2013)
 t_c_ref = 25  # [°C]
 noct = 48  # [°C]
-n_pv = 720  # ammount of pv modules
+n_pv = 720  # amount of pv modules
 # Inverter
-# inverter_type/name: Huawei, SUN2000-36KTL; effciency: 0.986; 0.9 is chosen to also cover further losses
+# inverter_type/name: Huawei, SUN2000-36KTL; efficiency: 0.986; 0.9 is chosen to also cover further losses
 inverter_efficiency = 0.9
 
 # Plant characteristics
@@ -131,7 +132,7 @@ bseg = solph.Bus(label="solar energy bus ground")
 # create DC electricity bus
 bedc = solph.Bus(label="DC electricity bus")
 
-# create AC electricty bus
+# create AC electricity bus
 beac = solph.Bus(label="AC electricity bus")
 
 # create Biomass Bus
@@ -156,7 +157,7 @@ energysystem.add(
 
 # Photovoltaic Panels
 pv_te = photovoltaic_panel.calc_pv_te(
-    t_air=climate_df["t_air"], ghi=climate_df["ghi"], p_rpv=p_rpv, r_ref=r_ref, n_t=n_t, t_c_ref=t_c_ref, noct=noct)
+    t_air=apv_temp["t_air"], ghi=climate_df["ghi"], p_rpv=p_rpv, r_ref=r_ref, n_t=n_t, t_c_ref=t_c_ref, noct=noct)
 energysystem.add(
     solph.Transformer(
         label="Photovoltaic Panels",
@@ -178,7 +179,7 @@ energysystem.add(
 
 # plant
 # temperature effect on biomass growth rate
-ei = plant.calc_ei(t_air=climate_df["t_air"], t_opt=t_opt, t_base=t_base, RUE=RUE)
+ei = plant.calc_ei(t_air=apv_temp["t_air"], t_opt=t_opt, t_base=t_base, RUE=RUE)
 
 # add plant transformer
 energysystem.add(
