@@ -49,10 +49,11 @@ def calc_te(t_air, t_opt, t_base, RUE):
             te.append(x)
     return te
 
-def calc_arid(et_o, vwc, rzd):
+def calc_arid(et_o, vwc, s_water, rzd):
 
     r"""
-    Calculates the aridity effect on the biomass rate
+    Calculates the soil water availability impact on the biomass rate
+    arid factor derived from simple crop model and Woli et al. (2012), divided by 24 to transform to hourly values
     ----
     Parameters
     ----------
@@ -70,10 +71,13 @@ def calc_arid(et_o, vwc, rzd):
     # Check if input arguments have proper type and length
     if not isinstance(et_o, (list, pd.Series)):
         raise TypeError("Argument 'et_o' is not of type list or pd.Series!")
-    arid = []    # creating a list
+    wi = []    # creating a list
     # Calculate arid
-    arid = min(et_o, vwc*rzd)/et_o
-    return arid
+
+    for e in et_o:
+        for m in vwc:
+            wi = 1-s_water*(1 - min(abs(e), (0.096/24)*m*rzd)/abs(e))
+    return wi
 
 def calc_hi(t_max, t_heat, t_ext):
 

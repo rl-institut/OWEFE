@@ -55,21 +55,22 @@ print(date_time_index)
 # time series for latitude = 47.9, longitude = 9.1
 data = pd.read_csv(r"apv_hegelbach_raw.csv")
 apv_temp = pd.read_csv(r"t_air_below_apv_calibrated_2018.csv")
+apv_temp_D_max_H = pd.read_csv(r"apv_temp_daily_max_H.csv")
+soil_moisture_df = pd.read_csv(r"era5_vwc.csv")
+et0_df = pd.read_csv(r"era5_et0.csv")
 climate_df = pd.read_csv(r"ERA5_pvlib_2018.csv")
 
-et_o = 5  # take it out when real data is there, just for testing
-vwc = 0.21  # see above et_o
 
 # resample apv_temp for daily maximum temperature series
-list_apv_temp = apv_temp["t_air"].values.tolist()
-index = pd.date_range('1/1/2018', periods=8760, freq='H')
-apv_temp_df = pd.DataFrame(data=list_apv_temp, index=index, columns=['t_air'])
-apv_temp_D_max = apv_temp_df.resample('D').apply(lambda x : max(x))
-apv_temp_D_max.to_csv("apv_temp_daily_max.csv", index=True)
-apv_temp_D_max_H = apv_temp_D_max.resample('H').pad()
+# list_apv_temp = apv_temp["t_air"].values.tolist()
+# index = pd.date_range('1/1/2018', periods=8760, freq='H')
+# apv_temp_df = pd.DataFrame(data=list_apv_temp, index=index, columns=['t_air'])
+# apv_temp_D_max = apv_temp_df.resample('D').apply(lambda x : max(x))
+# apv_temp_D_max.to_csv("apv_temp_daily_max.csv", index=True)
+# apv_temp_D_max_H = apv_temp_D_max.resample('H').pad()
 # apv_temp_D_max_list = apv_temp_D_max_H.values.tolist()
 #  t_air_below_pv = pd.DataFrame(calibrated_data, columns=["Value"])
-apv_temp_D_max_H.to_csv("apv_temp_daily_max_H.csv", index=True)
+# apv_temp_D_max_H.to_csv("apv_temp_daily_max_H.csv", index=True)
 
 # *********************************************************************************************
 # Component Characteristics
@@ -107,8 +108,8 @@ I50maxW = 25
 t_heat = 34  # t_heat is the threshold temperature when biomass growth rate starts to be reduced by heat stress
 t_ext = 45  # t_extreme is the extreme temperature threshold when the biomass growth rate reaches 0 due to heat stress
 s_CO2 = 0.08
-s_water = 0.4
-rzd = 1000  # root zone depth [mm]
+s_water = 0.4  # sensitivity of RUE to the ARID index for specific plant (simple crop model)
+rzd = 1  # root zone depth [m]
 # cultivation area
 area = 2000  # [m²]
 
@@ -179,7 +180,7 @@ energysystem.add(
 
 # Photovoltaic Panels
 pv_te = photovoltaic_panel.calc_pv_te(
-    t_air=apv_temp["t_air"], ghi=climate_df["ghi"], p_rpv=p_rpv, r_ref=r_ref, n_t=n_t, t_c_ref=t_c_ref, noct=noct)
+    t_air=climate_df["t_air"], ghi=climate_df["ghi"], p_rpv=p_rpv, r_ref=r_ref, n_t=n_t, t_c_ref=t_c_ref, noct=noct)
 energysystem.add(
     solph.Transformer(
         label="Photovoltaic Panels",
@@ -227,12 +228,12 @@ energysystem.add(
 
 
 # Transformer P3: Aridity impact on biomass growth rate
-arid = plant.calc_arid(et_o=et_o, vwc=vwc, rzd=rzd)
+wi = plant.calc_arid(et_o=et0_df["pev"], vwc=soil_moisture_df["vwc_rzd"], s_water=s_water, rzd=rzd)
 energysystem.add(
     solph.Transformer(
         label="Plant_arid",
         inputs={bp2: solph.Flow()},
-        conversion_factors={bb: arid},
+        conversion_factors={bb: wi},
         outputs={bb: solph.Flow()},
     )
 )
