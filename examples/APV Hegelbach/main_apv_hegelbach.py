@@ -52,9 +52,24 @@ print(date_time_index)
 # inputs
 # *********************************************************************************************
 # Read input data file
+# time series for latitude = 47.9, longitude = 9.1
 data = pd.read_csv(r"apv_hegelbach_raw.csv")
 apv_temp = pd.read_csv(r"t_air_below_apv_calibrated_2018.csv")
 climate_df = pd.read_csv(r"ERA5_pvlib_2018.csv")
+
+et_o = 5  # take it out when real data is there, just for testing
+vwc = 0.21  # see above et_o
+
+# resample apv_temp for daily maximum temperature series
+list_apv_temp = apv_temp["t_air"].values.tolist()
+index = pd.date_range('1/1/2018', periods=8760, freq='H')
+apv_temp_df = pd.DataFrame(data=list_apv_temp, index=index, columns=['t_air'])
+apv_temp_D_max = apv_temp_df.resample('D').apply(lambda x : max(x))
+apv_temp_D_max.to_csv("apv_temp_daily_max.csv", index=True)
+apv_temp_D_max_H = apv_temp_D_max.resample('H').pad()
+# apv_temp_D_max_list = apv_temp_D_max_H.values.tolist()
+#  t_air_below_pv = pd.DataFrame(calibrated_data, columns=["Value"])
+apv_temp_D_max_H.to_csv("apv_temp_daily_max_H.csv", index=True)
 
 # *********************************************************************************************
 # Component Characteristics
@@ -89,10 +104,11 @@ t_opt = 15  # optimal temperature for biomass growth
 RUE = 1.24  # Radiation Use efficiency (above ground only and without respiration) (g/MJm²)
 I50maxH = 100
 I50maxW = 25
-Tmax = 34
-Text = 45
-SCO2 = 0.08
-Swater = 0.4
+t_heat = 34  # t_heat is the threshold temperature when biomass growth rate starts to be reduced by heat stress
+t_ext = 45  # t_extreme is the extreme temperature threshold when the biomass growth rate reaches 0 due to heat stress
+s_CO2 = 0.08
+s_water = 0.4
+rzd = 1000  # root zone depth [mm]
 # cultivation area
 area = 2000  # [m²]
 
@@ -101,7 +117,7 @@ area = 2000  # [m²]
 # *********************************************************************************************
 # lacks automation !, calling APV_geometry from main file shall be implemented in future versions.
 # Currently, we just have looked up the values for APV_geometry in the csv result files
-shading_factor = 836447.4/1195402 # input [Wh/m²a],output: dimensionless
+shading_factor = 836447.4/1195402  # input [Wh/m²a],output: dimensionless
 # ground irradiance average value of 9 measurements
 # going from center of APV outward in azimuth direction
 back_front_ratio = 0.126485
@@ -129,6 +145,12 @@ bsem = solph.Bus(label="solar energy bus module")
 # create solar energy bus on ground
 bseg = solph.Bus(label="solar energy bus ground")
 
+# create plant internal bus 1
+bp1 = solph.Bus(label="plant internal bus 1")
+
+# create plant internal bus 2
+bp2 = solph.Bus(label="plant internal bus 2")
+
 # create DC electricity bus
 bedc = solph.Bus(label="DC electricity bus")
 
@@ -139,7 +161,7 @@ beac = solph.Bus(label="AC electricity bus")
 bb = solph.Bus(label="biomass bus")
 
 # add buses to the iWEFEs
-energysystem.add(bsem, bseg, bedc, beac, bb)
+energysystem.add(bsem, bseg, bp1, bp2, bedc, beac, bb)
 
 # Resources
 
@@ -177,16 +199,40 @@ energysystem.add(
     )
 )
 
-# plant
-# temperature effect on biomass growth rate
-ei = plant.calc_ei(t_air=apv_temp["t_air"], t_opt=t_opt, t_base=t_base, RUE=RUE)
+# Plant
+# we have subdivided the plant in various sub-transformers
+# to model the various environmental impacts on the plant's biomass production rate
+# Transformer P1: Temperature and RUE impact on biomass growth rate
 
-# add plant transformer
+ti = plant.calc_te(t_air=apv_temp["t_air"], t_opt=t_opt, t_base=t_base, RUE=RUE)
 energysystem.add(
     solph.Transformer(
-        label="Plants",
+        label="Plant_ti",
         inputs={bseg: solph.Flow()},
-        conversion_factors={bb: ei},
+        conversion_factors={bp1: ti},
+        outputs={bp1: solph.Flow()},
+    )
+)
+
+# Transformer P2: Heat effect on biomass growth rate
+hi = plant.calc_hi(t_max=apv_temp_D_max_H["t_air"], t_heat=t_heat, t_ext=t_ext)
+energysystem.add(
+    solph.Transformer(
+        label="Plant_hi",
+        inputs={bp1: solph.Flow()},
+        conversion_factors={bp2: hi},
+        outputs={bp2: solph.Flow()},
+    )
+)
+
+
+# Transformer P3: Aridity impact on biomass growth rate
+arid = plant.calc_arid(et_o=et_o, vwc=vwc, rzd=rzd)
+energysystem.add(
+    solph.Transformer(
+        label="Plant_arid",
+        inputs={bp2: solph.Flow()},
+        conversion_factors={bb: arid},
         outputs={bb: solph.Flow()},
     )
 )

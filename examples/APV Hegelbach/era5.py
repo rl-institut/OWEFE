@@ -57,6 +57,9 @@ def get_era5_data_from_datespan_and_position(
         variable = ["fdir", "ssrd", "2t", "10u", "10v"]
     elif variable == "OWEFE":
         variable = ["fdir", "ssrd", "2t", "et0"]
+    elif variable == "soil_moisture":
+        variable = ["volumetric_soil_water_layer_1", "volumetric_soil_water_layer_2", "volumetric_soil_water_layer_3",
+                    "volumetric_soil_water_layer_4"]
     elif variable == "windpowerlib":
         variable = ["100u", "100v", "10u", "10v", "2t", "fsr", "sp"]
     elif variable == "feedinlib":
