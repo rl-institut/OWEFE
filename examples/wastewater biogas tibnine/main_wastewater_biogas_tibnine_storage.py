@@ -46,12 +46,12 @@ except ImportError:
     plt = None
 
 # changing cwd to use the function from the main file
-os.chdir("../src/")
+os.chdir("../../src/")
 from src.specs.digester_CSTR import Digester
 from digester_demand import HeatCalculation
 from digester_demand import ElectricityCalculation
 
-os.chdir("../examples/")
+os.chdir("../examples/wastewater biogas tibnine")
 
 # *********************************************************************************************
 # set up oemof.solph

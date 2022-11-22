@@ -21,7 +21,7 @@ os.chdir("../../src")
 import src.specs.plant as plant
 import src.specs.photovoltaic_panel as photovoltaic_panel
 
-os.chdir("../examples/APV Hegelbach")
+os.chdir("../examples/agrivoltaics hegelbach")
 
 
 # *********************************************************************************************

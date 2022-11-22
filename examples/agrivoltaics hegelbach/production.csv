@@ -1,6 +1,6 @@
 ,Value
-"(('AC electricity bus', 'grid'), 'flow')",247602087.239155
-"(('Inverter', 'AC electricity bus'), 'flow')",247602087.239155
+"(('AC electricity bus', 'grid'), 'flow')",241081685.66913858
+"(('Inverter', 'AC electricity bus'), 'flow')",241081685.66913858
 "(('Plant_arid', 'biomass bus'), 'flow')",2094.0473353463553
 "(('biomass bus', 'harvest'), 'flow')",2094.0473353463553
 "(('Plant_arid', 'biomass bus'), 'flow')",439.32593612284745
