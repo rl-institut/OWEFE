@@ -1,7 +1,7 @@
 # OWEFE - open modeling framework for integrated water, energy, food, and environment systems
 
 ## Scientific Abstract
-Climate change and the unfettered consumption of resources threaten the very existence of humankind and the ecosystems that sustain life. In this context, the holistic approach to managing water, energy, and food presents a profound opportunity to tap synergies, minimize trade-offs across sectors and tackle the challenges. However, despite its potential, integrated Water, Eco-, Energy, Food systems (iWEFEs) are hardly put into practice due to, among others, a lack of generic and open available models of iWEFEs, including their components, processes, flows, and cross-sectoral interconnections. To fill this gap, we present an open modeling framework for integrated Water, Energy, Food, and environment systems (OWEFE). OWEFE is based on the open energy modeling framework (OEMOF) and conceptualized, addressing the current challenges of WEFE frameworks and the multiple characteristics of iWEFEs. OWEFE is calibrated and verified by two variants of iWEFEs -- agrivoltaics and renewable energy production through anaerobic digestion of wastewater -- including respective case study design and operational data. The verified framework enables the development of an open, research-community-driven database to provide technical, economic, and environmental models for preliminary assessment, synergistic planning, and software-based configuration of iWEFEs.
+The integrated approach to managing the fundamental resources for human life, namely, water, energy, food, and the environment as their irreplaceable foundation, presents a profound opportunity for sustainable development. However, despite their huge potential, integrated water, energy, food, and environment systems (iWEFEs) are rarely put into practice because of, among others, complexity and a lack of uniform and openly available models to describe, configure and simulate such systems. To fill this gap, we present the open modeling framework for integrated water, energy, food, and environment systems (OWEFE) based on the open energy modeling framework (OEMOF). OWEFE follows an open, cross-sectoral, and modular design approach to address crucial challenges for the project development of iWEFEs.  The wide application of the framework can improve the assessment, planning, and configuration of iWEFEs for sustainable and integrated infrastructure development.
 
 ___
 ## Installation
@@ -11,7 +11,7 @@ The currently supported Python Version is 3.8.10. For using OWEFE clone the repo
      pip install -r requirements.txt
      pip install oemof.solph=0.4.4
 
-Further, you need to intall a solver in your system. To do so, please see the [oemof README](https://github.com/oemof/oemof-solph#readme)
+Further, you need to install a solver in your system. To do so, please see the [oemof README](https://github.com/oemof/oemof-solph#readme)
 
 ## Get Started
 
@@ -19,7 +19,7 @@ For using OWEFE, check out the wastewater-biogas and agrivoltaics models in the 
 
 ## Contribution
 
-OWEFE is open for new functions and models of environmental technologies. So if you'd like to contribute, we're always ready to answer your questions, investigate new issues and review pull requests.
+OWEFE is open for new models of environmental technologies. So if you like to contribute, we are available to support your project, answer your questions, investigate new issues and review pull requests.
 
 
 ## Documentation
