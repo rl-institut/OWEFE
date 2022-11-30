@@ -176,7 +176,7 @@ a_file.close()
 # *********************************************************************************************
 # define iWEFEs/Create oemof objects (bus, sink , source, transformer, ...)
 # *********************************************************************************************
-logging.info("Create oemof objects")
+logging.info("Create iWEFEs objects")
 
 # The bus objects were assigned to variables which makes it easier to connect
 # components to these buses (see below).
