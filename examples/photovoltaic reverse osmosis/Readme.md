@@ -36,8 +36,9 @@ OWEFE is always open for modeling further technologies and functionalities. So i
 
 ## Contributors
 
-* [Julian Fleischmann](julian.fleischmann@rl-institute.de)
-* [Vinay Narayan Hegde](vinay.narayan.hegde@ise.fraunhofer.de) 
+* Vinay Narayan Hegde - vinay.narayan.hegde@ise.fraunhofer.de 
+* Julian Fleischmann - julian.fleischmann@rl-institute.de
+
 
 ## License
 
