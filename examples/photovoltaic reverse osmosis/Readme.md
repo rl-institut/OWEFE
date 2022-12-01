@@ -19,6 +19,14 @@ The photovoltaic reverse osmosis system model is currently under development and
 * Linear Transformer (one input, n outputs)
 * Storage (one input, one output)
 
+## Required Inputs for system configuration
+RO: 
+System capacity (i.e. daily water demand) – Decides the element diameter
+Feed water TDS – decides the type of the element to be used (BWRO, SWRO)
+Foulants in the feed water (i.e. organic foulants, bivalent ions, silica or any other colloidal matters) – decides type of the element (for ex. fouling resistance) and pretreatment
+Permeate quality and energy supply – decides recovery rate, high rejection elements, low pressure elements, etc.
+input definition inspired by ‘RO-NF-FilmTec-Manual-45-D01504-en’ from DuPont
+ 
 ## Get Stared
 
 ### Install 
