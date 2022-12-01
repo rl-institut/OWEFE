@@ -1,12 +1,14 @@
 # OWEFE - Example 3 : Photovoltaic Reverse Osmosis Sytstem
 
+The photovoltaic reverse osmosis system model is currently under development and not yet operative.
+
 ## What's here?
 
 ## Summary
 
-## Flowchart
+## iWEFEs topology
 
-![flowchart_agrivoltaics](https://github.com/rl-institut/OWEFE/blob/master/docs/assets/iWEFEs_topology_photovoltaic reverse osmosis.png)
+![iWEFEs topology](https://github.com/rl-institut/OWEFE/blob/master/docs/assets/iWEFEs_topology_PV_RO.png)
 
 ## Elements
 
@@ -35,7 +37,7 @@ OWEFE is always open for modeling further technologies and functionalities. So i
 ## Contributors
 
 * [Julian Fleischmann](julian.fleischmann@rl-institute.de)
-* [Vinay Hegde](vinay.narayan.hegde@ise.fraunhofer.de) 
+* [Vinay Narayan Hegde](vinay.narayan.hegde@ise.fraunhofer.de) 
 
 ## License
 
