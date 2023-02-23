@@ -5,7 +5,9 @@ The integrated approach to managing the fundamental resources for human life, na
 
 Please cite our publication when using OWEFE:
 
-Fleischmann, J., Blechinger, P., Ribbe, L., Nauditt, A., El Achkar, J.H., Tiwari, K., Kuleape, R., Platzer, W., 2023. OWEFE - open modeling framework for integrated water, energy, food, and environment systems. Environmental Research: Infrastructure & Sustainability. https://doi.org/ 10.1088/2634-4505/acbcee
+Fleischmann, J., Blechinger, P., Ribbe, L., Nauditt, A., El Achkar, J.H., Tiwari, K., Kuleape, R., Platzer, W., 2023. OWEFE - open modeling framework for integrated water, energy, food, and environment systems. Environmental Research: Infrastructure & Sustainability. [http://dx.doi.org/10.1088/2634-4505/acbcee](http://dx.doi.org/10.1088/2634-4505/acbcee)
+
+
 
 ___
 ## Installation
