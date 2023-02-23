@@ -3,6 +3,10 @@
 ## Scientific Abstract
 The integrated approach to managing the fundamental resources for human life, namely, water, energy, food, and the environment as their irreplaceable foundation, presents a profound opportunity for sustainable development. However, despite their huge potential, integrated water, energy, food, and environment systems (iWEFEs) are rarely put into practice because of, among others, complexity and a lack of uniform and openly available models to describe, configure and simulate such systems. To fill this gap, we present the open modeling framework for integrated water, energy, food, and environment systems (OWEFE) based on the open energy modeling framework (OEMOF). OWEFE follows an open, cross-sectoral, and modular design approach to address crucial challenges for the project development of iWEFEs.  The wide application of the framework can improve the assessment, planning, and configuration of iWEFEs for sustainable and integrated infrastructure development.
 
+Please cite our publication when using OWEFE:
+
+Fleischmann, J., Blechinger, P., Ribbe, L., Nauditt, A., El Achkar, J.H., Tiwari, K., Kuleape, R., Platzer, W., 2023. OWEFE - open modeling framework for integrated water, energy, food, and environment systems. Environmental Research: Infrastructure & Sustainability. https://doi.org/ 10.1088/2634-4505/acbcee
+
 ___
 ## Installation
 
